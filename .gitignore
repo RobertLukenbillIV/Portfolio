@@ -1,0 +1,29 @@
+# Node / PNPM
+node_modules/
+.pnpm-store/
+
+# Builds
+dist/
+build/
+coverage/
+
+# Env
+.env
+.env.*.local
+apps/*/.env
+apps/*/.env.*
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Prisma
+apps/backend/prisma/*.db
+apps/backend/prisma/migrations/*/steps.json
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
