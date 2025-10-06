@@ -10,7 +10,15 @@ import { findByEmail, findById } from '../repositories/user.repo.js'
    const ok = await compare(password, user.password)
    if(!ok) return res.status(401).json({message:'Invalid credentials'})
    const token = sign({ id:user.id, email:user.email, role:user.role })
-   res.cookie('token', token, { httpOnly:true, secure: process.env.NODE_ENV==='production', sameSite:'lax', maxAge: 7*24*3600*1000 })
+   // wherever you set the cookie on login:
+const isProd = process.env.NODE_ENV === 'production'
+res.cookie('token', token, {
+  httpOnly: true,
+  secure: isProd,           // required for SameSite=None
+  sameSite: isProd ? 'none' : 'lax',
+  maxAge: 7 * 24 * 3600 * 1000,
+})
+
    return res.json({message:'ok'})
  }
 
