@@ -16,6 +16,7 @@
     "react-router-dom": "^6.26.1"
   },
   "devDependencies": {
+    "@tailwindcss/typography": "^0.5.19",
     "@types/node": "^20.19.19",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
