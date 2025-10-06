@@ -1,7 +1,10 @@
 import { Router } from 'express'
-import * as ctrl from '../controllers/auth.controller'
-const r = Router()
-r.post('/login', ctrl.login)
-r.get('/me', ctrl.me)
-r.post('/logout', ctrl.logout)
-export default r
+import { login, logout, me } from '../controllers/auth.controller'
+import { requireAuth } from '../middleware/auth'
+
+const router = Router()
+router.post('/login', login)
+router.post('/logout', logout)
+router.get('/me', requireAuth, me)
+
+export default router

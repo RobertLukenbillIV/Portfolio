@@ -1,15 +1,17 @@
+// apps/frontend/src/lib/api.ts
 import axios from 'axios'
 
-const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api'
+export const baseURL =
+  import.meta.env.VITE_API_URL || 'http://localhost:4000/api'
 
 export const api = axios.create({
   baseURL,
-  withCredentials: true,
-  timeout: 8000, // avoid infinite hangs
+  withCredentials: true, // <-- required so auth cookie is sent/received
+  timeout: 10000,
 })
 
-// Expose for quick debugging in DevTools console:
-// Type: window.__API_BASE__ or window.__api.defaults.baseURL
-// (This avoids using import.meta in the console.)
-;(window as any).__API_BASE__ = baseURL
-;(window as any).__api = api
+// Expose for quick checks in the browser console
+if (typeof window !== 'undefined') {
+  ;(window as any).__API_BASE__ = baseURL
+  ;(window as any).__api = api
+}
