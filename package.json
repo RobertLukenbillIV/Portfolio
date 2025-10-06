@@ -6,11 +6,15 @@
     "apps/*",
     "packages/*"
   ],
+  "devDependencies": {
+    "husky": "^9.0.0",
+    "is-ci": "^3.0.1"
+  },
   "scripts": {
     "dev": "pnpm -r dev",
     "build": "pnpm -r build",
     "lint": "pnpm -r lint || echo 'no lint'",
     "test": "pnpm -r test || echo 'no tests'",
-    "prepare": "husky"
+    "prepare": "is-ci || husky install"
   }
 }
