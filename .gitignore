@@ -2,10 +2,12 @@
 node_modules/
 .pnpm-store/
 
+
 # Builds
-dist/
-build/
+**/dist/
+**/build/
 coverage/
+
 
 # Env
 .env
@@ -13,15 +15,18 @@ coverage/
 apps/*/.env
 apps/*/.env.*
 
+
 # IDE / OS
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
 
-# Prisma
+
+# Prisma artifacts
 apps/backend/prisma/*.db
 apps/backend/prisma/migrations/*/steps.json
+
 
 # Logs
 *.log
