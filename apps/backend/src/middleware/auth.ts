@@ -15,3 +15,8 @@ export function requireAuth(req: AuthRequest, res: Response, next: NextFunction)
     res.sendStatus(401)
   }
 }
+
+export function requireAdmin(req: AuthRequest, res: Response, next: NextFunction) {
+  if (!req.user || req.user.role !== 'ADMIN') return res.sendStatus(403)
+  next()
+}

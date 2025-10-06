@@ -1,9 +1,33 @@
-@tailwind base; @tailwind components; @tailwind utilities;
-:root{ --bg: #f8f8f6; --ink: #1f2937; }
-body{ @apply bg-[var(--bg)] text-[var(--ink)] antialiased; }
-.input{ @apply rounded-xl border border-eucalyptus/50 px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-fern/50; }
-.btn{ @apply rounded-2xl px-4 py-2 shadow hover:opacity-90 transition; }
-.btn-primary{ @apply bg-fern text-white; }
-.card{ @apply rounded-2xl shadow p-4 bg-white; }
-.nav{ @apply sticky top-0 z-50 bg-eucalyptus/20 backdrop-blur; }
-.link{ @apply hover:text-fern; }
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+:root {
+  --bg: #f8f8f6;
+  --ink: #1f2937;
+}
+html, body, #root {
+  height: 100%;
+}
+body {
+  @apply bg-[var(--bg)] text-[var(--ink)] antialiased;
+  @apply bg-fern text-sage;
+}
+.input {
+  @apply rounded-xl border border-eucalyptus/50 px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-fern/50;
+}
+.btn {
+  @apply rounded-2xl px-4 py-2 shadow hover:opacity-90 transition;
+}
+.btn-primary {
+  @apply bg-fern text-white;
+}
+.card {
+  @apply rounded-2xl shadow p-4 bg-white;
+}
+.nav {
+  @apply sticky top-0 z-50 bg-eucalyptus/20 backdrop-blur;
+}
+.link {
+  @apply hover:text-fern;
+}
+.prose-invert a { @apply text-mocha underline; }

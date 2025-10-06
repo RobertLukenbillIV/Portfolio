@@ -3,11 +3,11 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")         // pooled (runtime)
-  directUrl = env("DIRECT_DATABASE_URL")  // direct (migrations)
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
+// --- EXISTING ---
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
@@ -16,10 +16,6 @@ model User {
   role      Role     @default(ADMIN)
   createdAt DateTime @default(now())
   posts     Post[]
-}
-
-enum Role {
-  ADMIN
 }
 
 model Post {
@@ -34,6 +30,9 @@ model Post {
   published Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // NEW
+  featured Boolean @default(false) // pick up to 3 for Home
 }
 
 model Image {
@@ -41,4 +40,28 @@ model Image {
   url    String
   postId String
   post   Post   @relation(fields: [postId], references: [id])
+}
+
+// NEW: editable single pages (About, Links)
+model Page {
+  id        String   @id @default(uuid())
+  slug      String   @unique // 'about', 'links'
+  title     String
+  content   String // HTML/Markdown from your editor
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+// NEW: home hero + intro
+model Settings {
+  id          Int      @id @default(1)
+  homeHeroUrl String?
+  homeIntro   String?
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+}
+
+enum Role {
+  ADMIN
+  USER
 }

@@ -1,7 +1,6 @@
 /// <reference types="node" />
 import 'dotenv/config'
 import { PrismaClient, Role } from '@prisma/client'
-// @ts-expect-error
 import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
@@ -55,6 +54,19 @@ async function main() {
   }
 }
 
+await prisma.settings.upsert({
+  where: { id: 1 },
+  update: {},
+  create: { id: 1, homeHeroUrl: null, homeIntro: 'Welcome to my portfolio.' },
+})
+
+for (const slug of ['about', 'links']) {
+  await prisma.page.upsert({
+    where: { slug },
+    update: {},
+    create: { slug, title: slug[0].toUpperCase() + slug.slice(1), content: '' },
+  })
+}
 main()
   .catch((e) => { console.error(e); process.exit(1) })
   .finally(() => prisma.$disconnect())

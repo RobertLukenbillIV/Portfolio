@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { api } from '../lib/api'
+import { api } from '@/lib/api'
 import { Link } from 'react-router-dom'
 
 type Settings = { homeHeroUrl?: string | null; homeIntro?: string | null }
@@ -18,7 +18,11 @@ export default function Home() {
     <div className="mx-auto max-w-6xl px-4 py-8">
       {settings?.homeHeroUrl && (
         <div className="w-full flex justify-center mb-6">
-          <img src={settings.homeHeroUrl} alt="Hero" className="rounded-2xl shadow-lg max-h-[380px] object-cover" />
+          <img
+            src={settings.homeHeroUrl}
+            alt="Hero"
+            className="rounded-2xl shadow-lg max-h-[380px] object-cover"
+          />
         </div>
       )}
 
@@ -31,14 +35,22 @@ export default function Home() {
       <h2 className="text-mocha text-2xl font-semibold mb-4 text-center">Highlighted Projects</h2>
       <div className="grid md:grid-cols-3 gap-6">
         {featured.map(p => (
-          <Link key={p.id} to={`/projects/${p.id}`} className="bg-darkTan/40 hover:bg-darkTan/60 rounded-2xl p-4 border border-eucalyptus/30">
-            {p.coverUrl && <img src={p.coverUrl} className="rounded-xl mb-3 h-40 w-full object-cover" />}
+          <Link
+            key={p.id}
+            to={`/projects/${p.id}`}
+            className="bg-darkTan/40 hover:bg-darkTan/60 rounded-2xl p-4 border border-eucalyptus/30"
+          >
+            {p.coverUrl && (
+              <img src={p.coverUrl} className="rounded-xl mb-3 h-40 w-full object-cover" />
+            )}
             <h3 className="text-mocha font-medium mb-2">{p.title}</h3>
             <p className="text-sage/90 text-sm">{p.excerpt}</p>
           </Link>
         ))}
         {featured.length === 0 && (
-          <p className="text-center text-sage/70 col-span-full">No featured projects yet. Mark up to three posts as “Featured” in Admin.</p>
+          <p className="text-center text-sage/70 col-span-full">
+            No featured projects yet. Mark up to three posts as “Featured” in Admin.
+          </p>
         )}
       </div>
     </div>

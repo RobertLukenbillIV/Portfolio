@@ -1,0 +1,16 @@
+import { useMemo } from 'react'
+import ReactQuill from 'react-quill'
+import 'react-quill/dist/quill.snow.css'
+
+export function RichTextEditor({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const modules = useMemo(() => ({
+    toolbar: [
+      [{ header: [1, 2, 3, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ list: 'ordered' }, { list: 'bullet' }],
+      ['link', 'image', 'code-block'],
+      ['clean'],
+    ],
+  }), [])
+  return <ReactQuill theme="snow" value={value} onChange={onChange} modules={modules} />
+}
