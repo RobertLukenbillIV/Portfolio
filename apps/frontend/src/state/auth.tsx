@@ -21,10 +21,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    api.get('/auth/me')
-      .then(r => setUser(r.data.user ?? null))
-      .catch(() => setUser(null))
-      .finally(() => setLoading(false))
+    let canceled = false
+    const controller = new AbortController()
+    const timer = setTimeout(() => {
+      controller.abort()
+      if (!canceled) {
+        setUser(null)
+        setLoading(false)
+      }
+    }, 5000) // 5 second timeout
+
+    api.get('/auth/me', { signal: controller.signal })
+      .then(r => {
+        if (!canceled) {
+          setUser(r.data.user ?? r.data ?? null)
+        }
+      })
+      .catch((err) => {
+        if (!canceled) {
+          console.warn('Auth check failed:', err.message)
+          setUser(null)
+        }
+      })
+      .finally(() => {
+        if (!canceled) {
+          setLoading(false)
+          clearTimeout(timer)
+        }
+      })
+
+    return () => {
+      canceled = true
+      controller.abort()
+      clearTimeout(timer)
+    }
   }, [])
 
   return <Ctx.Provider value={{ user, setUser, loading }}>{children}</Ctx.Provider>
