@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
  import { api } from '../lib/api'
  import ProjectCard from '../components/ProjectCard'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '@/state/auth'
 import { useNavigate } from 'react-router-dom'
 
  export default function Projects(){

@@ -1,4 +1,4 @@
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '@/state/auth'
 
 export default function Protected({children}:{children:React.ReactNode}){
   const { user, loading } = useAuth()

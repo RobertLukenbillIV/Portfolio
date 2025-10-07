@@ -12,9 +12,17 @@ type AuthCtx = {
   user: User | null
   setUser: (u: User | null) => void
   loading: boolean
+  login: (email: string, password: string) => Promise<void>
+  logout: () => Promise<void>
 }
 
-const Ctx = createContext<AuthCtx>({ user: null, setUser: () => {}, loading: true })
+const Ctx = createContext<AuthCtx>({ 
+  user: null, 
+  setUser: () => {}, 
+  loading: true, 
+  login: async () => {}, 
+  logout: async () => {} 
+})
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
@@ -57,7 +65,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  return <Ctx.Provider value={{ user, setUser, loading }}>{children}</Ctx.Provider>
+  const login = async (email: string, password: string) => {
+    await api.post('/auth/login', { email, password })
+    const me = await api.get('/auth/me')
+    setUser(me.data.user ?? me.data ?? null)
+  }
+
+  const logout = async () => {
+    await api.post('/auth/logout')
+    setUser(null)
+  }
+
+  return <Ctx.Provider value={{ user, setUser, loading, login, logout }}>{children}</Ctx.Provider>
 }
 
 export function useAuth() {

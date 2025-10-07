@@ -3,13 +3,12 @@ import { useAuth } from '@/state/auth'
 import { api } from '@/lib/api'
 
 export default function Navbar() {
-  const { user, setUser } = useAuth()
+  const { user, logout } = useAuth()
   const navigate = useNavigate()
 
   async function handleLogout() {
     if (!confirm('Are you sure you want to log out?')) return
-    await api.post('/auth/logout')
-    setUser(null)
+    await logout()
     navigate('/')
   }
 

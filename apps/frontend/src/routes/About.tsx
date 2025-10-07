@@ -1,4 +1,4 @@
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '@/state/auth'
 import { useNavigate } from 'react-router-dom'
 export default function About(){
   const { user } = useAuth()

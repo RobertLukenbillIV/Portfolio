@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '@/state/auth'
 
 export default function Login() {
   const nav = useNavigate()
@@ -25,47 +25,49 @@ export default function Login() {
   }
 
   return (
-    <form onSubmit={submit} className="card max-w-md mx-auto mt-10 space-y-4">
-      <h1 className="text-2xl font-bold">Admin Login</h1>
+    <div className="min-h-screen bg-dark flex items-center justify-center p-4">
+      <form onSubmit={submit} className="bg-brandNavy border border-brandSteel/30 rounded-lg p-6 max-w-md w-full space-y-4">
+        <h1 className="text-2xl font-bold text-brandFoam">Admin Login</h1>
 
-      {err && (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-red-700">
-          {err}
-        </div>
-      )}
+        {err && (
+          <div className="rounded border border-red-500 bg-red-900/20 px-3 py-2 text-red-300">
+            {err}
+          </div>
+        )}
 
-      <label className="block">
-        <span className="block text-sm font-medium mb-1">Email</span>
-        <input
-          className="input w-full"
-          placeholder="you@example.com"
-          autoComplete="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-      </label>
+        <label className="block">
+          <span className="block text-sm font-medium mb-1 text-brandFoam">Email</span>
+          <input
+            className="w-full px-3 py-2 rounded border border-brandSteel/50 bg-brandNavy text-brandFoam placeholder-brandSteel focus:border-brandMint focus:outline-none"
+            placeholder="you@example.com"
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </label>
 
-      <label className="block">
-        <span className="block text-sm font-medium mb-1">Password</span>
-        <input
-          className="input w-full"
-          type="password"
-          placeholder="••••••••"
-          autoComplete="current-password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-      </label>
+        <label className="block">
+          <span className="block text-sm font-medium mb-1 text-brandFoam">Password</span>
+          <input
+            className="w-full px-3 py-2 rounded border border-brandSteel/50 bg-brandNavy text-brandFoam placeholder-brandSteel focus:border-brandMint focus:outline-none"
+            type="password"
+            placeholder="••••••••"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </label>
 
-      <button
-        className="btn btn-primary w-full disabled:opacity-60"
-        type="submit"
-        disabled={loading}
-      >
-        {loading ? 'Signing in…' : 'Sign in'}
-      </button>
-    </form>
+        <button
+          className="w-full px-4 py-2 bg-brandMint text-dark font-medium rounded hover:opacity-90 disabled:opacity-60"
+          type="submit"
+          disabled={loading}
+        >
+          {loading ? 'Signing in…' : 'Sign in'}
+        </button>
+      </form>
+    </div>
   )
 }
