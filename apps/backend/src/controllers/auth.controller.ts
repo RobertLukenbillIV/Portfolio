@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
-import { login as svcLogin, getUserFromToken } from '../services/auth.service'
+import { login as svcLogin } from '../services/auth.service'
 import { COOKIE_NAME, cookieOptions } from '../utils/cookie'
+import type { AuthRequest } from '../middleware/auth'
 
 export async function login(req: Request, res: Response) {
   const { email, password } = req.body as { email: string; password: string }
@@ -11,12 +12,9 @@ export async function login(req: Request, res: Response) {
   res.json({ user })
 }
 
-export async function me(req: Request, res: Response) {
-  const token = req.cookies?.[COOKIE_NAME]
-  if (!token) return res.sendStatus(401)
-  const user = await getUserFromToken(token)
-  if (!user) return res.sendStatus(401)
-  res.json({ user })
+export async function me(req: AuthRequest, res: Response) {
+  if (!req.user) return res.sendStatus(401)
+  res.json(req.user)
 }
 
 export function logout(req: Request, res: Response) {
