@@ -1,7 +1,12 @@
+// Homepage component - displays hero image, intro text, and featured projects
+// Fetches customizable content from backend settings and featured posts
+// Connected to: backend /settings and /posts/featured endpoints, Projects page via links
+
 import { useEffect, useState } from 'react'
 import { api } from '@/lib/api'
 import { Link } from 'react-router-dom'
 
+// Type definitions for homepage content structure
 type Settings = { homeHeroUrl?: string | null; homeIntro?: string | null }
 type PostCard = { id: string; title: string; excerpt: string; coverUrl?: string | null }
 

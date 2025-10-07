@@ -1,36 +1,59 @@
+// Main Express application configuration and setup
+// This file orchestrates the entire backend application including middleware,
+// CORS configuration, route mounting, and error handling
+
 import express from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import helmet from 'helmet'
-import pagesRoutes from './routes/pages.routes'
-import settingsRoutes from './routes/settings.routes'
-import postsRoutes from './routes/posts.routes'
-import { attachUser } from './middleware/auth'
-import 'dotenv/config'
+// Route imports - each handles a specific domain of functionality
+import pagesRoutes from './routes/pages.routes'     // Handles dynamic pages (About, Links)
+import settingsRoutes from './routes/settings.routes' // Handles site-wide settings
+import postsRoutes from './routes/posts.routes'     // Handles blog posts/projects
+import { attachUser } from './middleware/auth'      // Middleware to attach user to requests
+import 'dotenv/config'                              // Load environment variables
 
 const app = express()
 const isProd = process.env.NODE_ENV === 'production'
 
-app.set('trust proxy', 1) // required for secure cookies on Render
+// Configure Express to trust proxies (required for Render deployment)
+// This ensures correct client IP detection and secure cookie handling
+app.set('trust proxy', 1)
+
+// Security middleware - adds various HTTP headers for security
 app.use(helmet())
+
+// Parse cookies from request headers - needed for JWT authentication
 app.use(cookieParser())
+// Parse CORS origins from environment variables
+// Supports both CORS_ORIGINS and CORS_ORIGIN for flexibility
 const csv = process.env.CORS_ORIGINS || process.env.CORS_ORIGIN || ''
 const allowlist = csv.split(',').map(s => s.trim()).filter(Boolean)
 
-// Add default development origins if no environment variable is set
+// Default allowed origins for development and current production deployment
+// These are hardcoded fallbacks when environment variables are not set
 const defaultOrigins = [
-  'http://localhost:3000',
-  'http://localhost:5173',
-  'https://portfolio-frontend-eight-sooty.vercel.app'
+  'http://localhost:3000',      // Common React development port
+  'http://localhost:5173',      // Vite development server default port
+  'https://portfolio-frontend-eight-sooty.vercel.app' // Current Vercel deployment
 ]
 
+// CORS (Cross-Origin Resource Sharing) configuration
+// This is critical for allowing the frontend (on Vercel) to communicate with backend (on Render)
 const corsOptions: cors.CorsOptions = {
   origin(origin, cb) {
-    // allow server-to-server/no-origin (curl/health checks)
+    // Allow server-to-server requests (no origin header) - needed for health checks
     if (!origin) return cb(null, true)
     
     try {
       const host = new URL(origin).hostname
+      
+      // Multi-layered origin validation:
+      // 1. Explicit allowlist from environment variables
+      // 2. Hardcoded default origins (development + current production)
+      // 3. All Vercel preview deployments (*.vercel.app)
+      // 4. Localhost (any port) for development
+      // 5. Local network IPs for development (127.0.0.1, 192.168.x.x)
       const allowed = 
         allowlist.includes(origin) ||
         defaultOrigins.includes(origin) ||
@@ -38,6 +61,7 @@ const corsOptions: cors.CorsOptions = {
         (host === 'localhost') ||
         (!isProd && (host === '127.0.0.1' || host.startsWith('192.168.')))
       
+      // Log CORS decisions for debugging production issues
       console.log(`CORS check: ${origin} -> ${allowed ? 'ALLOWED' : 'BLOCKED'}`)
       
       return allowed ? cb(null, true) : cb(new Error(`CORS blocked: ${origin}`))
@@ -46,14 +70,18 @@ const corsOptions: cors.CorsOptions = {
       return cb(new Error(`Bad Origin: ${origin}`))
     }
   },
-  credentials: true,
+  credentials: true, // Allow cookies and authorization headers
   methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }
+// Apply CORS configuration - MUST come before routes
 app.use(cors(corsOptions))
+
+// Parse JSON request bodies (with 5MB limit for image uploads)
 app.use(express.json())
 
-// Add error handling middleware for CORS issues
+// Global error handler for CORS violations
+// Provides better debugging info when CORS issues occur
 app.use((err: any, req: any, res: any, next: any) => {
   if (err && err.message && err.message.includes('CORS')) {
     console.error('CORS Error:', err.message, 'Origin:', req.headers.origin)
@@ -62,24 +90,29 @@ app.use((err: any, req: any, res: any, next: any) => {
   next(err)
 })
 
+// Attach user information to all requests (if JWT cookie present)
+// This middleware runs before all routes and populates req.user
 app.use(attachUser)
-// mount routes
-import authRoutes from './routes/auth.routes'
-app.use('/api/auth', authRoutes)
-app.use('/api/pages', pagesRoutes)
-app.use('/api/settings', settingsRoutes)
-app.use('/api/posts', postsRoutes)
 
+// Mount API routes - order matters for middleware application
+import authRoutes from './routes/auth.routes'      // Authentication (login/logout/me)
+app.use('/api/auth', authRoutes)
+app.use('/api/pages', pagesRoutes)                 // Dynamic pages (about/links)
+app.use('/api/settings', settingsRoutes)           // Site settings
+app.use('/api/posts', postsRoutes)                 // Blog posts/projects
+
+// Health check endpoint for monitoring and debugging
+// Returns server status and configuration info
 app.get('/api/health', (_req, res) => {
   res.json({ 
     ok: true, 
     timestamp: new Date().toISOString(),
-    env: process.env.NODE_ENV,
-    cors: !!process.env.CORS_ORIGINS
+    env: process.env.NODE_ENV,                    // Production vs development
+    cors: !!process.env.CORS_ORIGINS             // Whether CORS env vars are set
   })
 })
 
-// Add a simple ping endpoint
+// Simple connectivity test endpoint (useful for Render health checks)
 app.get('/ping', (_req, res) => res.send('pong'))
 
 export default app
