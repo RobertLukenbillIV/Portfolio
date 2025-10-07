@@ -11,9 +11,6 @@ import 'dotenv/config'
 const app = express()
 const isProd = process.env.NODE_ENV === 'production'
 
-app.use('/api/pages', pagesRoutes)
-app.use('/api/settings', settingsRoutes)
-app.use('/api/posts', postsRoutes)
 app.set('trust proxy', 1) // required for secure cookies on Render
 app.use(helmet())
 app.use(cookieParser())
@@ -28,6 +25,11 @@ const corsOptions: cors.CorsOptions = {
       const allowed =
         allowlist.includes(origin) ||
         host.endsWith('.vercel.app') // allow all vercel previews if you want
+      
+      if (!isProd) {
+        console.log(`CORS check: ${origin} -> ${allowed ? 'ALLOWED' : 'BLOCKED'}`)
+      }
+      
       return allowed ? cb(null, true) : cb(new Error(`CORS blocked: ${origin}`))
     } catch {
       return cb(new Error(`Bad Origin: ${origin}`))
@@ -43,6 +45,9 @@ app.use(attachUser)
 // mount routes
 import authRoutes from './routes/auth.routes'
 app.use('/api/auth', authRoutes)
+app.use('/api/pages', pagesRoutes)
+app.use('/api/settings', settingsRoutes)
+app.use('/api/posts', postsRoutes)
 
 app.get('/api/health', (_req, res) => res.json({ ok: true }))
 
