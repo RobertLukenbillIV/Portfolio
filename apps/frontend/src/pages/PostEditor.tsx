@@ -53,44 +53,42 @@ export default function PostEditor({ mode }: { mode: 'create' | 'edit' }) {
         {mode === 'create' ? 'Create Post' : 'Edit Post'}
       </h1>
 
-      <label className="block text-sage mb-1">Title</label>
+      <label className="block text-brandSteel mb-1">Title</label>
       <input
         value={title}
         onChange={e => setTitle(e.target.value)}
-        className="w-full mb-3 rounded-lg bg-fern/40 border border-eucalyptus/30 px-3 py-2 text-mocha"
+        className="w-full mb-3 rounded-lg bg-brandFoam/40 border border-brandSteel/30 px-3 py-2 text-mocha"
       />
 
-      <label className="block text-sage mb-1">Excerpt</label>
+      <label className="block text-brandSteel mb-1">Excerpt</label>
       <textarea
         value={excerpt}
         onChange={e => setExcerpt(e.target.value)}
         rows={3}
-        className="w-full mb-3 rounded-lg bg-fern/40 border border-eucalyptus/30 px-3 py-2 text-mocha"
+        className="w-full mb-3 rounded-lg bg-brandFoam/40 border border-brandSteel/30 px-3 py-2 text-mocha"
       />
 
-      <label className="block text-sage mb-1">Cover Image URL</label>
+      <label className="block text-brandSteel mb-1">Cover Image URL</label>
       <input
         value={coverUrl}
         onChange={e => setCoverUrl(e.target.value)}
-        className="w-full mb-4 rounded-lg bg-fern/40 border border-eucalyptus/30 px-3 py-2 text-mocha"
+        className="w-full mb-4 rounded-lg bg-brandFoam/40 border border-brandSteel/30 px-3 py-2 text-mocha"
       />
 
-      <label className="block text-sage mb-2">Content</label>
+      <label className="block text-brandSteel mb-2">Content</label>
       <RichTextEditor value={content} onChange={setContent} />
 
       <div className="mt-4 flex gap-2">
         <button
           disabled={saving}
           onClick={save}
-          className="px-4 py-2 rounded-lg bg-mocha text-dark hover:opacity-90"
+          className="btn-primary"
         >
           {saving ? 'Saving…' : 'Save'}
         </button>
         <button
           onClick={() => navigate(-1)}
-          className="px-4 py-2 rounded-lg bg-darkTan text-mocha hover:opacity-90"
-        >
-          Cancel
+          className="btn-muted">Cancel
         </button>
       </div>
     </div>

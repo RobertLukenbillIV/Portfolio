@@ -10,7 +10,7 @@ export function FeatureToggle({ postId, initial }: { postId: string; initial?: b
   return (
     <button
       onClick={toggle}
-      className={`px-3 py-1 rounded ${on ? 'bg-mocha text-dark' : 'bg-darkTan text-mocha'} hover:opacity-90`}
+      className={`px-3 py-1 rounded ${on ? 'bg-mocha text-dark' : 'bg-brandMint/20 text-mocha'} hover:opacity-90`}
     >
       {on ? 'Featured' : 'Make Featured'}
     </button>

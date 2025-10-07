@@ -15,7 +15,7 @@ export default function PostDetail() {
         <div className="mt-4">
           <button
             onClick={() => navigate(`/admin/posts/${id}/edit`)}
-            className="px-3 py-1 rounded bg-eucalyptus text-dark hover:opacity-90"
+            className="px-3 py-1 rounded bg-brandSteel text-dark hover:opacity-90"
           >
             Edit
           </button>
