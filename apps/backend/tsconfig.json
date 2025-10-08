@@ -10,7 +10,7 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
-    "types": ["node"]
+    "types": ["node", "jest"]
   },
   "include": ["src/**/*", "types/**/*.d.ts"],
   "exclude": ["prisma/**/*", "node_modules", "dist"]

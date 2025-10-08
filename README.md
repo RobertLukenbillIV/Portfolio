@@ -2,7 +2,7 @@
 
 A modern, responsive portfolio website built with React frontend and Node.js backend, featuring a content management system for projects and dynamic pages. Designed for developers to showcase their work with a professional, customizable interface.
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 This is a **pnpm monorepo** with separate frontend and backend applications:
 
@@ -10,7 +10,7 @@ This is a **pnpm monorepo** with separate frontend and backend applications:
 - **Backend**: Express.js API with MVC architecture, TypeScript, Prisma ORM, and PostgreSQL
 - **Authentication**: JWT-based with httpOnly cookies and role-based access control
 
-## 🚀 Technologies Used
+## Technologies Used
 
 ### Frontend Stack
 - **React 18** - Component-based UI library
@@ -31,13 +31,19 @@ This is a **pnpm monorepo** with separate frontend and backend applications:
 - **bcrypt** - Password hashing
 - **CORS** - Cross-origin resource sharing
 
+### Testing & Development Tools
+- **Jest** - JavaScript testing framework with TypeScript support
+- **Supertest** - HTTP assertion library for API testing
+- **ts-jest** - TypeScript preprocessor for Jest
+- **Coverage Reporting** - Built-in test coverage analysis
+
 ### Web Services & Deployment
 - **Frontend Hosting**: [Vercel](https://vercel.com/) - Automatic deployments from Git
 - **Backend Hosting**: [Render](https://render.com/) - Managed Node.js hosting
 - **Database**: [Neon DB](https://neon.tech/) - Serverless PostgreSQL
 - **Domain**: Custom domain with SSL/TLS certificates
 
-## 🎯 Key Features
+## Key Features
 
 ### For Visitors
 - **Dynamic Homepage** - Customizable hero image and introduction text
@@ -55,7 +61,7 @@ This is a **pnpm monorepo** with separate frontend and backend applications:
 - **Settings Management** - Update site-wide settings (hero image, intro text)
 - **Authentication** - Secure login with role-based permissions
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 Portfolio/
@@ -133,7 +139,7 @@ Portfolio/
 
 > **Note**: This structure reflects a cleaned, production-ready codebase with duplicate JavaScript files removed and TypeScript as the single source of truth throughout the application.
 
-## 🛠️ Development Setup
+## Development Setup
 
 ### Prerequisites
 - **Node.js** (v18 or later)
@@ -192,7 +198,7 @@ Portfolio/
    - Backend API: http://localhost:4000/api
    - Admin Login: Use the credentials from step 5
 
-## 📜 Available Scripts
+## Available Scripts
 
 ### Workspace Level (run from repository root)
 ```bash
@@ -206,6 +212,9 @@ pnpm -r test         # Run tests for all packages
 pnpm dev             # Start backend development server (port 4000)
 pnpm build           # Build TypeScript to JavaScript
 pnpm start           # Start production server
+pnpm test            # Run all tests
+pnpm test:watch      # Run tests in watch mode
+pnpm test:coverage   # Run tests with coverage report
 pnpm seed            # Populate database with sample data
 pnpm make-admin      # Create admin user: pnpm make-admin <email> <password> [name]
 pnpm migrate:deploy  # Apply database migrations
@@ -219,7 +228,7 @@ pnpm build           # Build for production (outputs to dist/)
 pnpm preview         # Preview production build locally
 ```
 
-## 🔐 Authentication System
+## Authentication System
 
 ### JWT Cookie Authentication
 - **Secure httpOnly cookies** prevent XSS attacks
@@ -241,7 +250,7 @@ pnpm preview         # Preview production build locally
 - User management capabilities
 - Protected admin-only routes
 
-## 🗄️ Database Schema
+## Database Schema
 
 ### Core Models
 - **User** - Authentication and user management
@@ -256,7 +265,7 @@ pnpm preview         # Preview production build locally
 - Settings store global site configuration
 - Pages contain editable content for static routes
 
-## 🚀 Deployment Guide
+## Deployment Guide
 
 ### Frontend (Vercel)
 1. Connect GitHub repository to Vercel
@@ -282,23 +291,67 @@ pnpm preview         # Preview production build locally
 3. Run migrations: `pnpm migrate:deploy`
 4. Create admin user: `pnpm make-admin`
 
-## 🧹 Code Quality & Architecture
+## Testing Framework
+
+### Comprehensive Unit Testing
+- **Jest Configuration** - Complete TypeScript integration with coverage reporting
+- **Mock Strategy** - External dependencies isolated (Prisma, bcryptjs, jsonwebtoken)
+- **Test Organization** - Clear describe/it structure with meaningful assertions
+- **53 Passing Tests** across utilities, services, and business logic
+
+### Test Coverage
+```bash
+# Backend Test Suites (53 tests total)
+├── Utility Tests (28 tests)
+│   ├── JWT Operations (9 tests) - Token creation, verification, expiration
+│   ├── Password Hashing (12 tests) - bcrypt integration, security validation  
+│   └── Cookie Security (7 tests) - Environment-based configuration, CORS settings
+├── Service Layer Tests (25 tests)
+│   ├── Authentication Service (10 tests) - Login flow, token validation, error handling
+│   └── Post Service (15 tests) - CRUD operations, repository integration
+```
+
+### Running Tests
+```bash
+# All tests
+pnpm test
+
+# Watch mode for development
+pnpm test:watch
+
+# Coverage report
+pnpm test:coverage
+
+# Specific test suites
+pnpm test src/utils/__tests__/
+pnpm test src/services/__tests__/
+```
+
+### Test Infrastructure
+- **Prisma Mocking** - Database operations isolated for pure unit testing
+- **Environment Setup** - Test-specific configuration with proper cleanup
+- **Error Scenarios** - Comprehensive edge cases and failure condition testing
+- **Type Safety** - Full TypeScript integration in test files
+
+## Code Quality & Architecture
 
 ### Clean Codebase
 - **TypeScript Only** - All duplicate JavaScript files removed for consistency
 - **Single Source of Truth** - Eliminated duplicate route and context files
 - **Comprehensive Documentation** - Every file includes detailed comments explaining functionality and connections
 - **Proper Separation of Concerns** - Clear MVC architecture with distinct layers
+- **Test-Driven Quality** - Unit tests ensure reliability and prevent regressions
 
 ### Recent Improvements
-- ✅ **Removed 25+ unnecessary files** including duplicate JS/TS versions
-- ✅ **Fixed missing project detail pages** - Individual project viewing now fully functional
-- ✅ **Enhanced backend API** - Added proper endpoints for individual post access
-- ✅ **Streamlined project structure** - Removed empty files and redundant type definitions
-- ✅ **Improved error handling** - Better loading states and error messages
-- ✅ **Complete routing** - All navigation links now properly functional
+- **Removed 25+ unnecessary files** including duplicate JS/TS versions
+- **Fixed missing project detail pages** - Individual project viewing now fully functional
+- **Enhanced backend API** - Added proper endpoints for individual post access
+- **Streamlined project structure** - Removed empty files and redundant type definitions
+- **Improved error handling** - Better loading states and error messages
+- **Complete routing** - All navigation links now properly functional
+- **Professional Testing Framework** - Comprehensive unit testing with Jest and TypeScript
 
-## 🎨 Customization
+## Customization
 
 ### Styling
 - **Tailwind CSS** with custom color palette
@@ -312,7 +365,7 @@ pnpm preview         # Preview production build locally
 - **Dynamic pages** editable through admin interface
 - **SEO-friendly** URLs and meta tags
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature-name`
@@ -321,7 +374,7 @@ pnpm preview         # Preview production build locally
 5. Test your changes locally
 6. Submit a pull request with detailed description
 
-## 📞 Support
+## Support
 
 For questions or issues:
 1. Check the existing GitHub issues
@@ -329,6 +382,6 @@ For questions or issues:
 3. Include relevant error messages and logs
 4. Mention your environment details (Node.js version, OS, etc.)
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
