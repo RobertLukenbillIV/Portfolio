@@ -59,7 +59,7 @@ export default function PostEditor({ mode }: { mode: 'create' | 'edit' }) {
         value={title}
         onChange={e => setTitle(e.target.value)}
         rows={2}
-        className="w-full mb-3 rounded-lg bg-brandFoam/40 border border-brandSteel/30 px-3 py-2 text-mocha resize-y"
+        className="w-full mb-3 rounded-lg bg-white/90 border border-brandSteel/50 px-3 py-2 text-gray-900 resize-y focus:ring-2 focus:ring-brandGreen/50 focus:border-brandGreen"
         placeholder="Enter post title..."
       />
 
@@ -68,7 +68,7 @@ export default function PostEditor({ mode }: { mode: 'create' | 'edit' }) {
         value={excerpt}
         onChange={e => setExcerpt(e.target.value)}
         rows={5}
-        className="w-full mb-3 rounded-lg bg-brandFoam/40 border border-brandSteel/30 px-3 py-2 text-mocha resize-y"
+        className="w-full mb-3 rounded-lg bg-white/90 border border-brandSteel/50 px-3 py-2 text-gray-900 resize-y focus:ring-2 focus:ring-brandGreen/50 focus:border-brandGreen"
         placeholder="Brief description of the post..."
       />
 

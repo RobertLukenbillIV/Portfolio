@@ -44,7 +44,7 @@ export default function AdminDashboard() {
           value={intro} 
           onChange={e=>setIntro(e.target.value)} 
           rows={6} 
-          className="w-full rounded-lg bg-brandFoam/40 border border-brandSteel/30 px-3 py-2 text-mocha mb-3 resize-y"
+          className="w-full rounded-lg bg-white/90 border border-brandSteel/50 px-3 py-2 text-gray-900 mb-3 resize-y focus:ring-2 focus:ring-brandGreen/50 focus:border-brandGreen"
           placeholder="Welcome message for your homepage..."
         />
         <button disabled={saving} onClick={save} className="px-4 py-2 rounded-lg bg-brandGreen text-white hover:opacity-90">
@@ -53,9 +53,9 @@ export default function AdminDashboard() {
       </section>
 
       <section className="grid md:grid-cols-2 gap-4">
-        <Link to="/projects/new" className="rounded-xl bg-brandSteel text-dark px-4 py-3 text-center hover:opacity-90">Create New Post</Link>
-        <Link to="/admin/edit-about" className="rounded-xl bg-brandSteel text-dark px-4 py-3 text-center hover:opacity-90">Edit About Me</Link>
-        <Link to="/admin/edit-links" className="rounded-xl bg-brandSteel text-dark px-4 py-3 text-center hover:opacity-90">Edit Links</Link>
+        <Link to="/projects/new" className="rounded-xl bg-brandGreen text-white px-4 py-3 text-center hover:opacity-90">Create New Post</Link>
+        <Link to="/admin/edit-about" className="rounded-xl bg-brandGreen text-white px-4 py-3 text-center hover:opacity-90">Edit About Me</Link>
+        <Link to="/admin/edit-links" className="rounded-xl bg-brandGreen text-white px-4 py-3 text-center hover:opacity-90">Edit Links</Link>
       </section>
     </div>
   )

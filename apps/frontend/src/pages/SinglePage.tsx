@@ -74,7 +74,7 @@ export default function SinglePage({ slug, titleOverride }: { slug: 'about' | 'l
               setPage({ title: titleOverride ?? slug, content: '' })
               setEditing(true)
             }}
-            className="mt-4 px-4 py-2 bg-mocha text-dark rounded hover:opacity-90"
+            className="mt-4 px-4 py-2 bg-brandGreen text-white rounded hover:opacity-90"
           >
             Create Page
           </button>
@@ -90,11 +90,11 @@ export default function SinglePage({ slug, titleOverride }: { slug: 'about' | 'l
         {user?.role === 'ADMIN' && (
           <div className="flex gap-2">
             {!editing ? (
-              <button onClick={() => setEditing(true)} className="px-3 py-1 rounded bg-brandSteel text-dark hover:opacity-90">Edit</button>
+              <button onClick={() => setEditing(true)} className="px-3 py-1 rounded bg-brandGreen text-white hover:opacity-90">Edit</button>
             ) : (
               <>
-                <button disabled={saving} onClick={save} className="px-3 py-1 rounded bg-mocha text-dark hover:opacity-90">{saving ? 'Saving…' : 'Save'}</button>
-                <button onClick={() => setEditing(false)} className="px-3 py-1 rounded bg-brandMint/20 text-mocha hover:opacity-90">Cancel</button>
+                <button disabled={saving} onClick={save} className="px-3 py-1 rounded bg-brandGreen text-white hover:opacity-90">{saving ? 'Saving…' : 'Save'}</button>
+                <button onClick={() => setEditing(false)} className="px-3 py-1 rounded bg-brandGreen/20 text-brandGreen hover:bg-brandGreen/30">Cancel</button>
               </>
             )}
           </div>
