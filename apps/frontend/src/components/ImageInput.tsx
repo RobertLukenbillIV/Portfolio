@@ -82,7 +82,7 @@ export default function ImageInput({
 
   return (
     <div className={`space-y-3 ${className}`}>
-      <label className="block text-brandSteel/90 mb-1 font-medium">
+      <label className="block text-brandText mb-1 font-medium">
         {label}
       </label>
 
@@ -94,7 +94,7 @@ export default function ImageInput({
           className={`px-3 py-1 text-sm rounded-md transition-colors ${
             mode === 'url'
               ? 'bg-brandGreen text-white'
-              : 'bg-brandFoam/30 text-brandSteel/70 hover:bg-brandFoam/50'
+              : 'bg-gray-400 text-gray-600 hover:bg-gray-500 hover:text-gray-200'
           }`}
         >
           URL
@@ -105,7 +105,7 @@ export default function ImageInput({
           className={`px-3 py-1 text-sm rounded-md transition-colors ${
             mode === 'upload'
               ? 'bg-brandGreen text-white'
-              : 'bg-brandFoam/30 text-brandSteel/70 hover:bg-brandFoam/50'
+              : 'bg-gray-400 text-gray-600 hover:bg-gray-500 hover:text-gray-200'
           }`}
         >
           Upload

@@ -43,7 +43,7 @@ export default function ImageManager({
             {showGalleryPanel ? 'Hide' : 'Browse'} uploaded images
           </button>
           {showGalleryPanel && (
-            <span className="text-xs text-brandSteel/50">
+            <span className="text-xs text-brandText">
               Click an image to select it
             </span>
           )}

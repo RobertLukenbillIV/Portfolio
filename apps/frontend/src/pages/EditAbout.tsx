@@ -107,7 +107,7 @@ export default function EditAbout() {
           </button>
           <button 
             onClick={cancel} 
-            className="px-4 py-2 rounded-lg bg-brandGreen/20 text-brandGreen hover:bg-brandGreen/30"
+            className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700"
           >
             Cancel
           </button>
@@ -115,7 +115,7 @@ export default function EditAbout() {
       </div>
 
       <div className="mb-4">
-        <label className="block text-brandSteel/90 mb-2">Page Title</label>
+        <label className="block text-brandText mb-2 font-medium">Page Title</label>
         <textarea
           value={page.title}
           onChange={(e) => setPage(p => ({ ...(p as any), title: e.target.value }))}
@@ -126,7 +126,7 @@ export default function EditAbout() {
       </div>
 
       <div>
-        <label className="block text-brandSteel/90 mb-2">Page Content</label>
+        <label className="block text-brandText mb-2 font-medium">Page Content</label>
         <RichTextEditor 
           value={page.content} 
           onChange={(v) => setPage(p => ({ ...(p as any), content: v }))} 

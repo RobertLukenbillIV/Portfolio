@@ -39,13 +39,13 @@ export default function AdminDashboard() {
             label="Hero Image (Main homepage banner image)"
             className=""
           />
-          <p className="text-xs text-brandSteel/70 mt-1">
+          <p className="text-xs text-brandText mt-1">
             This image appears at the top of your homepage. Upload an image or paste a URL.
           </p>
         </div>
 
         <div className="mb-4">
-          <label className="block text-brandSteel/90 mb-2 font-medium">
+          <label className="block text-brandText mb-2 font-medium">
             Homepage Introduction Text
           </label>
           <textarea 
@@ -55,7 +55,7 @@ export default function AdminDashboard() {
             className="w-full rounded-lg bg-white/90 border border-brandSteel/50 px-3 py-2 text-gray-900 mb-2 resize-y focus:ring-2 focus:ring-brandGreen/50 focus:border-brandGreen"
             placeholder="Write a welcoming message that appears below your hero image on the homepage..."
           />
-          <p className="text-xs text-brandSteel/70">
+          <p className="text-xs text-brandText">
             This text appears below the hero image on your homepage. Use it to introduce yourself or your work.
           </p>
         </div>

@@ -40,7 +40,7 @@ export default function Navbar() {
             // Authenticated user UI - shows greeting and logout option
             <>
               <span className="text-brandMint/90">
-                Hello, <span className="text-white font-medium">{user.name ?? user.email}</span>
+                Hello, <span className="text-white font-medium">{user.name || 'Admin'}</span>
               </span>
               <button onClick={handleLogout} className="btn-primary">Logout</button>
             </>
