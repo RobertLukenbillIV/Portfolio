@@ -296,6 +296,31 @@ pnpm preview         # Preview production build locally
 3. Run migrations: `pnpm migrate:deploy`
 4. Create admin user: `pnpm make-admin`
 
+### GitHub Actions Setup
+To enable the full CI/CD pipeline, configure these repository secrets in GitHub:
+
+**Required Secrets:**
+- `CODECOV_TOKEN` - For coverage reporting (optional but recommended)
+  - Sign up at [Codecov.io](https://codecov.io/)
+  - Connect your repository and copy the token
+  - Add as repository secret in GitHub Settings > Secrets and variables > Actions
+
+**Optional Secrets (for deployment automation):**
+- `RENDER_API_KEY` - For automated backend deployments 
+- `VERCEL_TOKEN` - For automated frontend deployments
+
+**GitHub Repository Settings:**
+1. **Branch Protection Rules** (Settings > Branches):
+   - Require status checks to pass before merging
+   - Require up-to-date branches before merging
+   - Include administrators in restrictions
+
+2. **Actions Permissions** (Settings > Actions > General):
+   - Allow GitHub Actions to create and approve pull requests
+   - Allow GitHub Actions to write to repository contents
+
+The CI/CD pipeline will run automatically on push and pull requests, even without secrets configured. Codecov integration is gracefully skipped if the token isn't available.
+
 ## Testing Framework
 
 ### Comprehensive Unit Testing

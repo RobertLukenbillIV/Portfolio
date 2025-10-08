@@ -55,14 +55,21 @@ jobs:
     
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
+      if: ${{ secrets.CODECOV_TOKEN != '' }}
       with:
         file: ./apps/backend/coverage/lcov.info
         flags: backend
         name: backend-coverage
-        fail_ci_if_error: true
+        fail_ci_if_error: false
         verbose: true
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    
+    - name: Coverage upload status
+      if: ${{ secrets.CODECOV_TOKEN == '' }}
+      run: |
+        echo "⚠️  Codecov token not configured - skipping upload"
+        echo "Coverage report still generated and available as artifact"
     
     - name: Archive coverage artifacts
       uses: actions/upload-artifact@v4

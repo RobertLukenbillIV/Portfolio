@@ -45,7 +45,7 @@ jobs:
         echo "### 🧪 Test Performance" >> $GITHUB_STEP_SUMMARY
         
         START_TIME=$(date +%s%N)
-        pnpm test --silent --maxWorkers=1
+        pnpm jest --silent --maxWorkers=1
         END_TIME=$(date +%s%N)
         
         DURATION=$(( (END_TIME - START_TIME) / 1000000 ))
