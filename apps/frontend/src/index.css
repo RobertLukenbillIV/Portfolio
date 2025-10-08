@@ -3,9 +3,9 @@
 @tailwind utilities;
 
 /* App chrome */
-:root { color-scheme: light; }
+:root { color-scheme: dark; }
 html, body, #root { height: 100%; }
-body { @apply bg-brandFoam text-brandNavy; }
+body { @apply bg-brandFoam text-brandText; }
 
 /* Reusable UI tokens */
 @layer components {

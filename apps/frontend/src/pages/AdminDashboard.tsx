@@ -27,10 +27,10 @@ export default function AdminDashboard() {
 
   return (
     <div className="mx-auto max-w-4xl p-6">
-      <h1 className="text-3xl text-mocha font-semibold mb-6">Admin</h1>
+      <h1 className="text-3xl text-brandText font-semibold mb-6">Admin</h1>
 
       <section className="rounded-2xl border border-brandSteel/30 bg-brandMint/20/40 p-4 mb-6">
-        <h2 className="text-mocha font-medium mb-3">Home Settings</h2>
+        <h2 className="text-brandText font-medium mb-3">Home Settings</h2>
         
         <ImageManager
           value={hero}
@@ -40,7 +40,13 @@ export default function AdminDashboard() {
         />
 
         <label className="block text-brandSteel/90 mb-1">Intro Text</label>
-        <textarea value={intro} onChange={e=>setIntro(e.target.value)} rows={4} className="w-full rounded-lg bg-brandFoam/40 border border-brandSteel/30 px-3 py-2 text-mocha mb-3"/>
+        <textarea 
+          value={intro} 
+          onChange={e=>setIntro(e.target.value)} 
+          rows={6} 
+          className="w-full rounded-lg bg-brandFoam/40 border border-brandSteel/30 px-3 py-2 text-mocha mb-3 resize-y"
+          placeholder="Welcome message for your homepage..."
+        />
         <button disabled={saving} onClick={save} className="px-4 py-2 rounded-lg bg-mocha text-dark hover:opacity-90">
           {saving ? 'Saving…' : 'Save Settings'}
         </button>

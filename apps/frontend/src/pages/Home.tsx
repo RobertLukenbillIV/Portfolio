@@ -37,7 +37,7 @@ export default function Home() {
         </p>
       )}
 
-      <h2 className="text-mocha text-2xl font-semibold mb-4 text-center">Highlighted Projects</h2>
+      <h2 className="text-brandText text-2xl font-semibold mb-4 text-center">Highlighted Projects</h2>
       <div className="grid md:grid-cols-3 gap-6">
         {featured.map(p => (
           <Link
@@ -48,7 +48,7 @@ export default function Home() {
             {p.coverUrl && (
               <img src={p.coverUrl} className="rounded-xl mb-3 h-40 w-full object-cover" />
             )}
-            <h3 className="text-mocha font-medium mb-2">{p.title}</h3>
+            <h3 className="text-brandText font-medium mb-2">{p.title}</h3>
             <p className="text-brandSteel/90 text-sm">{p.excerpt}</p>
           </Link>
         ))}

@@ -96,7 +96,7 @@ export default function EditAbout() {
   return (
     <div className="mx-auto max-w-4xl p-6">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl text-mocha font-semibold">Edit About Me</h1>
+        <h1 className="text-3xl text-brandText font-semibold">Edit About Me</h1>
         <div className="flex gap-2">
           <button 
             disabled={saving} 
@@ -116,11 +116,11 @@ export default function EditAbout() {
 
       <div className="mb-4">
         <label className="block text-brandSteel/90 mb-2">Page Title</label>
-        <input
-          type="text"
+        <textarea
           value={page.title}
           onChange={(e) => setPage(p => ({ ...(p as any), title: e.target.value }))}
-          className="w-full rounded-lg bg-brandFoam/40 border border-brandSteel/30 px-3 py-2 text-mocha"
+          rows={2}
+          className="w-full rounded-lg bg-brandFoam/40 border border-brandSteel/30 px-3 py-2 text-mocha resize-y"
           placeholder="About Me"
         />
       </div>

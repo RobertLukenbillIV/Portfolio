@@ -50,23 +50,26 @@ export default function PostEditor({ mode }: { mode: 'create' | 'edit' }) {
 
   return (
     <div className="mx-auto max-w-4xl p-6">
-      <h1 className="text-2xl text-mocha font-semibold mb-4">
+      <h1 className="text-2xl text-brandText font-semibold mb-4">
         {mode === 'create' ? 'Create Post' : 'Edit Post'}
       </h1>
 
       <label className="block text-brandSteel mb-1">Title</label>
-      <input
+      <textarea
         value={title}
         onChange={e => setTitle(e.target.value)}
-        className="w-full mb-3 rounded-lg bg-brandFoam/40 border border-brandSteel/30 px-3 py-2 text-mocha"
+        rows={2}
+        className="w-full mb-3 rounded-lg bg-brandFoam/40 border border-brandSteel/30 px-3 py-2 text-mocha resize-y"
+        placeholder="Enter post title..."
       />
 
       <label className="block text-brandSteel mb-1">Excerpt</label>
       <textarea
         value={excerpt}
         onChange={e => setExcerpt(e.target.value)}
-        rows={3}
-        className="w-full mb-3 rounded-lg bg-brandFoam/40 border border-brandSteel/30 px-3 py-2 text-mocha"
+        rows={5}
+        className="w-full mb-3 rounded-lg bg-brandFoam/40 border border-brandSteel/30 px-3 py-2 text-mocha resize-y"
+        placeholder="Brief description of the post..."
       />
 
       <ImageManager

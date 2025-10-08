@@ -10,7 +10,9 @@ export default {
         brandNavy: '#19183B',
         brandSteel: '#708993',
         brandMint: '#A1C2BD',
-        brandFoam: '#E7F2EF',
+        brandFoam: '#798a98',
+        brandText: '#f8f9fa',  // Light text for dark background
+        brandTextMuted: '#e9ecef', // Slightly muted light text
       },
     },
   },
