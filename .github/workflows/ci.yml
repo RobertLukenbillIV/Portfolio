@@ -61,7 +61,6 @@ jobs:
     
     - name: Upload coverage reports
       uses: codecov/codecov-action@v4
-      if: ${{ secrets.CODECOV_TOKEN != '' }}
       with:
         file: ./apps/backend/coverage/lcov.info
         flags: backend
@@ -69,12 +68,15 @@ jobs:
         fail_ci_if_error: false
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      continue-on-error: true
     
-    - name: Coverage summary (fallback)
-      if: ${{ secrets.CODECOV_TOKEN == '' }}
+    - name: Coverage summary
       run: |
-        echo "📊 Coverage report generated locally (Codecov token not configured)"
-        echo "View detailed coverage at: apps/backend/coverage/index.html"
+        echo "📊 Coverage report generated - check artifacts for details"
+        if [ -f "./apps/backend/coverage/text-summary.txt" ]; then
+          echo "Coverage Summary:"
+          cat ./apps/backend/coverage/text-summary.txt
+        fi
 
   test-frontend:
     name: Frontend Tests
