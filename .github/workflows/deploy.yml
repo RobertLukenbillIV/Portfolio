@@ -7,7 +7,8 @@ on:
     inputs:
       environment:
         description: 'Deployment environment'
-        required: true
+        require    - name: Install dependencies
+      run: pnpm install --no-frozen-lockfile true
         default: 'production'
         type: choice
         options:
@@ -48,6 +49,9 @@ jobs:
     
     - name: Install dependencies
       run: pnpm install --no-frozen-lockfile
+    
+    - name: Generate Prisma Client
+      run: cd apps/backend && pnpm prisma generate
     
     - name: Run all tests
       run: |
@@ -172,7 +176,10 @@ jobs:
         cache-dependency-path: pnpm-lock.yaml
     
     - name: Install dependencies
-      run: pnpm install --no-frozen-lockfile
+      run: pntml install --no-frozen-lockfile
+    
+    - name: Generate Prisma Client
+      run: cd apps/backend && pnpm prisma generate
     
     - name: Build frontend
       run: |
