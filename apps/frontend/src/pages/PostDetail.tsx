@@ -47,7 +47,7 @@ export default function PostDetail() {
   if (loading) {
     return (
       <div className="mx-auto max-w-3xl p-6 text-center">
-        <p className="text-brandSteel/70">Loading...</p>
+        <p className="text-brandTextMuted">Loading...</p>
       </div>
     )
   }
@@ -79,12 +79,12 @@ export default function PostDetail() {
       )}
       
       {/* Post title and metadata */}
-      <h1 className="text-3xl font-bold text-mocha mb-2">{post.title}</h1>
-      <p className="text-brandSteel/80 mb-6">{post.excerpt}</p>
+      <h1 className="text-3xl font-bold text-brandText mb-2">{post.title}</h1>
+      <p className="text-brandTextMuted mb-6">{post.excerpt}</p>
       
       {/* Post content */}
       <div 
-        className="prose prose-lg max-w-none text-brandSteel/90"
+        className="prose prose-lg max-w-none text-brandTextMuted"
         dangerouslySetInnerHTML={{ __html: post.content }}
       />
       

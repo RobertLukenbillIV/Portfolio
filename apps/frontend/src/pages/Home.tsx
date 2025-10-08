@@ -32,7 +32,7 @@ export default function Home() {
       )}
 
       {settings?.homeIntro && (
-        <p className="text-brandSteel/95 text-lg text-center mb-10 max-w-3xl mx-auto">
+        <p className="text-brandTextMuted text-lg text-center mb-10 max-w-3xl mx-auto">
           {settings.homeIntro}
         </p>
       )}
@@ -49,11 +49,11 @@ export default function Home() {
               <img src={p.coverUrl} className="rounded-xl mb-3 h-40 w-full object-cover" />
             )}
             <h3 className="text-brandText font-medium mb-2">{p.title}</h3>
-            <p className="text-brandSteel/90 text-sm">{p.excerpt}</p>
+            <p className="text-brandTextMuted text-sm">{p.excerpt}</p>
           </Link>
         ))}
         {featured.length === 0 && (
-          <p className="text-center text-brandSteel/70 col-span-full">
+          <p className="text-center text-brandTextMuted col-span-full">
             No featured projects yet. Mark up to three posts as “Featured” in Admin.
           </p>
         )}

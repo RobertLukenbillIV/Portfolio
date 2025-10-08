@@ -119,7 +119,7 @@ export default function EditLinks() {
         <textarea
           value={page.title}
           onChange={(e) => setPage(p => ({ ...(p as any), title: e.target.value }))}
-          rows={2}
+          rows={4}
           className="w-full rounded-lg bg-brandFoam/40 border border-brandSteel/30 px-3 py-2 text-mocha resize-y"
           placeholder="Links"
         />
