@@ -11,6 +11,7 @@ export default {
         brandSteel: '#708993',
         brandMint: '#A1C2BD',
         brandFoam: '#798a98',
+        brandGreen: '#4a7937', // Button color - forest green
         brandText: '#f8f9fa',  // Light text for dark background
         brandTextMuted: '#e9ecef', // Slightly muted light text
       },

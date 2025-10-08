@@ -93,7 +93,7 @@ export default function ImageInput({
           onClick={() => setMode('url')}
           className={`px-3 py-1 text-sm rounded-md transition-colors ${
             mode === 'url'
-              ? 'bg-mocha text-dark'
+              ? 'bg-brandGreen text-white'
               : 'bg-brandFoam/30 text-brandSteel/70 hover:bg-brandFoam/50'
           }`}
         >
@@ -104,7 +104,7 @@ export default function ImageInput({
           onClick={() => setMode('upload')}
           className={`px-3 py-1 text-sm rounded-md transition-colors ${
             mode === 'upload'
-              ? 'bg-mocha text-dark'
+              ? 'bg-brandGreen text-white'
               : 'bg-brandFoam/30 text-brandSteel/70 hover:bg-brandFoam/50'
           }`}
         >

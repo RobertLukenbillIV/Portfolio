@@ -81,7 +81,7 @@ export default function EditLinks() {
             </button>
             <button 
               onClick={cancel}
-              className="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700"
+              className="px-3 py-1 bg-brandGreen text-white rounded hover:opacity-90"
             >
               Back to Admin
             </button>
@@ -101,13 +101,13 @@ export default function EditLinks() {
           <button 
             disabled={saving} 
             onClick={save} 
-            className="px-4 py-2 rounded-lg bg-mocha text-dark hover:opacity-90 disabled:opacity-50"
+            className="px-4 py-2 rounded-lg bg-brandGreen text-white hover:opacity-90 disabled:opacity-50"
           >
             {saving ? 'Saving…' : 'Save Changes'}
           </button>
           <button 
             onClick={cancel} 
-            className="px-4 py-2 rounded-lg bg-brandMint/20 text-mocha hover:opacity-90"
+            className="px-4 py-2 rounded-lg bg-brandGreen/20 text-brandGreen hover:bg-brandGreen/30"
           >
             Cancel
           </button>

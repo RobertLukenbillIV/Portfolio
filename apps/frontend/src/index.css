@@ -9,10 +9,10 @@ body { @apply bg-brandFoam text-brandText; }
 
 /* Reusable UI tokens */
 @layer components {
-  .btn { @apply inline-flex items-center justify-center rounded-lg px-3 py-2 font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-brandSteel/50; }
-  .btn-primary { @apply btn bg-brandSteel text-white hover:opacity-90; }
+  .btn { @apply inline-flex items-center justify-center rounded-lg px-3 py-2 font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-brandGreen/50; }
+  .btn-primary { @apply btn bg-brandGreen text-white hover:opacity-90; }
   .btn-ghost   { @apply btn text-brandFoam/90 hover:text-white; }
-  .btn-muted   { @apply btn bg-brandMint/40 text-brandNavy hover:bg-brandMint/60; }
+  .btn-muted   { @apply btn bg-brandGreen/20 text-brandGreen hover:bg-brandGreen/30; }
 
   .card { @apply rounded-2xl border border-brandSteel/30 bg-brandMint/20; }
   .chip { @apply inline-flex items-center rounded-full bg-brandMint/40 px-2 py-0.5 text-xs text-brandNavy; }

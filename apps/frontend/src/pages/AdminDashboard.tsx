@@ -47,7 +47,7 @@ export default function AdminDashboard() {
           className="w-full rounded-lg bg-brandFoam/40 border border-brandSteel/30 px-3 py-2 text-mocha mb-3 resize-y"
           placeholder="Welcome message for your homepage..."
         />
-        <button disabled={saving} onClick={save} className="px-4 py-2 rounded-lg bg-mocha text-dark hover:opacity-90">
+        <button disabled={saving} onClick={save} className="px-4 py-2 rounded-lg bg-brandGreen text-white hover:opacity-90">
           {saving ? 'Saving…' : 'Save Settings'}
         </button>
       </section>

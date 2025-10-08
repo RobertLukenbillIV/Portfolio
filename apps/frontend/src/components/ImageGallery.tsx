@@ -101,7 +101,7 @@ export default function ImageGallery({ onSelect, selectedUrl, className = "" }: 
         <p className="text-red-600 mb-4">{error}</p>
         <button
           onClick={loadImages}
-          className="px-4 py-2 bg-mocha text-dark rounded-md hover:opacity-90 transition-opacity"
+          className="px-4 py-2 bg-brandGreen text-white rounded-md hover:opacity-90 transition-opacity"
         >
           Retry
         </button>
