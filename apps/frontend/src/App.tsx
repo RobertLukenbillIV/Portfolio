@@ -11,6 +11,8 @@ import About from './pages/About'                  // Dynamic about page (editab
 import Links from './pages/Links'                  // Dynamic links page (editable by admin)
 import AdminDashboard from './pages/AdminDashboard' // Content management interface
 import PostEditor from './pages/PostEditor'        // Create/edit posts interface
+import EditAbout from './pages/EditAbout'          // Direct edit interface for About page
+import EditLinks from './pages/EditLinks'          // Direct edit interface for Links page
 import Login from './routes/Login'                 // Authentication form
 
 export default function App() {
@@ -35,6 +37,8 @@ export default function App() {
         <Route path="/admin" element={<AdminDashboard />} />                     {/* Content management */}
         <Route path="/projects/new" element={<PostEditor mode="create" />} />    {/* Create new project */}
         <Route path="/admin/posts/:id/edit" element={<PostEditor mode="edit" />} /> {/* Edit existing project */}
+        <Route path="/admin/edit-about" element={<EditAbout />} />               {/* Direct edit About page */}
+        <Route path="/admin/edit-links" element={<EditLinks />} />               {/* Direct edit Links page */}
       </Routes>
     </>
   )

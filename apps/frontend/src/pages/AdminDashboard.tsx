@@ -48,8 +48,8 @@ export default function AdminDashboard() {
 
       <section className="grid md:grid-cols-2 gap-4">
         <Link to="/projects/new" className="rounded-xl bg-brandSteel text-dark px-4 py-3 text-center hover:opacity-90">Create New Post</Link>
-        <Link to="/about" className="rounded-xl bg-brandSteel text-dark px-4 py-3 text-center hover:opacity-90">Edit About</Link>
-        <Link to="/links" className="rounded-xl bg-brandSteel text-dark px-4 py-3 text-center hover:opacity-90">Edit Links</Link>
+        <Link to="/admin/edit-about" className="rounded-xl bg-brandSteel text-dark px-4 py-3 text-center hover:opacity-90">Edit About Me</Link>
+        <Link to="/admin/edit-links" className="rounded-xl bg-brandSteel text-dark px-4 py-3 text-center hover:opacity-90">Edit Links</Link>
       </section>
     </div>
   )
