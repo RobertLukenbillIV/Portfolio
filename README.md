@@ -1,5 +1,10 @@
 # Personal Portfolio - Full-Stack Web Application
 
+[![CI/CD Pipeline](https://github.com/RobertLukenbillIV/Portfolio/actions/workflows/ci.yml/badge.svg)](https://github.com/RobertLukenbillIV/Portfolio/actions/workflows/ci.yml)
+[![Test Coverage](https://github.com/RobertLukenbillIV/Portfolio/actions/workflows/coverage.yml/badge.svg)](https://github.com/RobertLukenbillIV/Portfolio/actions/workflows/coverage.yml)
+[![Security Scan](https://github.com/RobertLukenbillIV/Portfolio/actions/workflows/security.yml/badge.svg)](https://github.com/RobertLukenbillIV/Portfolio/actions/workflows/security.yml)
+[![Deploy Status](https://github.com/RobertLukenbillIV/Portfolio/actions/workflows/deploy.yml/badge.svg)](https://github.com/RobertLukenbillIV/Portfolio/actions/workflows/deploy.yml)
+
 A modern, responsive portfolio website built with React frontend and Node.js backend, featuring a content management system for projects and dynamic pages. Designed for developers to showcase their work with a professional, customizable interface.
 
 ## Architecture Overview
@@ -332,6 +337,36 @@ pnpm test src/services/__tests__/
 - **Environment Setup** - Test-specific configuration with proper cleanup
 - **Error Scenarios** - Comprehensive edge cases and failure condition testing
 - **Type Safety** - Full TypeScript integration in test files
+
+## CI/CD Pipeline
+
+### GitHub Actions Workflows
+- **CI/CD Pipeline** (`ci.yml`) - Comprehensive testing across multiple Node.js versions
+- **Test Coverage** (`coverage.yml`) - Coverage analysis with quality gates and reporting
+- **Security Scanning** (`security.yml`) - Vulnerability detection and dependency auditing
+- **Performance Testing** (`performance.yml`) - Build performance and load testing benchmarks
+- **Deployment** (`deploy.yml`) - Automated production deployments with health checks
+
+### Quality Gates
+- **Minimum Test Coverage**: 80% across all modules
+- **Security Compliance**: Zero moderate+ vulnerabilities
+- **Performance Standards**: Build time < 60s, test execution < 30s
+- **Dependency Management**: Automated security and license compliance checks
+
+### Automated Workflows
+```bash
+# Triggers for each workflow
+├── Pull Request → CI/CD + Coverage + Security
+├── Push to Main → Full Pipeline + Deployment  
+├── Daily Schedule → Security Audit
+└── Manual Dispatch → Custom Environment Deployment
+```
+
+### Deployment Process
+1. **Pre-deployment Validation** - All tests pass, security clear, version tagging
+2. **Backend Deployment** - Automatic deployment to Render with health checks
+3. **Frontend Deployment** - Vercel deployment with CDN optimization
+4. **Post-deployment** - Smoke tests, monitoring updates, release notes
 
 ## Code Quality & Architecture
 
