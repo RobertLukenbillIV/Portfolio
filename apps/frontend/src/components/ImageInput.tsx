@@ -172,7 +172,7 @@ export default function ImageInput({
       )}
 
       {/* Helper Text */}
-      <p className="text-xs text-brandSteel/60">
+      <p className="text-xs text-brandText">
         {mode === 'upload' 
           ? 'Max file size: 5MB. Supported formats: JPG, PNG, GIF, WebP, SVG'
           : 'Enter a direct link to an image file'
