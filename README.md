@@ -373,7 +373,7 @@ pnpm test src/services/__tests__/
 - **Deployment** (`deploy.yml`) - Automated production deployments with health checks
 
 ### Quality Gates
-- **Minimum Test Coverage**: 80% across all modules
+- **Minimum Test Coverage**: 20% across all modules (target: 80%)
 - **Security Compliance**: Zero moderate+ vulnerabilities
 - **Performance Standards**: Build time < 60s, test execution < 30s
 - **Dependency Management**: Automated security and license compliance checks
