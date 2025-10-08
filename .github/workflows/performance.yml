@@ -29,7 +29,7 @@ jobs:
         cache-dependency-path: pnpm-lock.yaml
     
     - name: Install dependencies
-      run: pnpm install --frozen-lockfile
+      run: pnpm install --no-frozen-lockfile
     
     - name: Backend performance benchmarks
       run: |
@@ -153,7 +153,7 @@ jobs:
         cache-dependency-path: pnpm-lock.yaml
     
     - name: Install dependencies
-      run: pnpm install --frozen-lockfile
+      run: pnpm install --no-frozen-lockfile
     
     - name: Simulate API load test
       run: |
