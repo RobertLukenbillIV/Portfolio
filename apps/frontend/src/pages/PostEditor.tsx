@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { api } from '@/lib/api'
 import { useAuth } from '@/state/auth'
 import { RichTextEditor } from '@/components/RichText'
+import ImageManager from '@/components/ImageManager'
 
 export default function PostEditor({ mode }: { mode: 'create' | 'edit' }) {
   const { user } = useAuth()
@@ -68,11 +69,11 @@ export default function PostEditor({ mode }: { mode: 'create' | 'edit' }) {
         className="w-full mb-3 rounded-lg bg-brandFoam/40 border border-brandSteel/30 px-3 py-2 text-mocha"
       />
 
-      <label className="block text-brandSteel mb-1">Cover Image URL</label>
-      <input
+      <ImageManager
         value={coverUrl}
-        onChange={e => setCoverUrl(e.target.value)}
-        className="w-full mb-4 rounded-lg bg-brandFoam/40 border border-brandSteel/30 px-3 py-2 text-mocha"
+        onChange={setCoverUrl}
+        label="Cover Image"
+        className="mb-4"
       />
 
       <label className="block text-brandSteel mb-2">Content</label>

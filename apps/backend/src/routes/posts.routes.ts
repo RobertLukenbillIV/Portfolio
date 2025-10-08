@@ -35,6 +35,10 @@ r.get('/:id/admin', requireAuth, ctrl.getByIdAdmin)
 // Automatically associates with authenticated user as author
 r.post('/', requireAuth, ctrl.create)
 
+// PUT /api/posts/:id - Update existing post/project
+// Used by: PostEditor component when saving changes to existing posts
+r.put('/:id', requireAuth, ctrl.update)
+
 // DELETE /api/posts/:id - Remove post/project
 r.delete('/:id', requireAuth, ctrl.remove)
 

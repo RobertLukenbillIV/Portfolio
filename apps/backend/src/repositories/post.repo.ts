@@ -22,6 +22,13 @@ export const findPublic = ()=> prisma.post.findMany({
 // Data includes: title, excerpt, content, coverUrl, authorId, published status
 export const create = (data:any)=> prisma.post.create({ data })
 
+// Update existing post with provided data
+// Data can include: title, excerpt, content, coverUrl, published status
+export const update = (id:string, data:any)=> prisma.post.update({ 
+  where:{ id }, 
+  data 
+})
+
 // Find individual post by ID for public viewing
 // Returns published post or null if not found/unpublished
 export const findByIdPublic = (id:string)=> prisma.post.findFirst({ 

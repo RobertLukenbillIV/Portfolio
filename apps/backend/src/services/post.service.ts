@@ -16,6 +16,10 @@ export const listPublic = ()=> repo.findPublic()
 // Could add validation, content processing, or notification logic here
 export const create = (data:any)=> repo.create(data)
 
+// Business logic for updating posts
+// Could add validation, change tracking, or notification logic here
+export const update = (id:string, data:any)=> repo.update(id, data)
+
 // Business logic for getting individual post (public access)
 // Could add view tracking, related posts, or content enrichment here
 export const getById = (id:string)=> repo.findByIdPublic(id)

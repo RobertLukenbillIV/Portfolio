@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '@/state/auth'
 import { api } from '../lib/api'
+import ImageManager from '@/components/ImageManager'
 
 export default function AdminDashboard() {
   const { user } = useAuth()
@@ -30,8 +31,13 @@ export default function AdminDashboard() {
 
       <section className="rounded-2xl border border-brandSteel/30 bg-brandMint/20/40 p-4 mb-6">
         <h2 className="text-mocha font-medium mb-3">Home Settings</h2>
-        <label className="block text-brandSteel/90 mb-1">Hero Image URL</label>
-        <input value={hero} onChange={e=>setHero(e.target.value)} className="w-full rounded-lg bg-brandFoam/40 border border-brandSteel/30 px-3 py-2 text-mocha mb-3"/>
+        
+        <ImageManager
+          value={hero}
+          onChange={setHero}
+          label="Hero Image"
+          className="mb-4"
+        />
 
         <label className="block text-brandSteel/90 mb-1">Intro Text</label>
         <textarea value={intro} onChange={e=>setIntro(e.target.value)} rows={4} className="w-full rounded-lg bg-brandFoam/40 border border-brandSteel/30 px-3 py-2 text-mocha mb-3"/>

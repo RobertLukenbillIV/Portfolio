@@ -61,9 +61,10 @@ This is a **pnpm monorepo** with separate frontend and backend applications:
 ### For Admin Users
 - **Content Management** - Create, edit, and delete projects/posts
 - **Rich Text Editor** - Format content with images, links, and styling
-- **Image Upload** - Direct file upload for project covers and content
+- **Advanced Image Management** - Upload files directly or use URLs with preview and gallery
+- **Image Gallery** - Browse, select, and delete previously uploaded images
 - **Featured Projects** - Mark up to 3 projects for homepage display
-- **Settings Management** - Update site-wide settings (hero image, intro text)
+- **Settings Management** - Update site-wide settings (hero image, intro text) with upload support
 - **Authentication** - Secure login with role-based permissions
 
 ## Project Structure
@@ -254,6 +255,59 @@ pnpm preview         # Preview production build locally
 - Site settings (hero image, intro text)
 - User management capabilities
 - Protected admin-only routes
+
+## API Endpoints
+
+### Image Upload Endpoints
+```
+POST /api/upload/image          # Upload single image file
+GET  /api/upload/images         # List all uploaded images  
+DELETE /api/upload/image/:filename  # Delete uploaded image
+```
+
+**Upload Image (Multipart Form Data)**
+```javascript
+const formData = new FormData()
+formData.append('image', file)
+const response = await api.post('/upload/image', formData, {
+  headers: { 'Content-Type': 'multipart/form-data' }
+})
+// Returns: { success: true, url: "/uploads/images/filename.jpg", ... }
+```
+
+**Image Features:**
+- **File Size Limit**: 5MB maximum
+- **Supported Formats**: JPG, PNG, GIF, WebP, SVG
+- **Automatic Organization**: Files stored in `/uploads/images/` with unique names
+- **Static Serving**: Images accessible at `/uploads/images/filename.ext`
+- **Gallery Management**: Browse, select, and delete uploaded images
+- **Preview & Validation**: Real-time preview and client-side validation
+
+### Post Endpoints
+```
+GET    /api/posts              # List all posts (admin)
+GET    /api/posts/public       # List published posts
+GET    /api/posts/featured     # Get featured posts (max 3)
+GET    /api/posts/:id          # Get individual post (public)
+GET    /api/posts/:id/admin    # Get post with admin access
+POST   /api/posts              # Create new post
+PUT    /api/posts/:id          # Update existing post  
+DELETE /api/posts/:id          # Delete post
+PUT    /api/posts/:id/featured # Toggle featured status
+```
+
+### Settings Endpoints  
+```
+GET /api/settings              # Get site settings
+PUT /api/settings              # Update site settings (admin)
+```
+
+### Authentication Endpoints
+```
+POST /api/auth/login           # User login
+POST /api/auth/logout          # User logout
+GET  /api/auth/me              # Get current user info
+```
 
 ## Database Schema
 

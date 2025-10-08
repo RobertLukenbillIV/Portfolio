@@ -28,6 +28,16 @@ export async function create(req:Request,res:Response){
   res.status(201).json(created)
 }
 
+// PUT /api/posts/:id - Update existing post
+// Protected by requireAuth middleware 
+// Called by: frontend PostEditor component when saving changes
+export async function update(req:Request,res:Response){
+  const { id } = req.params
+  const updated = await svc.update(id, req.body)
+  if (!updated) return res.status(404).json({ error: 'Post not found' })
+  res.json(updated)
+}
+
 // GET /api/posts/:id - Get individual post (public access)
 // No authentication required - only returns published posts
 // Called by: frontend PostDetail component to display individual project

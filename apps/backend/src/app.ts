@@ -6,6 +6,7 @@ import express from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import helmet from 'helmet'
+import path from 'path'
 // Route imports - each handles a specific domain of functionality
 import pagesRoutes from './routes/pages.routes'     // Handles dynamic pages (About, Links)
 import settingsRoutes from './routes/settings.routes' // Handles site-wide settings
@@ -80,6 +81,9 @@ app.use(cors(corsOptions))
 // Parse JSON request bodies (with 5MB limit for image uploads)
 app.use(express.json())
 
+// Serve uploaded files statically
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')))
+
 // Global error handler for CORS violations
 // Provides better debugging info when CORS issues occur
 app.use((err: any, req: any, res: any, next: any) => {
@@ -96,10 +100,12 @@ app.use(attachUser)
 
 // Mount API routes - order matters for middleware application
 import authRoutes from './routes/auth.routes'      // Authentication (login/logout/me)
+import uploadRoutes from './routes/upload.routes'  // File upload handling
 app.use('/api/auth', authRoutes)
 app.use('/api/pages', pagesRoutes)                 // Dynamic pages (about/links)
-app.use('/api/settings', settingsRoutes)           // Site settings
+app.use('/api/settings', settingsRoutes)           // Site settings  
 app.use('/api/posts', postsRoutes)                 // Blog posts/projects
+app.use('/api/upload', uploadRoutes)               // Image uploads
 
 // Health check endpoint for monitoring and debugging
 // Returns server status and configuration info
