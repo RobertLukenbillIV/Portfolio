@@ -10,6 +10,11 @@ on:
     - cron: '0 2 * * *'
   workflow_dispatch:
 
+permissions:
+  contents: read
+  security-events: write
+  issues: write
+
 jobs:
   security-scan:
     name: Security Vulnerability Scan

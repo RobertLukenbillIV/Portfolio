@@ -16,5 +16,11 @@
     "lint": "pnpm -r lint || echo 'no lint'",
     "test": "pnpm -r test || echo 'no tests'",
     "prepare": "is-ci || husky install"
+  },
+  "pnpm": {
+    "overrides": {
+      "esbuild@<=0.24.2": ">=0.25.0",
+      "quill@<=1.3.7": "npm:quill@2.0.2"
+    }
   }
 }
