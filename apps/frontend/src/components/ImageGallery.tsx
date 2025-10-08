@@ -126,7 +126,7 @@ export default function ImageGallery({ onSelect, selectedUrl, className = "" }: 
         <h3 className="text-lg font-medium text-mocha">Uploaded Images</h3>
         <button
           onClick={loadImages}
-          className="text-sm text-brandSteel/70 hover:text-mocha transition-colors"
+          className="px-2 py-1 text-sm bg-brandGreen text-white rounded hover:opacity-90 transition-opacity"
         >
           Refresh
         </button>

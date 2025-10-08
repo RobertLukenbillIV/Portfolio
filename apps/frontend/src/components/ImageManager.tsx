@@ -38,7 +38,7 @@ export default function ImageManager({
           <button
             type="button"
             onClick={() => setShowGalleryPanel(!showGalleryPanel)}
-            className="text-sm text-brandSteel/70 hover:text-mocha transition-colors underline"
+            className="px-3 py-1 text-sm bg-brandGreen text-white rounded hover:opacity-90 transition-opacity"
           >
             {showGalleryPanel ? 'Hide' : 'Browse'} uploaded images
           </button>
