@@ -16,10 +16,6 @@ jobs:
     name: Backend Coverage Analysis
     runs-on: ubuntu-latest
     
-    defaults:
-      run:
-        working-directory: ./apps/backend
-    
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -40,17 +36,17 @@ jobs:
       run: pnpm install --no-frozen-lockfile
     
     - name: Generate Prisma Client
-      run: pnpm prisma generate
+      run: cd apps/backend && pnpm prisma generate
     
     - name: Generate coverage report
-      run: pnpm test:coverage
+      run: cd apps/backend && pnpm test:coverage
     
     - name: Coverage summary
       run: |
         echo "## 📊 Backend Test Coverage Report" >> $GITHUB_STEP_SUMMARY
         echo "### Coverage Summary" >> $GITHUB_STEP_SUMMARY
         echo '```' >> $GITHUB_STEP_SUMMARY
-        cat coverage/text-summary.txt >> $GITHUB_STEP_SUMMARY || echo "Coverage summary not found" >> $GITHUB_STEP_SUMMARY
+        cat apps/backend/coverage/text-summary.txt >> $GITHUB_STEP_SUMMARY || echo "Coverage summary not found" >> $GITHUB_STEP_SUMMARY
         echo '```' >> $GITHUB_STEP_SUMMARY
     
     - name: Upload coverage to Codecov
@@ -95,6 +91,9 @@ jobs:
     
     - name: Install dependencies
       run: pnpm install --no-frozen-lockfile
+    
+    - name: Generate Prisma Client
+      run: cd apps/backend && pnpm prisma generate
     
     - name: Backend quality checks
       run: |

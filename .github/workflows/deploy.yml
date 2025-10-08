@@ -7,8 +7,7 @@ on:
     inputs:
       environment:
         description: 'Deployment environment'
-        require    - name: Install dependencies
-      run: pnpm install --no-frozen-lockfile true
+        required: true
         default: 'production'
         type: choice
         options:
