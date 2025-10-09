@@ -28,6 +28,9 @@ apps/backend/prisma/*.db
 apps/backend/prisma/migrations/*/steps.json
 
 
+# Uploads (test artifacts and user uploads)
+apps/backend/uploads/
+
 # Logs
 *.log
 npm-debug.log*
