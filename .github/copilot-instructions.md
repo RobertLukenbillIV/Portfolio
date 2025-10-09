@@ -8,6 +8,7 @@ This is a **pnpm monorepo** with React frontend + Node.js backend + Prisma ORM. 
 - `apps/frontend/` - React SPA with Vite, TypeScript, Tailwind CSS, React Router  
 - `packages/shared/` - Shared types/utilities (future expansion)
 - Authentication: JWT httpOnly cookies with role-based access (ADMIN/USER)
+- File uploads: Local filesystem storage at `uploads/images/` with timestamped filenames
 
 ## Critical Development Patterns
 
@@ -22,6 +23,7 @@ This is a **pnpm monorepo** with React frontend + Node.js backend + Prisma ORM. 
 - **Services**: Pure business logic, coordinate between repositories  
 - **Repositories**: Database-only operations using Prisma client
 - **Pattern**: All modules use `export const functionName = ` and imported as `* as moduleName`
+- **TypeScript**: Extended Request interface `AuthRequest` for user-attached requests
 
 ### Authentication Architecture
 ```typescript
@@ -90,12 +92,15 @@ import app from '../../app'
 - **API calls**: Use `api` instance from `lib/api.ts` (axios + `withCredentials: true`)
 - **Route protection**: Check `user?.role === 'ADMIN'` for admin features
 - **File naming**: PascalCase components, camelCase utilities
+- **Component structure**: Pages in `pages/`, reusable UI in `components/`
 
 ### Upload & File Handling
-- **Images**: Upload via `POST /api/upload` with `multipart/form-data`
+- **Images**: Upload via `POST /api/upload/image` with `multipart/form-data`
 - **Storage**: Local filesystem at `uploads/images/` (timestamped filenames)
 - **Serving**: Static files via Express at `/uploads` route
 - **Gallery**: `GET /api/upload/list` returns uploaded image URLs
+- **Frontend components**: `ImageManager` (full upload/gallery UI), `ImageInput` (upload only), `ImageGallery` (browse/select)
+- **Dual-mode**: Supports both file uploads and URL input for external images
 
 ## Integration Points
 - **Cookie auth**: Same-site for localhost, cross-origin for production (Vercel ↔ Render)

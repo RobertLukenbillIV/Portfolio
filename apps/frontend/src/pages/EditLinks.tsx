@@ -31,11 +31,14 @@ export default function EditLinks() {
       .catch(err => {
         console.error('Failed to load Links page:', err)
         if (err.code !== 'ERR_CANCELED') {
-          // If page doesn't exist (404) or other error, create empty page for editing
-          const emptyPage = { title: 'Links', content: '' }
-          setPage(emptyPage)
+          // For testing: Create page with sample content to verify RichTextEditor works
+          const testPage = { 
+            title: 'My Links', 
+            content: '<h2>Connect With Me</h2><p>Here are my <em>social media</em> and professional links:</p><ul><li><a href="https://github.com">GitHub Profile</a></li><li><a href="https://linkedin.com">LinkedIn</a></li><li><a href="mailto:test@example.com">Email Me</a></li></ul><p>This test content should appear in the RichTextEditor! 🔗</p>' 
+          }
+          setPage(testPage)
           setError(null)
-          console.log('Created empty Links page for editing') // Debug log
+          console.log('Created test Links page with sample content:', testPage) // Debug log
         }
       })
       .finally(() => {
@@ -131,18 +134,15 @@ export default function EditLinks() {
 
       <div>
         <label className="block text-brandText mb-2 font-medium">Page Content</label>
-        {/* Only render the RichTextEditor after content is loaded to ensure proper initialization */}
-        {!loading && page && (
-          <RichTextEditor 
-            key={`links-editor-${page.content.length}`} // Force re-render when content changes
-            value={page.content} 
-            onChange={(v) => setPage(p => ({ ...(p as any), content: v }))} 
-          />
-        )}
-        {loading && (
+        {loading ? (
           <div className="w-full h-40 bg-slate-100 border-2 border-slate-300 rounded-lg flex items-center justify-center">
             <span className="text-gray-500">Loading editor...</span>
           </div>
+        ) : (
+          <RichTextEditor 
+            value={page?.content || ''} 
+            onChange={(v) => setPage(p => ({ ...(p as any), content: v }))} 
+          />
         )}
       </div>
     </div>

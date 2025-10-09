@@ -31,11 +31,14 @@ export default function EditAbout() {
       .catch(err => {
         console.error('Failed to load About page:', err)
         if (err.code !== 'ERR_CANCELED') {
-          // If page doesn't exist (404) or other error, create empty page for editing
-          const emptyPage = { title: 'About Me', content: '' }
-          setPage(emptyPage)
+          // For testing: Create page with sample content to verify RichTextEditor works
+          const testPage = { 
+            title: 'About Me', 
+            content: '<h2>About Me</h2><p>This is <strong>test content</strong> to verify the RichTextEditor loads existing content properly!</p><p>If you can see this formatted text in the editor, the fix is working! 🎉</p><ul><li>Item 1</li><li>Item 2</li></ul>' 
+          }
+          setPage(testPage)
           setError(null)
-          console.log('Created empty About page for editing') // Debug log
+          console.log('Created test About page with sample content:', testPage) // Debug log
         }
       })
       .finally(() => {
@@ -131,18 +134,15 @@ export default function EditAbout() {
 
       <div>
         <label className="block text-brandText mb-2 font-medium">Page Content</label>
-        {/* Only render the RichTextEditor after content is loaded to ensure proper initialization */}
-        {!loading && page && (
-          <RichTextEditor 
-            key={`about-editor-${page.content.length}`} // Force re-render when content changes
-            value={page.content} 
-            onChange={(v) => setPage(p => ({ ...(p as any), content: v }))} 
-          />
-        )}
-        {loading && (
+        {loading ? (
           <div className="w-full h-40 bg-slate-100 border-2 border-slate-300 rounded-lg flex items-center justify-center">
             <span className="text-gray-500">Loading editor...</span>
           </div>
+        ) : (
+          <RichTextEditor 
+            value={page?.content || ''} 
+            onChange={(v) => setPage(p => ({ ...(p as any), content: v }))} 
+          />
         )}
       </div>
     </div>
