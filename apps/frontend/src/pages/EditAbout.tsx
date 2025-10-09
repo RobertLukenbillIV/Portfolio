@@ -23,15 +23,19 @@ export default function EditAbout() {
     
     api.get('/pages/about', { signal: controller.signal })
       .then(r => {
-        setPage(r.data.page || { title: 'About Me', content: '' })
+        const pageData = r.data.page || { title: 'About Me', content: '' }
+        setPage(pageData)
         setError(null)
+        console.log('Loaded About page:', pageData) // Debug log
       })
       .catch(err => {
-        console.error('Failed to load page:', err)
+        console.error('Failed to load About page:', err)
         if (err.code !== 'ERR_CANCELED') {
-          // If page doesn't exist, create a new one
-          setPage({ title: 'About Me', content: '' })
+          // If page doesn't exist (404) or other error, create empty page for editing
+          const emptyPage = { title: 'About Me', content: '' }
+          setPage(emptyPage)
           setError(null)
+          console.log('Created empty About page for editing') // Debug log
         }
       })
       .finally(() => {
@@ -127,10 +131,19 @@ export default function EditAbout() {
 
       <div>
         <label className="block text-brandText mb-2 font-medium">Page Content</label>
-        <RichTextEditor 
-          value={page.content} 
-          onChange={(v) => setPage(p => ({ ...(p as any), content: v }))} 
-        />
+        {/* Only render the RichTextEditor after content is loaded to ensure proper initialization */}
+        {!loading && page && (
+          <RichTextEditor 
+            key={`about-editor-${page.content.length}`} // Force re-render when content changes
+            value={page.content} 
+            onChange={(v) => setPage(p => ({ ...(p as any), content: v }))} 
+          />
+        )}
+        {loading && (
+          <div className="w-full h-40 bg-slate-100 border-2 border-slate-300 rounded-lg flex items-center justify-center">
+            <span className="text-gray-500">Loading editor...</span>
+          </div>
+        )}
       </div>
     </div>
   )

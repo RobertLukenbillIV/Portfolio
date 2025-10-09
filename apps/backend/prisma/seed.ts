@@ -52,21 +52,38 @@ async function main() {
     })
     console.log(`Created admin: ${email}`)
   }
-}
 
-await prisma.settings.upsert({
-  where: { id: 1 },
-  update: {},
-  create: { id: 1, homeHeroUrl: null, homeIntro: 'Welcome to my portfolio.' },
-})
-
-for (const slug of ['about', 'links']) {
-  await prisma.page.upsert({
-    where: { slug },
+  // Create default settings
+  await prisma.settings.upsert({
+    where: { id: 1 },
     update: {},
-    create: { slug, title: slug[0].toUpperCase() + slug.slice(1), content: '' },
+    create: { id: 1, homeHeroUrl: null, homeIntro: 'Welcome to my portfolio.' },
   })
+
+  // Create default pages with some sample content
+  await prisma.page.upsert({
+    where: { slug: 'about' },
+    update: {},
+    create: { 
+      slug: 'about', 
+      title: 'About Me', 
+      content: '<h2>About Me</h2><p>Welcome to my portfolio! I am a passionate developer with expertise in modern web technologies.</p><p>Here you can learn more about my background, skills, and experience.</p>' 
+    },
+  })
+
+  await prisma.page.upsert({
+    where: { slug: 'links' },
+    update: {},
+    create: { 
+      slug: 'links', 
+      title: 'Links', 
+      content: '<h2>Connect With Me</h2><ul><li><a href="https://github.com">GitHub</a></li><li><a href="https://linkedin.com">LinkedIn</a></li><li><a href="mailto:contact@example.com">Email</a></li></ul>' 
+    },
+  })
+
+  console.log('✅ Database seeded successfully!')
 }
+
 main()
   .catch((e) => { console.error(e); process.exit(1) })
   .finally(() => prisma.$disconnect())

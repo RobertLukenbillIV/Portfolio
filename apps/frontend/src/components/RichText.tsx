@@ -12,5 +12,14 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
       ['clean'],
     ],
   }), [])
-  return <ReactQuill theme="snow" value={value} onChange={onChange} modules={modules} />
+  
+  return (
+    <ReactQuill 
+      theme="snow" 
+      value={value || ''} 
+      onChange={onChange} 
+      modules={modules}
+      placeholder="Enter your content here..."
+    />
+  )
 }
