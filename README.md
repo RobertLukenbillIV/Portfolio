@@ -183,6 +183,7 @@ Portfolio/
 4. **Set up the database**
    ```bash
    cd apps/backend
+   pnpm prisma generate     # Generate Prisma client (required before running tests)
    pnpm prisma migrate deploy
    pnpm seed  # Optional: populate with sample data
    ```

@@ -4,71 +4,107 @@
 This is a **pnpm monorepo** with React frontend + Node.js backend + Prisma ORM. Apps are deployed separately: frontend to Vercel, backend to Render with Neon DB.
 
 ### Project Structure
-- `apps/backend/` - Express.js API with MVC pattern, TypeScript, Prisma + PostgreSQL
-- `apps/frontend/` - React SPA with Vite, TypeScript, Tailwind CSS, React Router
-- Authentication: JWT cookies with role-based access (ADMIN/USER)
+- `apps/backend/` - Express.js API with strict MVC pattern, TypeScript, Prisma + PostgreSQL
+- `apps/frontend/` - React SPA with Vite, TypeScript, Tailwind CSS, React Router  
+- `packages/shared/` - Shared types/utilities (future expansion)
+- Authentication: JWT httpOnly cookies with role-based access (ADMIN/USER)
 
-## Key Development Patterns
+## Critical Development Patterns
 
 ### Backend MVC Architecture
-Follow strict layering: **Routes → Controllers → Services → Repositories**
-- Controllers: Thin, handle HTTP concerns (`post.controller.ts`)
-- Services: Business logic (`post.service.ts`) 
-- Repositories: Data access (`post.repo.ts`)
-- All use `export const functionName = ` pattern, imported as `* as moduleName`
+**ALWAYS** follow strict layering: **Routes → Controllers → Services → Repositories**
+```typescript
+// Example: Post operations flow
+// 1. routes/posts.routes.ts  → 2. controllers/post.controller.ts
+// 3. services/post.service.ts → 4. repositories/post.repo.ts
+```
+- **Controllers**: Thin HTTP handlers, extract `req.user` from auth middleware
+- **Services**: Pure business logic, coordinate between repositories  
+- **Repositories**: Database-only operations using Prisma client
+- **Pattern**: All modules use `export const functionName = ` and imported as `* as moduleName`
 
-### Authentication Flow
+### Authentication Architecture
+```typescript
+// Backend middleware chain:
+// 1. attachUser (on ALL routes) - silently attaches user if JWT exists
+// 2. requireAuth - blocks if no user (401)  
+// 3. requireAdmin - blocks if not admin (403)
+
+// Frontend state:
+// AuthContext provides { user, loading, login, logout }
+// Wrap entire App in <AuthProvider> in main.tsx
+```
 - JWT stored in httpOnly cookies via `COOKIE_NAME` from `utils/cookie.ts`
-- `attachUser` middleware auto-attaches `req.user` to all requests
-- Use `requireAuth` and `requireAdmin` middlewares for protection
-- Frontend: `AuthContext` provides `{ user, loading, login, logout }`
+- Backend: Access user via `(req as AuthRequest).user`
+- Frontend: Access via `const { user } = useAuth()` hook
 
-### Database & Prisma
-- Models: `User`, `Post`, `Page`, `Settings`, `Image` 
-- Featured posts system: `Post.featured` boolean for homepage
-- Use `prisma` from `lib/db.ts` - already instantiated
-- Admin scripts: `make-admin.ts`, `change-password.ts` for user management
+### Database Patterns & Prisma
+- **Models**: `User`, `Post` (projects), `Page` (About/Links), `Settings` (hero), `Image`
+- **Featured system**: `Post.featured` boolean, max 3 for homepage
+- **Data access**: Use shared `prisma` instance from `lib/db.ts` (not local instances)
+- **CRITICAL**: Always run `prisma generate` before tests/builds to avoid initialization errors
+- **Schema changes**: Always run `prisma generate` → `prisma migrate deploy`
 
-### CORS & Environment
-- Backend allows Vercel preview deployments: `host.endsWith('.vercel.app')`
-- Environment: `CORS_ORIGINS`, `JWT_SECRET`, `DATABASE_URL`, `NODE_ENV`
-- Frontend API base: `VITE_API_URL` or fallback to `localhost:4000`
+### CORS Configuration (Critical for Deployment)
+```typescript
+// Backend app.ts handles multi-layer origin validation:
+// 1. CORS_ORIGINS env var (CSV)
+// 2. Hardcoded defaults (localhost:3000, localhost:5173)  
+// 3. All *.vercel.app domains (preview deployments)
+// 4. Local network IPs for development
+```
+- Production: `CORS_ORIGINS`, `JWT_SECRET`, `DATABASE_URL` required
+- Development: Frontend uses `VITE_API_URL` or `localhost:4000/api` fallback
 
-## Essential Commands
+## Essential Commands & Scripts
 ```bash
-# Development (run from repo root)
-pnpm -r dev          # Start both frontend and backend
-pnpm -r build        # Build all apps
+# Monorepo (from root)
+pnpm -r dev          # Start both apps with hot reload
+pnpm -r build        # Build both for production
+pnpm -r test         # Run all test suites
 
-# Backend-specific (from apps/backend/)
-pnpm seed            # Seed database
+# Backend (from apps/backend/)
 pnpm make-admin <email> <password> [name]  # Create admin user
-pnpm migrate:deploy  # Deploy Prisma migrations
+pnpm change-password <email> <newPassword> # Update user password
+pnpm seed            # Populate dev database with sample data
+pnpm test:coverage   # Run Jest with coverage report
 ```
 
-## Component Patterns
+## Testing Patterns (Jest + Supertest)
+```typescript
+// Mock auth middleware in all route tests:
+jest.mock('../../middleware/auth', () => ({
+  attachUser: (req, res, next) => { req.user = { id: 'test-user-id', role: 'ADMIN' }; next() },
+  requireAuth: (req, res, next) => { req.user = { id: 'test-user-id', role: 'ADMIN' }; next() }
+}))
 
-### Frontend State Management
-- `AuthContext` for user state - wrap app in `AuthProvider`
-- `Protected` component for auth-gated content
-- API calls via `api` instance from `lib/api.ts` (axios with `withCredentials`)
+// Import app AFTER mocking to ensure mocks are applied
+import app from '../../app'
+```
+- Test files: `**/__tests__/**/*.test.ts` 
+- Coverage excludes: `server.ts`, `lib/db.ts`, `*.d.ts` files
+- Setup file: `src/__tests__/setup.ts` for global test configuration
 
-### Route Protection
-- Backend: Use middleware stack `requireAuth` → `requireAdmin` 
-- Frontend: Check `user?.role === 'ADMIN'` in components
+### Frontend Component Patterns
+- **State**: AuthContext for user state, local useState for UI state
+- **API calls**: Use `api` instance from `lib/api.ts` (axios + `withCredentials: true`)
+- **Route protection**: Check `user?.role === 'ADMIN'` for admin features
+- **File naming**: PascalCase components, camelCase utilities
 
-### File Naming Conventions
-- Backend: `*.controller.ts`, `*.service.ts`, `*.repo.ts`, `*.routes.ts`
-- Frontend: PascalCase components, camelCase utilities
-- Both have parallel `.js` legacy files - prefer TypeScript versions
+### Upload & File Handling
+- **Images**: Upload via `POST /api/upload` with `multipart/form-data`
+- **Storage**: Local filesystem at `uploads/images/` (timestamped filenames)
+- **Serving**: Static files via Express at `/uploads` route
+- **Gallery**: `GET /api/upload/list` returns uploaded image URLs
 
 ## Integration Points
-- Cookie-based auth between frontend/backend (same-site/cross-origin handling)
-- Prisma schema changes require: `prisma generate` → `prisma migrate deploy` 
-- Image uploads go through backend `/api/posts` routes
-- Rich text editor: React Quill for post content
+- **Cookie auth**: Same-site for localhost, cross-origin for production (Vercel ↔ Render)
+- **Rich text**: React Quill editor with image embedding support
+- **Featured posts**: Homepage displays up to 3 posts where `featured = true`
+- **Dynamic pages**: About/Links are editable via admin, stored in `Page` model
 
-## Deployment Context
-- Backend expects `trust proxy` for Render deployment
-- Frontend uses Vite with `@` alias for `src/`
-- Both apps have independent `package.json` with overlapping TypeScript configs
+## CI/CD & Deployment Context
+- **GitHub Actions**: Multi-node (18, 20, 22) testing with coverage reports
+- **Backend**: Render with `trust proxy` enabled, auto-migration on deploy
+- **Frontend**: Vercel with `@` alias for `src/`, automatic preview deployments
+- **Database**: Neon PostgreSQL with connection pooling
