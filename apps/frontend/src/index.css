@@ -5,7 +5,7 @@
 /* App chrome */
 :root { color-scheme: dark; }
 html, body, #root { height: 100%; }
-body { @apply bg-brandFoam text-brandText; }
+body { @apply bg-brandBackground text-brandText; }
 
 /* Reusable UI tokens */
 @layer components {
@@ -30,8 +30,8 @@ body { @apply bg-brandFoam text-brandText; }
 }
 
 .ql-editor:focus {
-  border-color: #4a7937 !important; /* focus:border-brandGreen */
-  box-shadow: 0 0 0 2px rgba(74, 121, 55, 0.5), 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important; /* focus:ring-2 focus:ring-brandGreen */
+  border-color: #212830 !important; /* focus:border-brandGreen */
+  box-shadow: 0 0 0 2px rgba(33, 40, 48, 0.5), 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important; /* focus:ring-2 focus:ring-brandGreen */
 }
 
 /* Quill container styling */

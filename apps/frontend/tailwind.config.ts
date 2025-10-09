@@ -7,13 +7,14 @@ export default {
   theme: {
     extend: {
       colors: {
-        brandNavy: '#19183B',
+        brandNavy: '#0d1117',  // Navbar color - dark GitHub-style
         brandSteel: '#708993',
-        brandMint: '#A1C2BD',
+        brandMint: '#A1C2BD', 
         brandFoam: '#798a98',
-        brandGreen: '#4a7937', // Button color - forest green
+        brandGreen: '#212830', // Button color - dark gray
         brandText: '#f8f9fa',  // Light text for dark background
         brandTextMuted: '#e9ecef', // Slightly muted light text
+        brandBackground: '#010409', // Main background color - very dark
       },
     },
   },
