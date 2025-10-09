@@ -52,7 +52,7 @@ export default function AdminDashboard() {
             value={intro} 
             onChange={e=>setIntro(e.target.value)} 
             rows={6} 
-            className="w-full rounded-lg bg-white border border-brandSteel/50 px-3 py-2 text-gray-900 mb-2 resize-y focus:ring-2 focus:ring-brandGreen/50 focus:border-brandGreen"
+            className="w-full rounded-lg bg-gray-50 border border-brandSteel/50 px-3 py-2 text-gray-900 mb-2 resize-y focus:ring-2 focus:ring-brandGreen/50 focus:border-brandGreen shadow-sm"
             placeholder="Write a welcoming message that appears below your hero image on the homepage..."
           />
           <p className="text-xs text-brandText">

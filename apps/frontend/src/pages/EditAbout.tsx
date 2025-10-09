@@ -120,7 +120,7 @@ export default function EditAbout() {
           value={page.title}
           onChange={(e) => setPage(p => ({ ...(p as any), title: e.target.value }))}
           rows={4}
-          className="w-full rounded-lg bg-white border border-brandSteel/50 px-3 py-2 text-gray-900 resize-y focus:ring-2 focus:ring-brandGreen/50 focus:border-brandGreen"
+          className="w-full rounded-lg bg-gray-50 border border-brandSteel/50 px-3 py-2 text-gray-900 resize-y focus:ring-2 focus:ring-brandGreen/50 focus:border-brandGreen shadow-sm"
           placeholder="About Me"
         />
       </div>
