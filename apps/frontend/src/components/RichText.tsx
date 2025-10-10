@@ -9,7 +9,7 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
     toolbar: [
       [{ header: [1, 2, 3, false] }],
       ['bold', 'italic', 'underline', 'strike'],  
-      ['list'],
+      [{'list': 'ordered'}, {'list': 'bullet'}],
       ['link', 'image', 'code-block'],
       ['clean'],
     ],
