@@ -56,6 +56,3 @@ body { @apply bg-brandBackground text-brandText; }
   counter-increment: list-0;
 }
 
-.ql-editor ol li[data-list="ordered"] > .ql-ui:before {
-  content: counter(list-0, decimal) '. ';
-}
