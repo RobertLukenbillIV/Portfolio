@@ -15,12 +15,6 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
     ],
   }), [])
 
-  const formats = [
-    'header', 'bold', 'italic', 'underline', 'strike',
-    'list',
-    'link', 'image', 'code-block'
-  ]
-
   // Update editor value when prop value changes (from API loading)
   useEffect(() => {
     if (value !== editorValue) {
@@ -41,7 +35,6 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
       value={editorValue} 
       onChange={handleChange} 
       modules={modules}
-      formats={formats}
       placeholder="Enter your content here..."
     />
   )
