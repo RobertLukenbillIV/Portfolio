@@ -13,6 +13,7 @@ import AdminDashboard from './pages/AdminDashboard' // Content management interf
 import PostEditor from './pages/PostEditor'        // Create/edit posts interface
 import EditAbout from './pages/EditAbout'          // Direct edit interface for About page
 import EditLinks from './pages/EditLinks'          // Direct edit interface for Links page
+import QuillTest from './pages/QuillTest'          // Test page for debugging Quill list functionality
 import Login from './routes/Login'                 // Authentication form
 
 export default function App() {
@@ -32,6 +33,9 @@ export default function App() {
         
         {/* Authentication route */}
         <Route path="/login" element={<Login />} />                              {/* Admin login form */}
+        
+        {/* Development/Debug routes */}
+        <Route path="/test-quill" element={<QuillTest />} />                     {/* Test Quill list functionality */}
         
         {/* Admin routes - require authentication */}
         <Route path="/admin" element={<AdminDashboard />} />                     {/* Content management */}
