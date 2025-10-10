@@ -119,14 +119,14 @@ export default function ImageInput({
           value={value}
           onChange={handleUrlChange}
           placeholder={placeholder}
-          className="w-full rounded-lg bg-brandNavy border-2 border-slate-300 px-3 py-2 text-white placeholder-gray-300 focus:ring-2 focus:ring-brandGreen focus:border-brandGreen focus:outline-none shadow-md"
+          className="w-full rounded-lg bg-brandNavy border-2 border-brandNavy px-3 py-2 text-white placeholder-gray-300 focus:ring-2 focus:ring-brandGreen focus:border-brandGreen focus:outline-none shadow-md"
         />
       )}
 
       {/* Upload Mode */}
       {mode === 'upload' && (
         <div className="space-y-2">
-          <div className="w-full rounded-lg bg-brandNavy border-2 border-slate-300 px-3 py-2 shadow-md">
+          <div className="w-full rounded-lg bg-brandNavy border-2 border-brandNavy px-3 py-2 shadow-md">
             <input
               ref={fileInputRef}
               type="file"
