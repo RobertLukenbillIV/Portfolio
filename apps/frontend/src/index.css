@@ -52,7 +52,3 @@ body { @apply bg-brandBackground text-brandText; }
   counter-reset: list-0;
 }
 
-.ql-editor ol li[data-list="ordered"] {
-  counter-increment: list-0;
-}
-
