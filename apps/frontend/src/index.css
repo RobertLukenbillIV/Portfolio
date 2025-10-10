@@ -56,3 +56,33 @@ body { @apply bg-brandBackground text-brandText; }
   list-style-type: decimal !important;
   padding-left: 1.5rem !important;
 }
+
+/* Ensure Quill list classes work correctly */
+.ql-editor .ql-list-bullet {
+  list-style-type: disc !important;
+}
+
+.ql-editor .ql-list-ordered {
+  list-style-type: decimal !important;
+}
+
+/* Target data attributes if Quill uses them */
+.ql-editor li[data-list="bullet"] {
+  list-style-type: disc !important;
+}
+
+.ql-editor li[data-list="ordered"] {
+  list-style-type: decimal !important;
+}
+
+/* Force bullet points for unordered lists */
+.ql-editor ul > li {
+  list-style-type: disc !important;
+  display: list-item !important;
+}
+
+/* Force numbers for ordered lists */
+.ql-editor ol > li {
+  list-style-type: decimal !important;
+  display: list-item !important;
+}
