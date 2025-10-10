@@ -46,13 +46,18 @@ body { @apply bg-brandBackground text-brandText; }
   background-color: rgb(248 250 252) !important; /* bg-slate-50 */
 }
 
-/* Simple, explicit list styling */
-.ql-editor ul {
-  list-style-type: disc !important;      /* Bullet button → UL → bullets */
-  padding-left: 1.5rem !important;
+/* Target Quill's ql-ui spans for list markers */
+.ql-editor ul li .ql-ui::before {
+  content: "• " !important;              /* Force bullet for UL lists */
 }
 
+.ql-editor ol li .ql-ui::before {
+  content: counter(list-item) ". " !important;  /* Force numbers for OL lists */
+}
+
+/* Hide default list styling since Quill uses ql-ui */
+.ql-editor ul,
 .ql-editor ol {
-  list-style-type: decimal !important;   /* Ordered button → OL → numbers */
+  list-style: none !important;
   padding-left: 1.5rem !important;
 }
