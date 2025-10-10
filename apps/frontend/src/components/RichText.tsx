@@ -8,14 +8,18 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
   const modules = useMemo(() => ({
     toolbar: [
       [{ header: [1, 2, 3, false] }],
-      ['bold', 'italic', 'underline', 'strike'],
-      ['blockquote'],
-      [{ list: 'bullet' }],
-      [{ list: 'ordered' }],
+      ['bold', 'italic', 'underline', 'strike'],  
+      [{ list: 'ordered' }, { list: 'bullet' }],
       ['link', 'image', 'code-block'],
       ['clean'],
     ],
   }), [])
+
+  const formats = [
+    'header', 'bold', 'italic', 'underline', 'strike',
+    'list', 'bullet', 'ordered', 
+    'link', 'image', 'code-block'
+  ]
 
   // Update editor value when prop value changes (from API loading)
   useEffect(() => {
@@ -37,6 +41,7 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
       value={editorValue} 
       onChange={handleChange} 
       modules={modules}
+      formats={formats}
       placeholder="Enter your content here..."
     />
   )

@@ -46,13 +46,13 @@ body { @apply bg-brandBackground text-brandText; }
   background-color: rgb(248 250 252) !important; /* bg-slate-50 */
 }
 
-/* Basic list styling - distinguish between bullet and ordered lists */
+/* Simple, explicit list styling */
 .ql-editor ul {
-  list-style-type: disc !important;
+  list-style-type: disc !important;      /* Bullet button → UL → bullets */
   padding-left: 1.5rem !important;
 }
 
 .ql-editor ol {
-  list-style-type: decimal !important;
+  list-style-type: decimal !important;   /* Ordered button → OL → numbers */
   padding-left: 1.5rem !important;
 }
