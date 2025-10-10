@@ -18,10 +18,10 @@ body { @apply bg-brandBackground text-brandText; }
   .chip { @apply inline-flex items-center rounded-full bg-brandMint/40 px-2 py-0.5 text-xs text-brandNavy; }
 }
 
-/* Quill Editor Styling - Match other textboxes */
+/* Quill Editor Styling - Match navbar color */
 .ql-editor {
-  background-color: rgb(241 245 249) !important; /* bg-slate-100 */
-  color: rgb(17 24 39) !important; /* text-gray-900 */
+  background-color: #0d1117 !important; /* Match brandNavy navbar color */
+  color: #f8f9fa !important; /* Light text for dark background */
   border: 2px solid rgb(203 213 225) !important; /* border-2 border-slate-300 */
   border-radius: 0.5rem !important; /* rounded-lg */
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important; /* shadow-md */

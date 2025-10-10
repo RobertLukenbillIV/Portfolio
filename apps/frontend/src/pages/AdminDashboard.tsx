@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '@/state/auth'
 import { api } from '../lib/api'
 import ImageManager from '@/components/ImageManager'
+import { RichTextEditor } from '@/components/RichText'
 
 export default function AdminDashboard() {
   const { user } = useAuth()
@@ -48,14 +49,11 @@ export default function AdminDashboard() {
           <label className="block text-brandText mb-2 font-medium">
             Homepage Introduction Text
           </label>
-          <textarea 
+          <RichTextEditor 
             value={intro} 
-            onChange={e=>setIntro(e.target.value)} 
-            rows={6} 
-            className="w-full rounded-lg bg-slate-100 border-2 border-slate-300 px-3 py-2 text-gray-900 mb-2 resize-y focus:ring-2 focus:ring-brandGreen focus:border-brandGreen shadow-md"
-            placeholder="Write a welcoming message that appears below your hero image on the homepage..."
+            onChange={setIntro}
           />
-          <p className="text-xs text-brandText">
+          <p className="text-xs text-brandText mt-2">
             This text appears below the hero image on your homepage. Use it to introduce yourself or your work.
           </p>
         </div>
