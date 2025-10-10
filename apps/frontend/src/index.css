@@ -48,7 +48,4 @@ body { @apply bg-brandBackground text-brandText; }
 .ql-editor ol li[data-list="bullet"] > .ql-ui:before {
   content: '\2022';
 }
-.ql-editor ol {
-  counter-reset: list-0;
-}
 
