@@ -45,19 +45,17 @@ body { @apply bg-brandBackground text-brandText; }
   border-radius: 0.5rem 0.5rem 0 0 !important;
   background-color: rgb(248 250 252) !important; /* bg-slate-50 */
 }
-
-/* Target Quill's ql-ui spans for list markers */
-.ql-editor ul li .ql-ui::before {
-  content: "• " !important;              /* Force bullet for UL lists */
+.ql-editor ol li[data-list="bullet"] > .ql-ui:before {
+  content: '\2022';
 }
-
-.ql-editor ol li .ql-ui::before {
-  content: counter(list-item) ". " !important;  /* Force numbers for OL lists */
-}
-
-/* Hide default list styling since Quill uses ql-ui */
-.ql-editor ul,
 .ql-editor ol {
-  list-style: none !important;
-  padding-left: 1.5rem !important;
+  counter-reset: list-0;
+}
+
+.ql-editor ol li[data-list="ordered"] {
+  counter-increment: list-0;
+}
+
+.ql-editor ol li[data-list="ordered"] > .ql-ui:before {
+  content: counter(list-0, decimal) '. ';
 }
