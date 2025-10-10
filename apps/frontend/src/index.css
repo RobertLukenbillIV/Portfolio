@@ -22,7 +22,7 @@ body { @apply bg-brandBackground text-brandText; }
 .ql-editor {
   background-color: #0d1117 !important; /* Match brandNavy navbar color */
   color: #f8f9fa !important; /* Light text for dark background */
-  border: 2px solid rgb(203 213 225) !important; /* border-2 border-slate-300 */
+  border: 2px solid #0d1117 !important; /* Match navbar color */
   border-radius: 0.5rem !important; /* rounded-lg */
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important; /* shadow-md */
   padding: 0.5rem 0.75rem !important; /* px-3 py-2 */
@@ -40,10 +40,50 @@ body { @apply bg-brandBackground text-brandText; }
 }
 
 .ql-toolbar {
-  border: 2px solid rgb(203 213 225) !important;
+  border: 2px solid #0d1117 !important; /* Match navbar color */
   border-bottom: none !important;
   border-radius: 0.5rem 0.5rem 0 0 !important;
-  background-color: rgb(248 250 252) !important; /* bg-slate-50 */
+  background-color: #0d1117 !important; /* Match navbar color */
+}
+
+/* Toolbar button styling for dark theme */
+.ql-toolbar .ql-formats button {
+  color: #f8f9fa !important; /* Light text for buttons */
+}
+
+.ql-toolbar .ql-formats button:hover {
+  color: #ffffff !important; /* White on hover */
+  background-color: rgba(255, 255, 255, 0.1) !important; /* Subtle hover effect */
+}
+
+.ql-toolbar .ql-formats button.ql-active {
+  color: #212830 !important; /* brandGreen color for active buttons */
+  background-color: rgba(33, 40, 48, 0.2) !important; /* Subtle active background */
+}
+
+/* Toolbar stroke/fill colors for icons */
+.ql-toolbar .ql-stroke {
+  stroke: #f8f9fa !important;
+}
+
+.ql-toolbar .ql-fill {
+  fill: #f8f9fa !important;
+}
+
+.ql-toolbar button:hover .ql-stroke {
+  stroke: #ffffff !important;
+}
+
+.ql-toolbar button:hover .ql-fill {
+  fill: #ffffff !important;
+}
+
+.ql-toolbar button.ql-active .ql-stroke {
+  stroke: #212830 !important;
+}
+
+.ql-toolbar button.ql-active .ql-fill {
+  fill: #212830 !important;
 }
 .ql-editor ol li::before {
   content: "";
