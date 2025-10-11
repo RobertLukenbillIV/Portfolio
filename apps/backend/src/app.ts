@@ -165,16 +165,25 @@ app.get('/debug/uploads', (req, res) => {
 // Custom handler for uploaded files with explicit CORS headers
 app.get('/uploads/images/:filename', (req, res) => {
   const origin = req.get('Origin')
-  console.log(`Image request: ${req.params.filename} from origin: ${origin}`)
+  const referer = req.get('Referer')
+  const userAgent = req.get('User-Agent')
+  
+  console.log(`=== IMAGE REQUEST DEBUG ===`)
+  console.log(`File: ${req.params.filename}`)
+  console.log(`Origin: ${origin}`)
+  console.log(`Referer: ${referer}`)
+  console.log(`User-Agent: ${userAgent}`)
+  console.log(`All headers:`, JSON.stringify(req.headers, null, 2))
+  console.log(`=== END DEBUG ===`)
   
   // Set explicit CORS headers for image requests - force allow all origins
   res.header('Access-Control-Allow-Origin', '*')
   res.header('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS')
   res.header('Access-Control-Allow-Headers', '*')
   res.header('Access-Control-Max-Age', '86400')
+  res.header('Vary', 'Origin') // Help with caching
   
-  // Note: Cannot use credentials with wildcard origin, but images don't need credentials
-  console.log(`CORS headers set for image request from: ${origin}`)
+  console.log(`CORS headers set for image request from: ${origin || 'no-origin'}`)
   
   // Handle preflight OPTIONS for this specific route
   if (req.method === 'OPTIONS') {
@@ -202,6 +211,11 @@ app.get('/uploads/images/:filename', (req, res) => {
       // Ensure CORS headers are set right before sending file
       res.header('Access-Control-Allow-Origin', '*')
       res.header('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS')
+      res.header('Access-Control-Allow-Headers', '*')
+      res.header('Cross-Origin-Resource-Policy', 'cross-origin')
+      res.header('Cross-Origin-Embedder-Policy', 'unsafe-none')
+      
+      console.log(`About to send file with CORS headers`)
       return res.sendFile(filePath)
     } else {
       console.log(`File not found: ${filename} (also tried: ${decodedFilename})`)
