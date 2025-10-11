@@ -21,10 +21,8 @@ export default function PostEditor({ mode }: { mode: 'create' | 'edit' }) {
 
   useEffect(() => {
     if (mode === 'edit' && id) {
-      console.log('PostEditor: Loading post data for', id)
       api.get(`/posts/${id}/admin`).then(r => {
         const p = r.data.post
-        console.log('PostEditor: Setting state with', { excerpt: p?.excerpt, content: p?.content })
         setTitle(p?.title ?? '')
         setExcerpt(p?.excerpt ?? '')
         setContent(p?.content ?? '')
