@@ -167,16 +167,14 @@ app.get('/uploads/images/:filename', (req, res) => {
   const origin = req.get('Origin')
   console.log(`Image request: ${req.params.filename} from origin: ${origin}`)
   
-  // Set explicit CORS headers for image requests
-  if (origin) {
-    res.header('Access-Control-Allow-Origin', origin)
-  } else {
-    res.header('Access-Control-Allow-Origin', '*')
-  }
+  // Set explicit CORS headers for image requests - force allow all origins
+  res.header('Access-Control-Allow-Origin', '*')
   res.header('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS')
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization')
-  res.header('Access-Control-Allow-Credentials', 'true')
+  res.header('Access-Control-Allow-Headers', '*')
   res.header('Access-Control-Max-Age', '86400')
+  
+  // Note: Cannot use credentials with wildcard origin, but images don't need credentials
+  console.log(`CORS headers set for image request from: ${origin}`)
   
   // Handle preflight OPTIONS for this specific route
   if (req.method === 'OPTIONS') {
@@ -201,6 +199,9 @@ app.get('/uploads/images/:filename', (req, res) => {
     
     if (fs.existsSync(filePath)) {
       console.log(`Serving file: ${filePath}`)
+      // Ensure CORS headers are set right before sending file
+      res.header('Access-Control-Allow-Origin', '*')
+      res.header('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS')
       return res.sendFile(filePath)
     } else {
       console.log(`File not found: ${filename} (also tried: ${decodedFilename})`)
