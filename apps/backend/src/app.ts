@@ -91,6 +91,32 @@ app.use(cors(corsOptions))
 // Parse JSON request bodies (with 5MB limit for image uploads)
 app.use(express.json())
 
+// Debug endpoint to check what files exist (temporary)
+app.get('/debug/uploads', (req, res) => {
+  try {
+    const uploadsDir = path.join(process.cwd(), 'uploads', 'images')
+    console.log('Debug: uploads directory path:', uploadsDir)
+    
+    if (!fs.existsSync(uploadsDir)) {
+      return res.json({ 
+        error: 'Uploads directory does not exist', 
+        path: uploadsDir,
+        cwd: process.cwd()
+      })
+    }
+    
+    const files = fs.readdirSync(uploadsDir)
+    return res.json({ 
+      uploadsDir, 
+      files, 
+      count: files.length,
+      cwd: process.cwd()
+    })
+  } catch (error: any) {
+    return res.json({ error: error.message })
+  }
+})
+
 // Custom handler for uploaded files with URL decoding and CORS
 app.get('/uploads/images/:filename', (req, res) => {
   const origin = req.get('Origin')
