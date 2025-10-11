@@ -17,14 +17,11 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
 
   // Update editor value when prop value changes (from API loading)
   useEffect(() => {
-    if (value !== editorValue) {
-      console.log('RichTextEditor: Updating content from', editorValue, 'to', value)
-      setEditorValue(value || '')
-    }
-  }, [value, editorValue])
+    console.log('RichTextEditor: value prop changed:', { value, length: value?.length })
+    setEditorValue(value || '')
+  }, [value])
 
   const handleChange = (content: string) => {
-    console.log('RichTextEditor: Content changed to', content)
     setEditorValue(content)
     onChange(content)
   }
