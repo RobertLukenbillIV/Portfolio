@@ -7,6 +7,7 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import helmet from 'helmet'
 import path from 'path'
+import fs from 'fs'
 // Route imports - each handles a specific domain of functionality
 import pagesRoutes from './routes/pages.routes'     // Handles dynamic pages (About, Links)
 import settingsRoutes from './routes/settings.routes' // Handles site-wide settings
@@ -90,37 +91,63 @@ app.use(cors(corsOptions))
 // Parse JSON request bodies (with 5MB limit for image uploads)
 app.use(express.json())
 
-// Serve uploaded files statically with comprehensive CORS headers
+// Custom handler for uploaded files with URL decoding and CORS
+app.get('/uploads/images/:filename', (req, res) => {
+  const origin = req.get('Origin')
+  console.log(`Image request: ${req.params.filename} from origin: ${origin}`)
+  
+  // Apply CORS headers - allow all origins temporarily
+  res.header('Access-Control-Allow-Origin', origin || '*')
+  res.header('Access-Control-Allow-Credentials', 'true')
+  
+  try {
+    // Try both URL-decoded and original filename
+    const filename = req.params.filename
+    const decodedFilename = decodeURIComponent(filename)
+    
+    const uploadsDir = path.join(process.cwd(), 'uploads', 'images')
+    let filePath = path.join(uploadsDir, filename)
+    
+    // Check if original filename exists
+    if (!fs.existsSync(filePath) && filename !== decodedFilename) {
+      // Try URL-decoded version
+      filePath = path.join(uploadsDir, decodedFilename)
+      console.log(`Trying decoded filename: ${decodedFilename}`)
+    }
+    
+    if (fs.existsSync(filePath)) {
+      console.log(`Serving file: ${filePath}`)
+      return res.sendFile(filePath)
+    } else {
+      console.log(`File not found: ${filename} (also tried: ${decodedFilename})`)
+      // List available files for debugging
+      const availableFiles = fs.readdirSync(uploadsDir)
+      console.log(`Available files:`, availableFiles)
+      return res.status(404).json({ error: 'File not found', requested: filename, available: availableFiles })
+    }
+  } catch (error) {
+    console.error('Error serving image:', error)
+    return res.status(500).json({ error: 'Server error' })
+  }
+})
+
+// Serve other uploaded files statically with CORS headers
 app.use('/uploads', (req, res, next) => {
   const origin = req.get('Origin')
-  console.log(`Static file request: ${req.method} ${req.path} from origin: ${origin}`)
   
-  // Handle preflight OPTIONS requests - temporarily allow all origins
+  // Handle preflight OPTIONS requests
   if (req.method === 'OPTIONS') {
-    if (origin) {
-      res.header('Access-Control-Allow-Origin', origin)
-    } else {
-      res.header('Access-Control-Allow-Origin', '*')
-    }
+    res.header('Access-Control-Allow-Origin', origin || '*')
     res.header('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS')
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
     res.header('Access-Control-Allow-Credentials', 'true')
-    res.header('Access-Control-Max-Age', '86400') // Cache preflight for 24 hours
-    console.log(`OPTIONS preflight handled for static file from: ${origin}`)
+    res.header('Access-Control-Max-Age', '86400')
     return res.status(200).end()
   }
   
   // Apply CORS headers for actual requests
-  // Temporarily allow all origins for static files to debug CORS issues
-  if (origin) {
-    res.header('Access-Control-Allow-Origin', origin)
-    res.header('Access-Control-Allow-Credentials', 'true')
-    console.log(`CORS headers added for static file: ${origin}`)
-  } else {
-    // For requests without origin (like direct access), allow any origin
-    res.header('Access-Control-Allow-Origin', '*')
-    console.log(`CORS headers added for static file: no origin (allowing all)`)
-  }
+  res.header('Access-Control-Allow-Origin', origin || '*')
+  res.header('Access-Control-Allow-Credentials', 'true')
   
   next()
 }, express.static(path.join(process.cwd(), 'uploads')))
