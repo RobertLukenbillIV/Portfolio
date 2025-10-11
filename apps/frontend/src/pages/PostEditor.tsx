@@ -23,13 +23,6 @@ export default function PostEditor({ mode }: { mode: 'create' | 'edit' }) {
     if (mode === 'edit' && id) {
       api.get(`/posts/${id}/admin`).then(r => {
         const p = r.data.post
-        console.log('PostEditor: Loaded post data:', { 
-          title: p?.title, 
-          excerpt: p?.excerpt, 
-          content: p?.content,
-          excerptLength: p?.excerpt?.length,
-          contentLength: p?.content?.length
-        })
         setTitle(p?.title ?? '')
         setExcerpt(p?.excerpt ?? '')
         setContent(p?.content ?? '')
