@@ -39,7 +39,10 @@ export default function ProjectCard({ post, onDelete }: { post: Post; onDelete?:
     <article className="rounded-2xl p-4 border border-brandSteel/30 bg-brandMint/20/40">
       {p.coverUrl && <img src={p.coverUrl} className="rounded-xl mb-3 h-40 w-full object-cover" />}
       <h3 className="text-mocha font-medium mb-2">{p.title}</h3>
-      <p className="text-brandSteel/90 text-sm mb-3">{p.excerpt}</p>
+      <div 
+        className="text-brandSteel/90 text-sm mb-3"
+        dangerouslySetInnerHTML={{ __html: p.excerpt }}
+      />
 
       <div className="flex gap-2 flex-wrap">
         <button

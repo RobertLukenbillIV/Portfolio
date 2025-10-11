@@ -15,6 +15,7 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
 
   return (
     <ReactQuill 
+      key={value} // Force re-initialization when value changes
       theme="snow" 
       value={value} 
       onChange={onChange} 

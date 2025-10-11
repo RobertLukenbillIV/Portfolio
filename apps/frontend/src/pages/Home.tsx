@@ -49,7 +49,10 @@ export default function Home() {
               <img src={p.coverUrl} className="rounded-xl mb-3 h-40 w-full object-cover" />
             )}
             <h3 className="text-brandText font-medium mb-2">{p.title}</h3>
-            <p className="text-brandTextMuted text-sm">{p.excerpt}</p>
+            <div 
+              className="text-brandTextMuted text-sm"
+              dangerouslySetInnerHTML={{ __html: p.excerpt }}
+            />
           </Link>
         ))}
         {featured.length === 0 && (

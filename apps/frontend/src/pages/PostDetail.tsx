@@ -80,7 +80,10 @@ export default function PostDetail() {
       
       {/* Post title and metadata */}
       <h1 className="text-3xl font-bold text-brandText mb-2">{post.title}</h1>
-      <p className="text-brandTextMuted mb-6">{post.excerpt}</p>
+      <div 
+        className="text-brandTextMuted mb-6"
+        dangerouslySetInnerHTML={{ __html: post.excerpt }}
+      />
       
       {/* Post content */}
       <div 
