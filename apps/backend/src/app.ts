@@ -180,8 +180,10 @@ app.get('/uploads/images/:filename', (req, res) => {
   res.header('Access-Control-Allow-Origin', '*')
   res.header('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS')
   res.header('Access-Control-Allow-Headers', '*')
+  res.header('Access-Control-Allow-Credentials', 'false') // Must be false when origin is *
   res.header('Access-Control-Max-Age', '86400')
-  res.header('Vary', 'Origin') // Help with caching
+  res.header('Cross-Origin-Resource-Policy', 'cross-origin')
+  res.header('Vary', 'Origin')
   
   console.log(`CORS headers set for image request from: ${origin || 'no-origin'}`)
   
@@ -208,14 +210,26 @@ app.get('/uploads/images/:filename', (req, res) => {
     
     if (fs.existsSync(filePath)) {
       console.log(`Serving file: ${filePath}`)
-      // Ensure CORS headers are set right before sending file
+      
+      // Set comprehensive CORS and security headers for cross-origin image access
       res.header('Access-Control-Allow-Origin', '*')
       res.header('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS')
       res.header('Access-Control-Allow-Headers', '*')
+      res.header('Access-Control-Allow-Credentials', 'false') // Must be false when origin is *
       res.header('Cross-Origin-Resource-Policy', 'cross-origin')
       res.header('Cross-Origin-Embedder-Policy', 'unsafe-none')
+      res.header('Vary', 'Origin')
       
-      console.log(`About to send file with CORS headers`)
+      // Set cache headers to prevent caching issues
+      res.header('Cache-Control', 'public, max-age=31536000')
+      
+      console.log(`About to send file with comprehensive CORS headers`)
+      console.log(`Headers being sent:`, {
+        'Access-Control-Allow-Origin': res.getHeader('Access-Control-Allow-Origin'),
+        'Cross-Origin-Resource-Policy': res.getHeader('Cross-Origin-Resource-Policy'),
+        'Access-Control-Allow-Credentials': res.getHeader('Access-Control-Allow-Credentials')
+      })
+      
       return res.sendFile(filePath)
     } else {
       console.log(`File not found: ${filename} (also tried: ${decodedFilename})`)
