@@ -91,8 +91,51 @@ app.use(cors(corsOptions))
 // Parse JSON request bodies (with 5MB limit for image uploads)
 app.use(express.json())
 
+// Explicit OPTIONS handler for image uploads
+app.options('/uploads/images/:filename', (req, res) => {
+  const origin = req.get('Origin')
+  console.log(`OPTIONS preflight for image: ${req.params.filename} from origin: ${origin}`)
+  
+  // Set comprehensive CORS headers for preflight
+  if (origin) {
+    res.header('Access-Control-Allow-Origin', origin)
+  } else {
+    res.header('Access-Control-Allow-Origin', '*')
+  }
+  res.header('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS')
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization')
+  res.header('Access-Control-Allow-Credentials', 'true')
+  res.header('Access-Control-Max-Age', '86400')
+  
+  res.status(200).end()
+})
+
+// Debug endpoint to check request origin and CORS setup
+app.get('/debug/cors', (req, res) => {
+  const origin = req.get('Origin')
+  const referer = req.get('Referer')
+  const userAgent = req.get('User-Agent')
+  
+  res.header('Access-Control-Allow-Origin', origin || '*')
+  res.header('Access-Control-Allow-Credentials', 'true')
+  
+  res.json({
+    origin,
+    referer,
+    userAgent,
+    headers: req.headers,
+    isOriginAllowed: isOriginAllowed(origin),
+    defaultOrigins,
+    allowlist
+  })
+})
+
 // Debug endpoint to check what files exist (temporary)
 app.get('/debug/uploads', (req, res) => {
+  const origin = req.get('Origin')
+  res.header('Access-Control-Allow-Origin', origin || '*')
+  res.header('Access-Control-Allow-Credentials', 'true')
+  
   try {
     const uploadsDir = path.join(process.cwd(), 'uploads', 'images')
     console.log('Debug: uploads directory path:', uploadsDir)
@@ -101,7 +144,8 @@ app.get('/debug/uploads', (req, res) => {
       return res.json({ 
         error: 'Uploads directory does not exist', 
         path: uploadsDir,
-        cwd: process.cwd()
+        cwd: process.cwd(),
+        origin
       })
     }
     
@@ -110,21 +154,35 @@ app.get('/debug/uploads', (req, res) => {
       uploadsDir, 
       files, 
       count: files.length,
-      cwd: process.cwd()
+      cwd: process.cwd(),
+      origin
     })
   } catch (error: any) {
-    return res.json({ error: error.message })
+    return res.json({ error: error.message, origin })
   }
 })
 
-// Custom handler for uploaded files with URL decoding and CORS
+// Custom handler for uploaded files with explicit CORS headers
 app.get('/uploads/images/:filename', (req, res) => {
   const origin = req.get('Origin')
   console.log(`Image request: ${req.params.filename} from origin: ${origin}`)
   
-  // Apply CORS headers - allow all origins temporarily
-  res.header('Access-Control-Allow-Origin', origin || '*')
+  // Set explicit CORS headers for image requests
+  if (origin) {
+    res.header('Access-Control-Allow-Origin', origin)
+  } else {
+    res.header('Access-Control-Allow-Origin', '*')
+  }
+  res.header('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS')
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization')
   res.header('Access-Control-Allow-Credentials', 'true')
+  res.header('Access-Control-Max-Age', '86400')
+  
+  // Handle preflight OPTIONS for this specific route
+  if (req.method === 'OPTIONS') {
+    console.log(`OPTIONS preflight for image from: ${origin}`)
+    return res.status(200).end()
+  }
   
   try {
     // Try both URL-decoded and original filename
