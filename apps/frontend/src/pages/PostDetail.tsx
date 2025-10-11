@@ -35,7 +35,7 @@ export default function PostDetail() {
     setError(null)
     
     api.get(`/posts/${id}`)
-      .then(r => setPost(r.data))
+      .then(r => setPost(r.data.post))
       .catch(err => {
         console.error('Failed to load post:', err)
         setError(err.response?.status === 404 ? 'Post not found' : 'Failed to load post')

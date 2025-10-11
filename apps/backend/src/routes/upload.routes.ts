@@ -59,8 +59,10 @@ const upload = multer({
 // Protected route - requires authentication
 // Returns: { url: string } - relative URL to uploaded file
 router.post('/image', requireAuth, (req: MulterRequest, res: Response) => {
+  console.log('Upload request received')
   upload.single('image')(req, res, (err: any) => {
     if (err) {
+      console.error('Upload error:', err)
       if (err instanceof multer.MulterError) {
         if (err.code === 'LIMIT_FILE_SIZE') {
           return res.status(400).json({ error: 'File too large' })
@@ -68,13 +70,16 @@ router.post('/image', requireAuth, (req: MulterRequest, res: Response) => {
         return res.status(400).json({ error: err.message })
       }
       // File filter error (e.g., "Only image files are allowed")
-      return res.status(500).json({ error: err.message })
+      return res.status(400).json({ error: err.message })
     }
 
     if (!req.file) {
+      console.log('No file in request')
       return res.status(400).json({ error: 'No file uploaded' })
     }
 
+    console.log('File uploaded successfully:', req.file.filename)
+    
     // Return relative URL that can be served by static middleware
     const imageUrl = `/uploads/images/${req.file.filename}`
     
