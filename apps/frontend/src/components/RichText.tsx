@@ -1,9 +1,10 @@
-import { useMemo, useState, useEffect } from 'react'
+import { useMemo, useState, useEffect, useRef } from 'react'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 
 export function RichTextEditor({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const [editorValue, setEditorValue] = useState(value || '')
+  const quillRef = useRef<ReactQuill>(null)
   
   const modules = useMemo(() => ({
     toolbar: [
@@ -23,6 +24,15 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
     if (value !== editorValue && value !== '') {
       console.log('RichTextEditor: Updating editor value from', editorValue, 'to', value)
       setEditorValue(value)
+      
+      // Force update the Quill editor directly
+      if (quillRef.current) {
+        const editor = quillRef.current.getEditor()
+        if (editor.getText().trim() === '' || editor.root.innerHTML !== value) {
+          console.log('RichTextEditor: Force updating Quill editor content')
+          editor.root.innerHTML = value
+        }
+      }
     }
   }, [value])
 
@@ -33,6 +43,7 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
 
   return (
     <ReactQuill 
+      ref={quillRef}
       theme="snow" 
       value={editorValue} 
       onChange={handleChange} 
