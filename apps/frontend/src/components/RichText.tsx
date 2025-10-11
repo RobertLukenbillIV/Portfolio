@@ -25,12 +25,15 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
       console.log('RichTextEditor: Updating editor value from', editorValue, 'to', value)
       setEditorValue(value)
       
-      // Force update the Quill editor directly
+      // Force update the Quill editor using proper API
       if (quillRef.current) {
         const editor = quillRef.current.getEditor()
-        if (editor.getText().trim() === '' || editor.root.innerHTML !== value) {
-          console.log('RichTextEditor: Force updating Quill editor content')
-          editor.root.innerHTML = value
+        const currentContent = editor.root.innerHTML
+        if (currentContent !== value && (editor.getText().trim() === '' || currentContent.length === 0)) {
+          console.log('RichTextEditor: Force updating Quill editor content using clipboard API')
+          // Use Quill's clipboard API to properly convert and set HTML content
+          const delta = editor.clipboard.convert({ html: value })
+          editor.setContents(delta, 'silent') // 'silent' prevents triggering change events
         }
       }
     }
