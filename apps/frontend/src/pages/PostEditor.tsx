@@ -59,18 +59,13 @@ export default function PostEditor({ mode }: { mode: 'create' | 'edit' }) {
         value={title}
         onChange={e => setTitle(e.target.value)}
         rows={2}
-        className="w-full mb-3 rounded-lg bg-slate-100 border-2 border-slate-300 px-3 py-2 text-gray-900 resize-y focus:ring-2 focus:ring-brandGreen focus:border-brandGreen shadow-md"
+        className="w-full mb-3 rounded-lg bg-brandNavy border-2 border-brandNavy px-3 py-2 text-white placeholder-gray-300 resize-y focus:ring-2 focus:ring-brandGreen focus:border-brandGreen shadow-md"
         placeholder="Enter post title..."
       />
 
-      <label className="block text-brandSteel mb-1">Excerpt</label>
-      <textarea
-        value={excerpt}
-        onChange={e => setExcerpt(e.target.value)}
-        rows={5}
-        className="w-full mb-3 rounded-lg bg-slate-100 border-2 border-slate-300 px-3 py-2 text-gray-900 resize-y focus:ring-2 focus:ring-brandGreen focus:border-brandGreen shadow-md"
-        placeholder="Brief description of the post..."
-      />
+      <label className="block text-brandSteel mb-2">Excerpt</label>
+      <RichTextEditor value={excerpt} onChange={setExcerpt} />
+      <div className="mb-3"></div>
 
       <ImageManager
         value={coverUrl}
