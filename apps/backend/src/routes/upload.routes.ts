@@ -80,8 +80,10 @@ router.post('/image', requireAuth, (req: MulterRequest, res: Response) => {
 
     console.log('File uploaded successfully:', req.file.filename)
     
-    // Return relative URL that can be served by static middleware
-    const imageUrl = `/uploads/images/${req.file.filename}`
+    // Return full URL including host for cross-origin access
+    const protocol = req.protocol
+    const host = req.get('host') 
+    const imageUrl = `${protocol}://${host}/uploads/images/${req.file.filename}`
     
     res.json({ 
       success: true,
@@ -153,7 +155,7 @@ router.get('/images', requireAuth, (req: Request, res: Response) => {
         
         return {
           filename: file,
-          url: `/uploads/images/${file}`,
+          url: `${req.protocol}://${req.get('host')}/uploads/images/${file}`,
           size: stats.size,
           createdAt: stats.birthtime,
           modifiedAt: stats.mtime
