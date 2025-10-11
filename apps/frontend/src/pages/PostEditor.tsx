@@ -21,7 +21,7 @@ export default function PostEditor({ mode }: { mode: 'create' | 'edit' }) {
 
   useEffect(() => {
     if (mode === 'edit' && id) {
-      api.get(`/posts/${id}`).then(r => {
+      api.get(`/posts/${id}/admin`).then(r => {
         const p = r.data.post
         setTitle(p?.title ?? '')
         setExcerpt(p?.excerpt ?? '')

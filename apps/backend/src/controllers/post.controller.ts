@@ -10,13 +10,15 @@ import { prisma } from '../lib/db'                    // Database client
 // Protected by requireAuth middleware in routes
 // Called by: admin dashboard for content management
 export async function list(_req:Request,res:Response){ 
-  res.json(await svc.list()) 
+  const posts = await svc.list()
+  res.json({ posts }) 
 }
 
 // GET /api/posts/public - List published posts (public access)
 // Called by: frontend Projects page to display portfolio items
 export async function listPublic(_req:Request,res:Response){ 
-  res.json(await svc.listPublic()) 
+  const posts = await svc.listPublic()
+  res.json({ posts }) 
 }
 
 // POST /api/posts - Create new post
@@ -25,7 +27,7 @@ export async function listPublic(_req:Request,res:Response){
 export async function create(req:Request,res:Response){
   const user=(req as any).user                       // User attached by auth middleware
   const created = await svc.create({...req.body, authorId:user.id})
-  res.status(201).json(created)
+  res.status(201).json({ post: created })
 }
 
 // PUT /api/posts/:id - Update existing post
@@ -35,7 +37,7 @@ export async function update(req:Request,res:Response){
   const { id } = req.params
   const updated = await svc.update(id, req.body)
   if (!updated) return res.status(404).json({ error: 'Post not found' })
-  res.json(updated)
+  res.json({ post: updated })
 }
 
 // GET /api/posts/:id - Get individual post (public access)
@@ -44,7 +46,7 @@ export async function update(req:Request,res:Response){
 export async function getById(req:Request,res:Response){ 
   const post = await svc.getById(req.params.id)
   if (!post) return res.status(404).json({ error: 'Post not found' })
-  res.json(post)
+  res.json({ post })
 }
 
 // GET /api/posts/:id/admin - Get individual post (admin access)
@@ -53,7 +55,7 @@ export async function getById(req:Request,res:Response){
 export async function getByIdAdmin(req:Request,res:Response){ 
   const post = await svc.getByIdAdmin(req.params.id)
   if (!post) return res.status(404).json({ error: 'Post not found' })
-  res.json(post)
+  res.json({ post })
 }
 
 // DELETE /api/posts/:id - Remove post
