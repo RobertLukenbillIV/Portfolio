@@ -28,10 +28,13 @@ const storage = multer.diskStorage({
     cb(null, uploadsDir)
   },
   filename: (_req: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void) => {
-    // Generate unique filename: timestamp-random-originalname
+    // Generate unique filename: timestamp-random-sanitized-originalname
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
     const ext = path.extname(file.originalname)
     const name = path.basename(file.originalname, ext)
+      .replace(/[^a-zA-Z0-9.-]/g, '_') // Replace special chars and spaces with underscores
+      .replace(/_{2,}/g, '_') // Replace multiple underscores with single
+      .replace(/^_|_$/g, '') // Remove leading/trailing underscores
     cb(null, `${uniqueSuffix}-${name}${ext}`)
   }
 })

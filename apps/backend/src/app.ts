@@ -95,29 +95,31 @@ app.use('/uploads', (req, res, next) => {
   const origin = req.get('Origin')
   console.log(`Static file request: ${req.method} ${req.path} from origin: ${origin}`)
   
-  // Handle preflight OPTIONS requests
+  // Handle preflight OPTIONS requests - temporarily allow all origins
   if (req.method === 'OPTIONS') {
-    if (isOriginAllowed(origin)) {
+    if (origin) {
       res.header('Access-Control-Allow-Origin', origin)
-      res.header('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS')
-      res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
-      res.header('Access-Control-Allow-Credentials', 'true')
-      res.header('Access-Control-Max-Age', '86400') // Cache preflight for 24 hours
-      console.log(`OPTIONS preflight handled for static file from: ${origin}`)
-      return res.status(200).end()
     } else {
-      console.log(`OPTIONS blocked for static file from: ${origin}`)
-      return res.status(403).end()
+      res.header('Access-Control-Allow-Origin', '*')
     }
+    res.header('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS')
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
+    res.header('Access-Control-Allow-Credentials', 'true')
+    res.header('Access-Control-Max-Age', '86400') // Cache preflight for 24 hours
+    console.log(`OPTIONS preflight handled for static file from: ${origin}`)
+    return res.status(200).end()
   }
   
   // Apply CORS headers for actual requests
-  if (isOriginAllowed(origin)) {
+  // Temporarily allow all origins for static files to debug CORS issues
+  if (origin) {
     res.header('Access-Control-Allow-Origin', origin)
     res.header('Access-Control-Allow-Credentials', 'true')
     console.log(`CORS headers added for static file: ${origin}`)
   } else {
-    console.log(`CORS blocked for static file from: ${origin}`)
+    // For requests without origin (like direct access), allow any origin
+    res.header('Access-Control-Allow-Origin', '*')
+    console.log(`CORS headers added for static file: no origin (allowing all)`)
   }
   
   next()
