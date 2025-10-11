@@ -39,37 +39,43 @@ const defaultOrigins = [
   'https://portfolio-frontend-eight-sooty.vercel.app' // Current Vercel deployment
 ]
 
+// Helper function to validate if an origin is allowed
+function isOriginAllowed(origin: string | undefined): boolean {
+  if (!origin) return true // Allow server-to-server requests
+  
+  try {
+    const host = new URL(origin).hostname
+    
+    // Multi-layered origin validation:
+    // 1. Explicit allowlist from environment variables
+    // 2. Hardcoded default origins (development + current production)
+    // 3. All Vercel preview deployments (*.vercel.app)
+    // 4. Localhost (any port) for development
+    // 5. Local network IPs for development (127.0.0.1, 192.168.x.x)
+    const allowed = 
+      allowlist.includes(origin) ||
+      defaultOrigins.includes(origin) ||
+      host.endsWith('.vercel.app') ||
+      (host === 'localhost') ||
+      (!isProd && (host === '127.0.0.1' || host.startsWith('192.168.')))
+    
+    return allowed
+  } catch (err) {
+    console.error(`Origin validation error for ${origin}:`, err)
+    return false
+  }
+}
+
 // CORS (Cross-Origin Resource Sharing) configuration
 // This is critical for allowing the frontend (on Vercel) to communicate with backend (on Render)
 const corsOptions: cors.CorsOptions = {
   origin(origin, cb) {
-    // Allow server-to-server requests (no origin header) - needed for health checks
-    if (!origin) return cb(null, true)
+    const allowed = isOriginAllowed(origin)
     
-    try {
-      const host = new URL(origin).hostname
-      
-      // Multi-layered origin validation:
-      // 1. Explicit allowlist from environment variables
-      // 2. Hardcoded default origins (development + current production)
-      // 3. All Vercel preview deployments (*.vercel.app)
-      // 4. Localhost (any port) for development
-      // 5. Local network IPs for development (127.0.0.1, 192.168.x.x)
-      const allowed = 
-        allowlist.includes(origin) ||
-        defaultOrigins.includes(origin) ||
-        host.endsWith('.vercel.app') ||
-        (host === 'localhost') ||
-        (!isProd && (host === '127.0.0.1' || host.startsWith('192.168.')))
-      
-      // Log CORS decisions for debugging production issues
-      console.log(`CORS check: ${origin} -> ${allowed ? 'ALLOWED' : 'BLOCKED'}`)
-      
-      return allowed ? cb(null, true) : cb(new Error(`CORS blocked: ${origin}`))
-    } catch (err) {
-      console.error(`CORS error for origin ${origin}:`, err)
-      return cb(new Error(`Bad Origin: ${origin}`))
-    }
+    // Log CORS decisions for debugging production issues
+    console.log(`CORS check: ${origin} -> ${allowed ? 'ALLOWED' : 'BLOCKED'}`)
+    
+    return allowed ? cb(null, true) : cb(new Error(`CORS blocked: ${origin}`))
   },
   credentials: true, // Allow cookies and authorization headers
   methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -81,8 +87,21 @@ app.use(cors(corsOptions))
 // Parse JSON request bodies (with 5MB limit for image uploads)
 app.use(express.json())
 
-// Serve uploaded files statically
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')))
+// Serve uploaded files statically with CORS headers
+app.use('/uploads', (req, res, next) => {
+  // Apply CORS headers for static files
+  const origin = req.get('Origin')
+  console.log(`Static file request: ${req.path} from origin: ${origin}`)
+  
+  if (isOriginAllowed(origin)) {
+    res.header('Access-Control-Allow-Origin', origin)
+    console.log(`CORS headers added for static file: ${origin}`)
+  } else {
+    console.log(`CORS blocked for static file from: ${origin}`)
+  }
+  res.header('Access-Control-Allow-Credentials', 'true')
+  next()
+}, express.static(path.join(process.cwd(), 'uploads')))
 
 // Global error handler for CORS violations
 // Provides better debugging info when CORS issues occur
