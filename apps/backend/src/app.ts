@@ -36,7 +36,9 @@ const allowlist = csv.split(',').map(s => s.trim()).filter(Boolean)
 const defaultOrigins = [
   'http://localhost:3000',      // Common React development port
   'http://localhost:5173',      // Vite development server default port
-  'https://portfolio-frontend-eight-sooty.vercel.app' // Current Vercel deployment
+  'https://portfolio-frontend-eight-sooty.vercel.app', // Current Vercel deployment
+  'https://portfolio-frontend-git-main-robertlukenbilliv.vercel.app', // Git-based deployment
+  'https://portfolio-frontend-robertlukenbilliv.vercel.app' // User-based deployment
 ]
 
 // Helper function to validate if an origin is allowed
@@ -56,6 +58,7 @@ function isOriginAllowed(origin: string | undefined): boolean {
       allowlist.includes(origin) ||
       defaultOrigins.includes(origin) ||
       host.endsWith('.vercel.app') ||
+      host.includes('vercel') || // Extra safety for Vercel domains
       (host === 'localhost') ||
       (!isProd && (host === '127.0.0.1' || host.startsWith('192.168.')))
     
@@ -87,19 +90,36 @@ app.use(cors(corsOptions))
 // Parse JSON request bodies (with 5MB limit for image uploads)
 app.use(express.json())
 
-// Serve uploaded files statically with CORS headers
+// Serve uploaded files statically with comprehensive CORS headers
 app.use('/uploads', (req, res, next) => {
-  // Apply CORS headers for static files
   const origin = req.get('Origin')
-  console.log(`Static file request: ${req.path} from origin: ${origin}`)
+  console.log(`Static file request: ${req.method} ${req.path} from origin: ${origin}`)
   
+  // Handle preflight OPTIONS requests
+  if (req.method === 'OPTIONS') {
+    if (isOriginAllowed(origin)) {
+      res.header('Access-Control-Allow-Origin', origin)
+      res.header('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS')
+      res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
+      res.header('Access-Control-Allow-Credentials', 'true')
+      res.header('Access-Control-Max-Age', '86400') // Cache preflight for 24 hours
+      console.log(`OPTIONS preflight handled for static file from: ${origin}`)
+      return res.status(200).end()
+    } else {
+      console.log(`OPTIONS blocked for static file from: ${origin}`)
+      return res.status(403).end()
+    }
+  }
+  
+  // Apply CORS headers for actual requests
   if (isOriginAllowed(origin)) {
     res.header('Access-Control-Allow-Origin', origin)
+    res.header('Access-Control-Allow-Credentials', 'true')
     console.log(`CORS headers added for static file: ${origin}`)
   } else {
     console.log(`CORS blocked for static file from: ${origin}`)
   }
-  res.header('Access-Control-Allow-Credentials', 'true')
+  
   next()
 }, express.static(path.join(process.cwd(), 'uploads')))
 
