@@ -74,7 +74,7 @@ describe('Upload Routes', () => {
       expect(response.status).toBe(200)
       expect(response.body).toMatchObject({
         success: true,
-        url: expect.stringMatching(/^\/uploads\/images\/.*\.png$/),
+        url: expect.stringMatching(/^https?:\/\/.*\/uploads\/images\/.*\.png$/),
         filename: expect.any(String),
         originalName: 'test.png',
         size: testImageBuffer.length
@@ -93,7 +93,7 @@ describe('Upload Routes', () => {
         .post('/api/upload/image')
         .attach('image', textBuffer, 'test.txt')
 
-      expect(response.status).toBe(500)
+      expect(response.status).toBe(400)
       expect(response.body).toMatchObject({
         error: expect.stringContaining('image files are allowed')
       })
@@ -132,7 +132,7 @@ describe('Upload Routes', () => {
         images: expect.arrayContaining([
           expect.objectContaining({
             filename: uploadedFilename,
-            url: expect.stringMatching(/^\/uploads\/images\/.*$/),
+            url: expect.stringMatching(/^https?:\/\/.*\/uploads\/images\/.*$/),
             size: expect.any(Number),
             createdAt: expect.any(String),
             modifiedAt: expect.any(String)
@@ -219,8 +219,10 @@ describe('Upload Routes', () => {
     })
 
     it('should serve uploaded images statically', async () => {
+      // uploadedUrl is absolute, extract the path for supertest
+      const urlObj = new URL(uploadedUrl)
       const response = await request(app)
-        .get(uploadedUrl)
+        .get(urlObj.pathname)
 
       expect(response.status).toBe(200)
       expect(response.body.toString()).toBe('static serving test')
