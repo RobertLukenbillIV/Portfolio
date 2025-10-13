@@ -32,9 +32,10 @@ export default function Home() {
       )}
 
       {settings?.homeIntro && (
-        <p className="text-brandTextMuted text-lg text-center mb-10 max-w-3xl mx-auto">
-          {settings.homeIntro}
-        </p>
+        <div 
+          className="text-brandTextMuted text-lg text-center mb-10 max-w-3xl mx-auto prose prose-invert"
+          dangerouslySetInnerHTML={{ __html: settings.homeIntro }}
+        />
       )}
 
       <h2 className="text-brandText text-2xl font-semibold mb-4 text-center">Highlighted Projects</h2>
