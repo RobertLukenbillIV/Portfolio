@@ -3,12 +3,13 @@
 ## Architecture Overview
 This is a **pnpm monorepo** with React frontend + Node.js backend + Prisma ORM. Apps are deployed separately: frontend to Vercel, backend to Render with Neon DB.
 
-### Project Structure
+### Project Structure  
 - `apps/backend/` - Express.js API with strict MVC pattern, TypeScript, Prisma + PostgreSQL
 - `apps/frontend/` - React SPA with Vite, TypeScript, Tailwind CSS, React Router  
 - `packages/shared/` - Shared types/utilities (future expansion)
 - Authentication: JWT httpOnly cookies with role-based access (ADMIN/USER)
 - File uploads: Local filesystem storage at `uploads/images/` with timestamped filenames
+- **Data models**: `User`, `Post` (projects), `Page` (About/Links), `Settings` (hero), `Image`
 
 ## Critical Development Patterns
 
@@ -60,8 +61,8 @@ This is a **pnpm monorepo** with React frontend + Node.js backend + Prisma ORM. 
 
 ## Essential Commands & Scripts
 ```bash
-# Monorepo (from root)
-pnpm -r dev          # Start both apps with hot reload
+# Monorepo (from root) 
+pnpm -r dev          # Start both apps with hot reload (backend:4000, frontend:5173)
 pnpm -r build        # Build both for production
 pnpm -r test         # Run all test suites
 
@@ -70,15 +71,20 @@ pnpm make-admin <email> <password> [name]  # Create admin user
 pnpm change-password <email> <newPassword> # Update user password
 pnpm seed            # Populate dev database with sample data
 pnpm test:coverage   # Run Jest with coverage report
+pnpm generate        # Generate Prisma client (required after schema changes)
 ```
 
 ## Testing Patterns (Jest + Supertest)
 ```typescript
-// Mock auth middleware in all route tests:
+// CRITICAL: Mock auth middleware in all route tests BEFORE importing app:
 jest.mock('../../middleware/auth', () => ({
   attachUser: (req, res, next) => { req.user = { id: 'test-user-id', role: 'ADMIN' }; next() },
-  requireAuth: (req, res, next) => { req.user = { id: 'test-user-id', role: 'ADMIN' }; next() }
+  requireAuth: (req, res, next) => { req.user = { id: 'test-user-id', role: 'ADMIN' }; next() },
+  requireAdmin: (req, res, next) => { req.user = { id: 'test-user-id', role: 'ADMIN' }; next() }
 }))
+
+// Mock controllers if testing routes directly (avoid undefined functions):
+jest.mock('../../controllers/pages.controller', () => ({ /* mock functions */ }))
 
 // Import app AFTER mocking to ensure mocks are applied
 import app from '../../app'
