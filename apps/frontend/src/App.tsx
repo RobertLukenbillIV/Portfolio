@@ -45,9 +45,10 @@ export default function App() {
     <>
       {/* ACME UI Navigation - replaces old Navbar */}
       <Navigation 
-        title="Robert Lukenbill IV"
+        companyName="Robert Lukenbill IV"
+        position="left"
         variant="sidebar"
-        items={navigationLinks.map(link => ({
+        links={navigationLinks.map(link => ({
           label: link.label,
           href: link.href,
           icon: link.label === 'Home' ? '🏠' : 
@@ -59,7 +60,7 @@ export default function App() {
       />
       
       {/* Main content area with navigation spacing */}
-      <main style={{ marginLeft: '250px', padding: '2rem' }}>
+      <main style={{ marginLeft: '100px', padding: '2rem' }}>
         {/* Application routes - each corresponds to a different page/functionality */}
         <Routes>
         {/* Public routes - accessible to all visitors */}

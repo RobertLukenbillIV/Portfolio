@@ -22,31 +22,31 @@ export const Hero: React.FC<HeroProps> = ({
     <div 
       style={{
         height,
-        backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'linear-gradient(135deg, #A1C2BD 0%, #708993 100%)',
+        backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        color: '#f8f9fa',
+        color: 'white',
         textAlign: 'center',
         position: variant === 'sticky' ? 'sticky' : 'relative',
         top: variant === 'sticky' ? '0' : 'auto'
       }}
     >
       <div style={{
-        backgroundColor: 'rgba(13, 17, 23, 0.8)', // brandNavy with transparency
+        backgroundColor: 'rgba(44, 62, 80, 0.8)', // brandSecondary with transparency
         padding: '2rem',
         borderRadius: '1rem',
         maxWidth: '800px',
-        border: '1px solid rgba(112, 137, 147, 0.3)' // brandSteel border
+        border: '1px solid rgba(52, 152, 219, 0.3)' // brandPrimary border
       }}>
         <h1 style={{ 
           fontSize: '3rem', 
           fontWeight: 'bold', 
           marginBottom: '1rem',
           margin: '0 0 1rem 0',
-          color: '#f8f9fa' // brandText
+          color: 'white'
         }}>
           {title}
         </h1>
@@ -55,7 +55,7 @@ export const Hero: React.FC<HeroProps> = ({
             fontSize: '1.25rem', 
             opacity: 0.9,
             margin: '0',
-            color: '#e9ecef' // brandTextMuted
+            color: '#ecf0f1'
           }}>
             {subtitle}
           </p>
@@ -76,24 +76,24 @@ interface CardProps {
 export const Card: React.FC<CardProps> = ({ title, children, footer, style }) => {
   return (
     <div style={{
-      backgroundColor: 'rgba(161, 194, 189, 0.2)', // brandMint/20
-      border: '1px solid rgba(112, 137, 147, 0.3)', // brandSteel/30
-      borderRadius: '1rem',
-      boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+      backgroundColor: 'var(--card-background, #ffffff)', // White background
+      border: '1px solid var(--border-color, #ddd)', // Light gray border
+      borderRadius: '0.5rem',
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
       overflow: 'hidden',
-      color: '#f8f9fa', // brandText
+      color: 'var(--text-primary, #2c3e50)', // Dark text
       ...style
     }}>
       {title && (
         <div style={{
           padding: '1.5rem 1.5rem 0 1.5rem',
-          borderBottom: '1px solid rgba(112, 137, 147, 0.3)' // brandSteel/30
+          borderBottom: '1px solid var(--border-color, #ddd)' // Light gray border
         }}>
           <h3 style={{ 
             fontSize: '1.25rem', 
             fontWeight: '600',
             margin: '0 0 1rem 0',
-            color: '#f8f9fa' // brandText
+            color: 'var(--text-primary, #2c3e50)' // Dark text
           }}>
             {title}
           </h3>
@@ -105,8 +105,8 @@ export const Card: React.FC<CardProps> = ({ title, children, footer, style }) =>
       {footer && (
         <div style={{
           padding: '1rem 1.5rem',
-          backgroundColor: 'rgba(13, 17, 23, 0.3)', // brandNavy with transparency
-          borderTop: '1px solid rgba(112, 137, 147, 0.3)' // brandSteel/30
+          backgroundColor: '#f8f9fa', // Light gray footer
+          borderTop: '1px solid var(--border-color, #ddd)' // Light gray border
         }}>
           {footer}
         </div>
@@ -132,12 +132,12 @@ export const TabbedCard: React.FC<TabbedCardProps> = ({ title, tabs, defaultTab 
 
   return (
     <div style={{
-      backgroundColor: 'rgba(161, 194, 189, 0.2)', // brandMint/20
-      border: '1px solid rgba(112, 137, 147, 0.3)', // brandSteel/30
-      borderRadius: '1rem',
-      boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+      backgroundColor: 'var(--card-background, #ffffff)', // White background
+      border: '1px solid var(--border-color, #ddd)', // Light gray border
+      borderRadius: '0.5rem',
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
       overflow: 'hidden',
-      color: '#f8f9fa' // brandText
+      color: 'var(--text-primary, #2c3e50)' // Dark text
     }}>
       {title && (
         <div style={{
@@ -147,7 +147,7 @@ export const TabbedCard: React.FC<TabbedCardProps> = ({ title, tabs, defaultTab 
             fontSize: '1.25rem', 
             fontWeight: '600',
             margin: '0 0 1rem 0',
-            color: '#f8f9fa' // brandText
+            color: 'var(--text-primary, #2c3e50)' // Dark text
           }}>
             {title}
           </h3>
@@ -155,7 +155,7 @@ export const TabbedCard: React.FC<TabbedCardProps> = ({ title, tabs, defaultTab 
       )}
       
       <div style={{
-        borderBottom: '1px solid rgba(112, 137, 147, 0.3)', // brandSteel/30
+        borderBottom: '1px solid var(--border-color, #ddd)', // Light gray border
         display: 'flex'
       }}>
         {tabs.map((tab, index) => (
@@ -165,12 +165,12 @@ export const TabbedCard: React.FC<TabbedCardProps> = ({ title, tabs, defaultTab 
             style={{
               padding: '1rem 1.5rem',
               border: 'none',
-              backgroundColor: activeTab === index ? 'rgba(161, 194, 189, 0.4)' : 'transparent', // brandMint/40
-              borderBottom: activeTab === index ? '2px solid #A1C2BD' : '2px solid transparent', // brandMint
+              backgroundColor: activeTab === index ? 'rgba(52, 152, 219, 0.05)' : 'transparent', // Light blue active
+              borderBottom: activeTab === index ? '2px solid #3498db' : '2px solid transparent', // Primary blue
               cursor: 'pointer',
               fontSize: '0.875rem',
               fontWeight: '500',
-              color: activeTab === index ? '#f8f9fa' : '#798a98' // brandText : brandFoam
+              color: activeTab === index ? '#3498db' : 'var(--text-secondary, #7f8c8d)' // Primary blue : secondary gray
             }}
           >
             {tab.icon && <span style={{ marginRight: '0.5rem' }}>{tab.icon}</span>}
@@ -186,143 +186,150 @@ export const TabbedCard: React.FC<TabbedCardProps> = ({ title, tabs, defaultTab 
   )
 }
 
+interface NavigationLink {
+  label: string
+  href?: string
+  icon?: string
+  onClick?: (e: React.MouseEvent) => void
+  children?: NavigationLink[]
+}
+
 interface NavigationProps {
-  title?: string
-  items: Array<{
-    label: string
-    href: string
-    icon?: string
-  }>
+  companyName?: string
+  links?: NavigationLink[]
+  position?: 'left' | 'right' | 'top'
   variant?: 'sidebar' | 'dropdown'
+  className?: string
 }
 
 export const Navigation: React.FC<NavigationProps> = ({ 
-  title = "Portfolio", 
-  items, 
-  variant = 'sidebar' 
+  companyName = "Portfolio", 
+  links = [],
+  position = 'left',
+  variant = 'sidebar',
+  className = "",
+  ...props 
 }) => {
-  const [isOpen, setIsOpen] = React.useState(false)
+  const [isExpanded, setIsExpanded] = React.useState(false);
+  const [openSubmenus, setOpenSubmenus] = React.useState<Record<string, boolean>>({});
 
-  if (variant === 'sidebar') {
+  const toggleNavigation = () => {
+    setIsExpanded(!isExpanded);
+    setOpenSubmenus({}); // Close all submenus when toggling main nav
+  };
+
+  const toggleSubmenu = (linkKey: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setOpenSubmenus(prev => ({
+      ...prev,
+      [linkKey]: !prev[linkKey]
+    }));
+  };
+
+  const renderNavLinks = (navLinks: NavigationLink[], level = 0): React.ReactNode => {
     return (
-      <nav style={{
-        width: '250px',
-        height: '100vh',
-        backgroundColor: '#0d1117', // brandNavy
-        color: '#f8f9fa', // brandText
-        position: 'fixed',
-        left: '0',
-        top: '0',
-        zIndex: 1000,
-        padding: '1rem'
-      }}>
-        <h2 style={{ 
-          fontSize: '1.25rem', 
-          fontWeight: 'bold', 
-          marginBottom: '2rem',
-          margin: '0 0 2rem 0',
-          color: '#f8f9fa' // brandText
-        }}>
-          {title}
-        </h2>
-        <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-          {items.map((item, index) => (
-            <li key={index} style={{ marginBottom: '0.5rem' }}>
-              <a
-                href={item.href}
-                style={{
-                  display: 'block',
-                  padding: '0.75rem',
-                  color: '#f8f9fa', // brandText
-                  textDecoration: 'none',
-                  borderRadius: '8px',
-                  transition: 'background-color 0.2s'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(161, 194, 189, 0.2)' // brandMint/20
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent'
-                }}
-              >
-                {item.icon && <span style={{ marginRight: '0.5rem' }}>{item.icon}</span>}
-                {item.label}
-              </a>
+      <ul className={`nav-links level-${level} list-none p-0 m-0`}>
+        {navLinks.map((link, index) => {
+          const linkKey = `${level}-${index}`;
+          const hasChildren = link.children && link.children.length > 0;
+          
+          return (
+            <li key={linkKey} className={`nav-link-item relative ${hasChildren ? 'has-children bg-black bg-opacity-10' : ''} ${openSubmenus[linkKey] ? 'open' : ''} border-b border-white border-opacity-5`}>
+              <div className="nav-link-wrapper flex items-center justify-between">
+                <a 
+                  href={link.href || '#'} 
+                  className="nav-link block py-4 px-5 text-white no-underline transition-colors duration-200 hover:bg-white hover:bg-opacity-10 flex-1"
+                  onClick={link.onClick}
+                >
+                  {link.icon && <span className="mr-3">{link.icon}</span>}
+                  {link.label}
+                </a>
+                {hasChildren && (
+                  <button 
+                    className="submenu-toggle bg-none border-none text-white py-4 px-3 cursor-pointer transition-all duration-200 hover:bg-white hover:bg-opacity-10"
+                    onClick={(e) => toggleSubmenu(linkKey, e)}
+                    aria-label={`Toggle ${link.label} submenu`}
+                  >
+                    <span className={`arrow inline-block transition-transform duration-200 text-xs ${openSubmenus[linkKey] ? 'rotate-90' : ''}`}>
+                      {position === 'top' ? '▼' : '▶'}
+                    </span>
+                  </button>
+                )}
+              </div>
+              {hasChildren && openSubmenus[linkKey] && (
+                <div className="submenu bg-black bg-opacity-20 border-l-[3px] border-[#3498db] animate-slideDown">
+                  {renderNavLinks(link.children!, level + 1)}
+                </div>
+              )}
             </li>
-          ))}
-        </ul>
-      </nav>
-    )
-  }
+          );
+        })}
+      </ul>
+    );
+  };
+
+  const navClasses = `acme-navigation ${position} ${variant} ${isExpanded ? 'expanded' : 'collapsed'} ${className}`;
 
   return (
-    <nav style={{
-      backgroundColor: '#1f2937',
-      color: 'white',
-      padding: '1rem',
-      position: 'relative'
-    }}>
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-      }}>
-        <h2 style={{ 
-          fontSize: '1.25rem', 
-          fontWeight: 'bold',
-          margin: 0
-        }}>
-          {title}
-        </h2>
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          style={{
-            backgroundColor: 'transparent',
-            border: 'none',
-            color: 'white',
-            cursor: 'pointer',
-            padding: '0.5rem'
-          }}
+    <nav 
+      className={navClasses}
+      style={{
+        position: 'fixed',
+        top: position === 'top' ? '0' : '20px',
+        left: position === 'left' ? '20px' : position === 'top' ? '50%' : 'auto',
+        right: position === 'right' ? '20px' : 'auto',
+        transform: position === 'top' ? 'translateX(-50%)' : 'none',
+        backgroundColor: 'var(--primary-color, #2c3e50)',
+        color: '#ecf0f1',
+        borderRadius: position === 'top' ? '0 0 12px 12px' : '12px',
+        maxHeight: '80vh',
+        overflowY: 'auto',
+        boxShadow: '2px 2px 5px rgba(0, 0, 0, 0.1)',
+        zIndex: 1000,
+        transition: 'all 0.3s ease',
+        width: isExpanded ? (position === 'top' ? '300px' : '280px') : '80px',
+        height: isExpanded ? 'auto' : '80px',
+        minHeight: isExpanded ? '200px' : '80px',
+        overflow: isExpanded ? 'visible' : 'hidden'
+      }}
+      {...props}
+    >
+      <div 
+        className="nav-header flex items-center transition-all duration-300"
+        style={{
+          padding: isExpanded ? '20px 15px' : '25px 10px',
+          justifyContent: isExpanded ? 'flex-start' : 'center',
+          borderBottom: isExpanded ? '1px solid rgba(255, 255, 255, 0.1)' : 'none'
+        }}
+      >
+        <button 
+          className="nav-toggle bg-none border-none cursor-pointer p-1 flex flex-col justify-between w-8 h-6"
+          onClick={toggleNavigation}
+          aria-label="Toggle navigation"
         >
-          ☰
+          <span className="hamburger-line block w-full h-1 bg-white rounded transition-all duration-300"></span>
+          <span className="hamburger-line block w-full h-1 bg-white rounded transition-all duration-300"></span>
+          <span className="hamburger-line block w-full h-1 bg-white rounded transition-all duration-300"></span>
         </button>
+        {isExpanded && variant === 'sidebar' && (
+          <span className="company-name ml-4 text-lg font-bold whitespace-nowrap">{companyName}</span>
+        )}
       </div>
       
-      {isOpen && (
-        <div style={{
-          position: 'absolute',
-          top: '100%',
-          left: 0,
-          right: 0,
-          backgroundColor: '#1f2937',
-          border: '1px solid #374151',
-          zIndex: 1000
-        }}>
-          <ul style={{ listStyle: 'none', margin: 0, padding: '0.5rem' }}>
-            {items.map((item, index) => (
-              <li key={index}>
-                <a
-                  href={item.href}
-                  style={{
-                    display: 'block',
-                    padding: '0.75rem',
-                    color: 'white',
-                    textDecoration: 'none',
-                    borderRadius: '4px'
-                  }}
-                  onClick={() => setIsOpen(false)}
-                >
-                  {item.icon && <span style={{ marginRight: '0.5rem' }}>{item.icon}</span>}
-                  {item.label}
-                </a>
-              </li>
-            ))}
-          </ul>
+      {isExpanded && (
+        <div className="nav-content flex-1 overflow-y-auto">
+          {variant === 'dropdown' && position === 'top' && (
+            <div className="company-header py-2 px-3 border-b border-white border-opacity-10 text-center">
+              <span className="company-name m-0 text-base font-bold">{companyName}</span>
+            </div>
+          )}
+          {renderNavLinks(links)}
         </div>
       )}
     </nav>
-  )
-}
+  );
+};
 
 interface TextAreaProps {
   value: string
@@ -346,14 +353,23 @@ export const TextArea: React.FC<TextAreaProps> = ({
       style={{
         width: '100%',
         padding: '0.75rem',
-        backgroundColor: '#0d1117', // brandNavy  
-        border: '2px solid #0d1117',
-        borderRadius: '0.5rem',
+        backgroundColor: 'white', // White background
+        border: '1px solid var(--border-color, #ddd)',
+        borderRadius: '0.25rem',
         fontSize: '1rem',
         resize: 'vertical',
         fontFamily: 'inherit',
-        color: '#f8f9fa', // brandText
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+        color: 'var(--text-primary, #2c3e50)', // Dark text
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+        transition: 'border-color 0.2s ease, box-shadow 0.2s ease'
+      }}
+      onFocus={(e) => {
+        e.target.style.borderColor = '#3498db'
+        e.target.style.boxShadow = '0 0 0 3px rgba(52, 152, 219, 0.1)'
+      }}
+      onBlur={(e) => {
+        e.target.style.borderColor = 'var(--border-color, #ddd)'
+        e.target.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)'
       }}
     />
   )
@@ -383,7 +399,8 @@ export const TextInput: React.FC<TextInputProps> = ({
           display: 'block', 
           marginBottom: '0.5rem', 
           fontWeight: '500',
-          fontSize: '0.875rem'
+          fontSize: '0.875rem',
+          color: 'var(--text-primary, #2c3e50)'
         }}>
           {label}
         </label>
@@ -397,13 +414,22 @@ export const TextInput: React.FC<TextInputProps> = ({
         style={{
           width: '100%',
           padding: '0.75rem',
-          backgroundColor: '#0d1117', // brandNavy
-          border: '2px solid #0d1117',
-          borderRadius: '0.5rem',
+          backgroundColor: 'white', // White background
+          border: '1px solid var(--border-color, #ddd)',
+          borderRadius: '0.25rem',
           fontSize: '1rem',
           fontFamily: 'inherit',
-          color: '#f8f9fa', // brandText
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+          color: 'var(--text-primary, #2c3e50)', // Dark text
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+          transition: 'border-color 0.2s ease, box-shadow 0.2s ease'
+        }}
+        onFocus={(e) => {
+          e.target.style.borderColor = '#3498db'
+          e.target.style.boxShadow = '0 0 0 3px rgba(52, 152, 219, 0.1)'
+        }}
+        onBlur={(e) => {
+          e.target.style.borderColor = 'var(--border-color, #ddd)'
+          e.target.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)'
         }}
       />
     </div>

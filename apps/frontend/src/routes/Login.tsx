@@ -32,17 +32,17 @@ export default function Login() {
       alignItems: 'center', 
       justifyContent: 'center',
       padding: '2rem',
-      background: 'var(--page-background, #f5f5f5)'
+      background: 'var(--background-color, #f5f5f5)'
     }}>
       <Card title="Admin Login" style={{ maxWidth: '400px', width: '100%' }}>
         {err && (
           <div style={{
             padding: '0.75rem',
             marginBottom: '1rem',
-            background: '#fee2e2',
-            border: '1px solid #fca5a5',
+            background: '#fdeaea',
+            border: '1px solid var(--error-color, #e74c3c)',
             borderRadius: '0.375rem',
-            color: '#dc2626'
+            color: 'var(--error-color, #e74c3c)'
           }}>
             {err}
           </div>
@@ -70,7 +70,7 @@ export default function Login() {
           <button
             style={{
               padding: '0.75rem 1.5rem',
-              background: 'var(--primary-color, #2c3e50)',
+              background: loading ? '#6b7280' : 'var(--primary-color, #3498db)',
               color: 'white',
               border: 'none',
               borderRadius: '0.375rem',

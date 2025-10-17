@@ -7,14 +7,18 @@ export default {
   theme: {
     extend: {
       colors: {
-        brandNavy: '#0d1117',  // Navbar color - dark GitHub-style
-        brandSteel: '#708993',
-        brandMint: '#A1C2BD', 
-        brandFoam: '#798a98',
-        brandGreen: '#212830', // Button color - dark gray
-        brandText: '#f8f9fa',  // Light text for dark background
-        brandTextMuted: '#e9ecef', // Slightly muted light text
-        brandBackground: '#010409', // Main background color - very dark
+        // ACME UI Light Mode Color Palette
+        brandPrimary: '#3498db',    // Primary blue
+        brandSecondary: '#2c3e50',  // Dark blue-gray for text
+        brandSuccess: '#27ae60',    // Green for success states
+        brandWarning: '#f39c12',    // Orange for warnings
+        brandError: '#e74c3c',      // Red for errors
+        brandText: '#2c3e50',       // Primary text color
+        brandTextMuted: '#7f8c8d',  // Secondary text color
+        brandBackground: '#f5f5f5', // Light gray background
+        brandCard: '#ffffff',       // White card backgrounds
+        brandBorder: '#ddd',        // Light gray borders
+        brandHover: '#f8f9fa',      // Light hover state
       },
     },
   },

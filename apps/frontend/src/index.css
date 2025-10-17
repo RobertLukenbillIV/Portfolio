@@ -4,44 +4,96 @@
 
 /* App chrome */
 :root { 
-  color-scheme: dark;
-  --primary-color: #212830;  /* brandGreen */
-  --background-color: #010409;  /* brandBackground */
-  --text-primary: #f8f9fa;  /* brandText */
-  --text-secondary: #798a98;  /* brandFoam */
-  --card-background: rgba(161, 194, 189, 0.2);  /* brandMint/20 */
-  --border-color: rgba(112, 137, 147, 0.3);  /* brandSteel/30 */
-  --navy-color: #0d1117;  /* brandNavy */
-  --mint-color: #A1C2BD;  /* brandMint */
+  color-scheme: light;
+  --primary-color: #3498db;  /* ACME UI blue */
+  --background-color: #f5f5f5;  /* Light gray background */
+  --text-primary: #2c3e50;  /* Dark blue-gray text */
+  --text-secondary: #7f8c8d;  /* Medium gray text */
+  --card-background: #ffffff;  /* White cards */
+  --border-color: #ddd;  /* Light gray borders */
+  --success-color: #27ae60;  /* Green */
+  --warning-color: #f39c12;  /* Orange */
+  --error-color: #e74c3c;  /* Red */
+  --button-hover-bg: #f8f9fa;  /* Light hover */
 }
 html, body, #root { height: 100%; }
-body { @apply bg-brandBackground text-brandText; }
+body { 
+  background-color: var(--background-color);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+}
 
 /* Reusable UI tokens */
 @layer components {
-  .btn { @apply inline-flex items-center justify-center rounded-lg px-3 py-2 font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-brandGreen/50; }
-  .btn-primary { @apply btn bg-brandGreen text-white hover:opacity-90; }
-  .btn-ghost   { @apply btn text-brandFoam/90 hover:text-white; }
-  .btn-muted   { @apply btn bg-brandGreen/20 text-brandGreen hover:bg-brandGreen/30; }
+  .btn { 
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: 1px solid transparent;
+  }
+  .btn-primary { 
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+  }
+  .btn-primary:hover {
+    background-color: #2980b9;
+    border-color: #2980b9;
+  }
+  .btn-ghost {
+    background-color: transparent;
+    color: var(--text-secondary);
+    border-color: var(--border-color);
+  }
+  .btn-ghost:hover {
+    background-color: var(--button-hover-bg);
+    color: var(--text-primary);
+  }
+  .btn-muted {
+    background-color: rgba(52, 152, 219, 0.1);
+    color: var(--primary-color);
+    border-color: rgba(52, 152, 219, 0.2);
+  }
+  .btn-muted:hover {
+    background-color: rgba(52, 152, 219, 0.2);
+  }
 
-  .card { @apply rounded-2xl border border-brandSteel/30 bg-brandMint/20; }
-  .chip { @apply inline-flex items-center rounded-full bg-brandMint/40 px-2 py-0.5 text-xs text-brandNavy; }
+  .card { 
+    border-radius: 1rem;
+    border: 1px solid var(--border-color);
+    background-color: var(--card-background);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  .chip { 
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    background-color: rgba(52, 152, 219, 0.1);
+    color: var(--primary-color);
+  }
 }
 
-/* Quill Editor Styling - Match navbar color */
+/* Quill Editor Styling - Light mode */
 .ql-editor {
-  background-color: #0d1117 !important; /* Match brandNavy navbar color */
-  color: #f8f9fa !important; /* Light text for dark background */
-  border: 2px solid #0d1117 !important; /* Match navbar color */
-  border-radius: 0.5rem !important; /* rounded-lg */
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important; /* shadow-md */
-  padding: 0.5rem 0.75rem !important; /* px-3 py-2 */
+  background-color: white !important;
+  color: var(--text-primary, #2c3e50) !important;
+  border: 1px solid var(--border-color, #ddd) !important;
+  border-radius: 0.25rem !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  padding: 0.75rem !important;
   min-height: 200px !important;
 }
 
 .ql-editor:focus {
-  border-color: #212830 !important; /* focus:border-brandGreen */
-  box-shadow: 0 0 0 2px rgba(33, 40, 48, 0.5), 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important; /* focus:ring-2 focus:ring-brandGreen */
+  border-color: #3498db !important;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1), 0 1px 3px rgba(0, 0, 0, 0.1) !important;
 }
 
 /* Quill container styling */
@@ -50,78 +102,78 @@ body { @apply bg-brandBackground text-brandText; }
 }
 
 .ql-toolbar {
-  border: 2px solid #0d1117 !important; /* Match navbar color */
+  border: 1px solid var(--border-color, #ddd) !important;
   border-bottom: none !important;
-  border-radius: 0.5rem 0.5rem 0 0 !important;
-  background-color: #0d1117 !important; /* Match navbar color */
+  border-radius: 0.25rem 0.25rem 0 0 !important;
+  background-color: #f8f9fa !important;
 }
 
-/* Toolbar button styling for dark theme */
+/* Toolbar button styling for light theme */
 .ql-toolbar .ql-formats button {
-  color: #f8f9fa !important; /* Light text for buttons */
+  color: var(--text-primary, #2c3e50) !important;
 }
 
 .ql-toolbar .ql-formats button:hover {
-  color: #ffffff !important; /* White on hover */
-  background-color: rgba(255, 255, 255, 0.1) !important; /* Subtle hover effect */
+  color: #3498db !important;
+  background-color: rgba(52, 152, 219, 0.1) !important;
 }
 
 .ql-toolbar .ql-formats button.ql-active {
-  color: #212830 !important; /* brandGreen color for active buttons */
-  background-color: rgba(33, 40, 48, 0.2) !important; /* Subtle active background */
+  color: #3498db !important;
+  background-color: rgba(52, 152, 219, 0.15) !important;
 }
 
 /* Toolbar stroke/fill colors for icons */
 .ql-toolbar .ql-stroke {
-  stroke: #f8f9fa !important;
+  stroke: var(--text-primary, #2c3e50) !important;
 }
 
 .ql-toolbar .ql-fill {
-  fill: #f8f9fa !important;
+  fill: var(--text-primary, #2c3e50) !important;
 }
 
 .ql-toolbar button:hover .ql-stroke {
-  stroke: #ffffff !important;
+  stroke: #3498db !important;
 }
 
 .ql-toolbar button:hover .ql-fill {
-  fill: #ffffff !important;
+  fill: #3498db !important;
 }
 
 .ql-toolbar button.ql-active .ql-stroke {
-  stroke: #212830 !important;
+  stroke: #3498db !important;
 }
 
 .ql-toolbar button.ql-active .ql-fill {
-  fill: #212830 !important;
+  fill: #3498db !important;
 }
 
 /* Header dropdown styling */
 .ql-toolbar .ql-header {
-  color: #f8f9fa !important; /* White text for header button */
+  color: var(--text-primary, #2c3e50) !important;
 }
 
 .ql-toolbar .ql-header .ql-picker-label {
-  color: #f8f9fa !important; /* White text for header dropdown label */
+  color: var(--text-primary, #2c3e50) !important;
 }
 
 .ql-toolbar .ql-header .ql-picker-options {
-  background-color: #0d1117 !important; /* Match navbar color for dropdown background */
-  border: 1px solid #0d1117 !important;
+  background-color: white !important;
+  border: 1px solid var(--border-color, #ddd) !important;
 }
 
 .ql-toolbar .ql-header .ql-picker-item {
-  color: #f8f9fa !important; /* White text for dropdown items */
+  color: var(--text-primary, #2c3e50) !important;
 }
 
 .ql-toolbar .ql-header .ql-picker-item:hover {
-  background-color: rgba(255, 255, 255, 0.1) !important; /* Subtle hover effect */
-  color: #ffffff !important;
+  background-color: var(--button-hover-bg, #f8f9fa) !important;
+  color: #3498db !important;
 }
 
 /* Placeholder text styling */
 .ql-editor.ql-blank::before {
-  color: #9ca3af !important; /* Light gray placeholder text */
+  color: var(--text-secondary, #7f8c8d) !important;
   opacity: 0.7 !important;
 }
 .ql-editor ol li::before {
@@ -133,4 +185,20 @@ body { @apply bg-brandBackground text-brandText; }
 .ql-editor ol li[data-list="bullet"]::before {
   content: '\2022'; /* The Unicode character for a bullet point */
   margin-right: 0.5em; /* Add some space between the bullet and the text */
+}
+
+/* Navigation animations */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+  }
+}
+
+.animate-slideDown {
+  animation: slideDown 0.3s ease;
 }

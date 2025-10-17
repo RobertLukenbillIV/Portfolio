@@ -8,11 +8,20 @@ declare module 'acme-ui' {
     children?: NavigationLink[]
   }
 
+  export interface NavigationLink {
+    label: string
+    href?: string
+    icon?: string
+    onClick?: (e: React.MouseEvent) => void
+    children?: NavigationLink[]
+  }
+
   export interface NavigationProps {
     companyName?: string
     position?: 'left' | 'right' | 'top'
     variant?: 'sidebar' | 'dropdown'
     links?: NavigationLink[]
+    className?: string
   }
 
   export interface CardProps {
