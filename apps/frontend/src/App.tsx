@@ -36,6 +36,13 @@ export default function App() {
           { label: 'Edit About', href: '/admin/edit-about' },
           { label: 'Edit Links', href: '/admin/edit-links' }
         ]
+      },
+      { 
+        label: 'Logout', 
+        onClick: async () => {
+          await logout()
+          window.location.href = '/' // Redirect to home after logout
+        }
       }
     ] : []),
     ...(user ? [] : [{ label: 'Login', href: '/login' }])
@@ -59,7 +66,9 @@ export default function App() {
                 link.label === 'Projects' ? '💼' : 
                 link.label === 'About' ? '👤' : 
                 link.label === 'Links' ? '🔗' : 
-                link.label === 'Admin' ? '⚙️' : undefined
+                link.label === 'Admin' ? '⚙️' :
+                link.label === 'Logout' ? '🚪' :
+                link.label === 'Login' ? '🔑' : undefined
         }))}
       />
       

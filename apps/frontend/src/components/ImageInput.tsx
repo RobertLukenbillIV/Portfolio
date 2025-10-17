@@ -82,7 +82,7 @@ export default function ImageInput({
 
   return (
     <div className={`space-y-3 ${className}`}>
-      <label className="block text-brandText mb-1 font-medium">
+      <label className="block mb-1 font-medium" style={{ color: 'var(--text-primary, #2c3e50)' }}>
         {label}
       </label>
 
@@ -93,9 +93,13 @@ export default function ImageInput({
           onClick={() => setMode('url')}
           className={`px-3 py-1 text-sm rounded-md transition-colors ${
             mode === 'url'
-              ? 'bg-brandGreen text-white'
-              : 'bg-gray-400 text-gray-600 hover:bg-gray-500 hover:text-gray-200'
+              ? 'text-white'
+              : 'text-gray-600 hover:text-gray-200'
           }`}
+          style={{
+            backgroundColor: mode === 'url' ? 'var(--primary-color, #3498db)' : '#6b7280',
+            color: mode === 'url' ? 'white' : '#6b7280'
+          }}
         >
           URL
         </button>
@@ -104,9 +108,13 @@ export default function ImageInput({
           onClick={() => setMode('upload')}
           className={`px-3 py-1 text-sm rounded-md transition-colors ${
             mode === 'upload'
-              ? 'bg-brandGreen text-white'
-              : 'bg-gray-400 text-gray-600 hover:bg-gray-500 hover:text-gray-200'
+              ? 'text-white'
+              : 'text-gray-600 hover:text-gray-200'
           }`}
+          style={{
+            backgroundColor: mode === 'upload' ? 'var(--primary-color, #3498db)' : '#6b7280',
+            color: mode === 'upload' ? 'white' : '#6b7280'
+          }}
         >
           Upload
         </button>
@@ -119,27 +127,46 @@ export default function ImageInput({
           value={value}
           onChange={handleUrlChange}
           placeholder={placeholder}
-          className="w-full rounded-lg bg-brandNavy border-2 border-brandNavy px-3 py-2 text-white placeholder-gray-300 focus:ring-2 focus:ring-brandGreen focus:border-brandGreen focus:outline-none shadow-md"
+          className="w-full rounded-lg border-2 px-3 py-2 focus:ring-2 focus:outline-none shadow-md"
+          style={{
+            backgroundColor: 'var(--card-background, #ffffff)',
+            borderColor: 'var(--border-color, #ddd)',
+            color: 'var(--text-primary, #2c3e50)',
+            fontSize: '14px'
+          }}
         />
       )}
 
       {/* Upload Mode */}
       {mode === 'upload' && (
         <div className="space-y-2">
-          <div className="w-full rounded-lg bg-brandNavy border-2 border-brandNavy px-3 py-2 shadow-md">
+          <div 
+            className="w-full rounded-lg border-2 px-3 py-2 shadow-md"
+            style={{
+              backgroundColor: 'var(--card-background, #ffffff)',
+              borderColor: 'var(--border-color, #ddd)'
+            }}
+          >
             <input
               ref={fileInputRef}
               type="file"
               accept="image/*"
               onChange={handleFileUpload}
               disabled={uploading}
-              className="w-full bg-transparent text-white file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-sm file:bg-brandGreen file:text-white hover:file:bg-brandGreen/90 disabled:opacity-50 disabled:cursor-not-allowed file:cursor-pointer cursor-default"
+              className="w-full bg-transparent disabled:opacity-50 disabled:cursor-not-allowed cursor-default"
+              style={{
+                color: 'var(--text-primary, #2c3e50)',
+                fontSize: '14px'
+              }}
             />
           </div>
           
           {uploading && (
-            <div className="flex items-center gap-2 text-sm text-brandSteel/70">
-              <div className="animate-spin rounded-full h-4 w-4 border-2 border-brandSteel/30 border-t-mocha"></div>
+            <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-secondary, #7f8c8d)' }}>
+              <div 
+                className="animate-spin rounded-full h-4 w-4 border-2 border-t-current"
+                style={{ borderColor: 'var(--border-color, #ddd)' }}
+              ></div>
               Uploading...
             </div>
           )}
@@ -148,7 +175,14 @@ export default function ImageInput({
 
       {/* Error Display */}
       {uploadError && (
-        <div className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-md px-3 py-2">
+        <div 
+          className="text-sm rounded-md px-3 py-2 border"
+          style={{
+            color: 'var(--error-color, #e74c3c)',
+            backgroundColor: 'rgba(231, 76, 60, 0.1)',
+            borderColor: 'var(--error-color, #e74c3c)'
+          }}
+        >
           {uploadError}
         </div>
       )}
@@ -159,13 +193,15 @@ export default function ImageInput({
           <img
             src={value}
             alt="Preview"
-            className="w-full max-w-md h-48 object-cover rounded-lg border border-brandSteel/30"
+            className="w-full max-w-md h-48 object-cover rounded-lg border"
+            style={{ borderColor: 'var(--border-color, #ddd)' }}
             onError={() => setUploadError('Failed to load image')}
           />
           <button
             type="button"
             onClick={clearImage}
-            className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 transition-colors"
+            className="absolute top-2 right-2 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-opacity-80 transition-colors"
+            style={{ backgroundColor: 'var(--error-color, #e74c3c)' }}
             title="Remove image"
           >
             ×
@@ -174,7 +210,7 @@ export default function ImageInput({
       )}
 
       {/* Helper Text */}
-      <p className="text-xs text-brandText">
+      <p className="text-xs" style={{ color: 'var(--text-secondary, #7f8c8d)' }}>
         {mode === 'upload' 
           ? 'Max file size: 5MB. Supported formats: JPG, PNG, GIF, WebP, SVG'
           : 'Enter a direct link to an image file'
