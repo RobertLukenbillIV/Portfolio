@@ -58,6 +58,7 @@ export default function App() {
         links={navigationLinks.map(link => ({
           label: link.label,
           href: link.href,
+          onClick: link.onClick, // Pass through the onClick handler
           children: link.children?.map(child => ({
             label: child.label,
             href: child.href
