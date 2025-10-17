@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '@/state/auth'
 import { api } from '../lib/api'
 import { RichTextEditor } from '../components/RichText'
+import { Card, Hero } from '@/components/AcmeUI'
 
 export default function SinglePage({ slug, titleOverride }: { slug: 'about' | 'links'; titleOverride?: string }) {
   const { user } = useAuth()
@@ -39,73 +40,180 @@ export default function SinglePage({ slug, titleOverride }: { slug: 'about' | 'l
 
   async function save() {
     setSaving(true)
-    const { data } = await api.put(`/pages/${slug}`, page)
-    setPage(data.page)
-    setSaving(false)
-    setEditing(false)
+    try {
+      const { data } = await api.put(`/pages/${slug}`, page)
+      setPage(data.page)
+      setEditing(false)
+    } catch (err) {
+      console.error('Failed to save page:', err)
+      alert('Failed to save page. Please try again.')
+    } finally {
+      setSaving(false)
+    }
   }
 
-  if (loading) return <div className="p-6">Loading…</div>
+  if (loading) {
+    return (
+      <div style={{ padding: '3rem 2rem', maxWidth: '1200px', margin: '0 auto' }}>
+        <Card title="Loading">
+          <p>Loading page content...</p>
+        </Card>
+      </div>
+    )
+  }
   
   if (error) {
     return (
-      <div className="mx-auto max-w-4xl p-6">
-        <div className="bg-red-900/20 border border-red-500 text-red-300 px-4 py-3 rounded">
-          <p>{error}</p>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="mt-2 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-          >
-            Retry
-          </button>
-        </div>
+      <div style={{ padding: '3rem 2rem', maxWidth: '1200px', margin: '0 auto' }}>
+        <Card title="Error">
+          <div style={{
+            padding: '1rem',
+            background: '#fee2e2',
+            border: '1px solid #fca5a5',
+            borderRadius: '0.5rem',
+            color: '#dc2626',
+            marginBottom: '1rem'
+          }}>
+            <p>{error}</p>
+            <button 
+              onClick={() => window.location.reload()}
+              style={{
+                marginTop: '0.5rem',
+                padding: '0.5rem 1rem',
+                background: '#dc2626',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.25rem',
+                cursor: 'pointer'
+              }}
+            >
+              Retry
+            </button>
+          </div>
+        </Card>
       </div>
     )
   }
   
   if (!page) {
     return (
-      <div className="mx-auto max-w-4xl p-6">
-        <h1 className="text-3xl text-mocha font-semibold">{titleOverride ?? 'Page'}</h1>
-        <p className="text-gray-400 mt-4">This page hasn't been created yet.</p>
-        {user?.role === 'ADMIN' && (
-          <button 
-            onClick={() => {
-              setPage({ title: titleOverride ?? slug, content: '' })
-              setEditing(true)
-            }}
-            className="mt-4 px-4 py-2 bg-brandGreen text-white rounded hover:opacity-90"
-          >
-            Create Page
-          </button>
-        )}
+      <div>
+        <Hero 
+          title={titleOverride ?? 'Page'}
+          subtitle="This page hasn't been created yet"
+          variant="static"
+          height="40vh"
+        />
+        
+        <div style={{ padding: '3rem 2rem', maxWidth: '1200px', margin: '0 auto' }}>
+          <Card title="Page Not Found">
+            <p style={{ color: 'var(--text-secondary, #7f8c8d)', marginBottom: '1rem' }}>
+              This page hasn't been created yet.
+            </p>
+            {user?.role === 'ADMIN' && (
+              <button 
+                onClick={() => {
+                  setPage({ title: titleOverride ?? slug, content: '' })
+                  setEditing(true)
+                }}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  background: 'var(--primary-color, #2c3e50)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '0.375rem',
+                  cursor: 'pointer',
+                  fontSize: '1rem'
+                }}
+              >
+                Create Page
+              </button>
+            )}
+          </Card>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="mx-auto max-w-4xl p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-3xl text-mocha font-semibold">{titleOverride ?? page.title}</h1>
-        {user?.role === 'ADMIN' && (
-          <div className="flex gap-2">
-            {!editing ? (
-              <button onClick={() => setEditing(true)} className="px-3 py-1 rounded bg-brandGreen text-white hover:opacity-90">Edit</button>
-            ) : (
-              <>
-                <button disabled={saving} onClick={save} className="px-3 py-1 rounded bg-brandGreen text-white hover:opacity-90">{saving ? 'Saving…' : 'Save'}</button>
-                <button onClick={() => setEditing(false)} className="px-3 py-1 rounded bg-brandGreen/20 text-brandGreen hover:bg-brandGreen/30">Cancel</button>
-              </>
-            )}
-          </div>
-        )}
-      </div>
+    <div>
+      <Hero 
+        title={titleOverride ?? page.title}
+        subtitle={slug === 'about' ? 'Learn more about me' : 'Connect with me'}
+        variant="static"
+        height="40vh"
+        backgroundImage={slug === 'about' 
+          ? "https://picsum.photos/1920/600?random=about" 
+          : "https://picsum.photos/1920/600?random=links"
+        }
+      />
 
-      {!editing ? (
-        <div className="prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: page.content || '<p></p>' }} />
-      ) : (
-        <RichTextEditor value={page.content} onChange={(v) => setPage(p => ({ ...(p as any), content: v }))} />
-      )}
+      <div style={{ padding: '3rem 2rem', maxWidth: '1200px', margin: '0 auto' }}>
+        <Card 
+          title={titleOverride ?? page.title}
+          footer={user?.role === 'ADMIN' && (
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              {!editing ? (
+                <button 
+                  onClick={() => setEditing(true)}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    background: '#059669',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '0.25rem',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Edit
+                </button>
+              ) : (
+                <>
+                  <button 
+                    disabled={saving} 
+                    onClick={save}
+                    style={{
+                      padding: '0.5rem 1rem',
+                      background: saving ? '#6b7280' : '#059669',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '0.25rem',
+                      cursor: saving ? 'not-allowed' : 'pointer'
+                    }}
+                  >
+                    {saving ? 'Saving…' : 'Save'}
+                  </button>
+                  <button 
+                    onClick={() => setEditing(false)}
+                    style={{
+                      padding: '0.5rem 1rem',
+                      background: '#6b7280',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '0.25rem',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+        >
+          {!editing ? (
+            <div 
+              style={{ lineHeight: '1.6' }}
+              dangerouslySetInnerHTML={{ __html: page.content || '<p>No content available yet.</p>' }} 
+            />
+          ) : (
+            <RichTextEditor 
+              value={page.content} 
+              onChange={(v) => setPage(p => ({ ...(p as any), content: v }))} 
+            />
+          )}
+        </Card>
+      </div>
     </div>
   )
 }

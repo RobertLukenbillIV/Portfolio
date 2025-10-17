@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/state/auth'
 import { api } from '../lib/api'
 import { RichTextEditor } from '../components/RichText'
+import { Hero, Card, TextArea } from '@/components/AcmeUI'
 
 export default function EditAbout() {
   const { user } = useAuth()
@@ -72,78 +73,202 @@ export default function EditAbout() {
     navigate('/admin')
   }
 
-  if (loading) return <div className="p-6">Loading…</div>
+  if (loading) {
+    return (
+      <div>
+        <Hero 
+          title="Loading..."
+          variant="static"
+          height="30vh"
+        />
+        <div style={{ padding: '2rem', textAlign: 'center' }}>
+          <p>Loading About page editor...</p>
+        </div>
+      </div>
+    )
+  }
   
   if (error) {
     return (
-      <div className="mx-auto max-w-4xl p-6">
-        <div className="bg-red-900/20 border border-red-500 text-red-300 px-4 py-3 rounded">
-          <p>{error}</p>
-          <div className="mt-2 flex gap-2">
-            <button 
-              onClick={() => window.location.reload()} 
-              className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-            >
-              Retry
-            </button>
-            <button 
-              onClick={cancel}
-              className="px-3 py-1 bg-brandGreen text-white rounded hover:opacity-90"
-            >
-              Back to Admin
-            </button>
-          </div>
+      <div>
+        <Hero 
+          title="Error Loading Page"
+          subtitle="There was a problem loading the About page editor"
+          variant="static"
+          height="40vh"
+        />
+        <div style={{ padding: '2rem', maxWidth: '600px', margin: '0 auto' }}>
+          <Card
+            title="Error"
+            footer={
+              <div style={{ display: 'flex', gap: '1rem' }}>
+                <button 
+                  onClick={() => window.location.reload()}
+                  style={{
+                    padding: '0.75rem 1.5rem',
+                    background: '#dc2626',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '0.375rem',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Retry
+                </button>
+                <button 
+                  onClick={cancel}
+                  style={{
+                    padding: '0.75rem 1.5rem',
+                    background: 'var(--primary-color, #2c3e50)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '0.375rem',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Back to Admin
+                </button>
+              </div>
+            }
+          >
+            <p style={{ margin: '1rem 0', color: '#dc2626' }}>{error}</p>
+          </Card>
         </div>
       </div>
     )
   }
 
-  if (!page) return <div className="p-6">Loading…</div>
-
-  return (
-    <div className="mx-auto max-w-4xl p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl text-brandText font-semibold">Edit About Me</h1>
-        <div className="flex gap-2">
-          <button 
-            disabled={saving} 
-            onClick={save} 
-            className="px-4 py-2 rounded-lg bg-brandGreen text-white hover:opacity-90 disabled:opacity-50"
-          >
-            {saving ? 'Saving…' : 'Save Changes'}
-          </button>
-          <button 
-            onClick={cancel} 
-            className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700"
-          >
-            Cancel
-          </button>
+  if (!page) {
+    return (
+      <div>
+        <Hero 
+          title="Loading..."
+          variant="static"
+          height="30vh"
+        />
+        <div style={{ padding: '2rem', textAlign: 'center' }}>
+          <p>Loading...</p>
         </div>
       </div>
+    )
+  }
 
-      <div className="mb-4">
-        <label className="block text-brandText mb-2 font-medium">Page Title</label>
-        <textarea
-          value={page.title}
-          onChange={(e) => setPage(p => ({ ...(p as any), title: e.target.value }))}
-          rows={4}
-          className="w-full rounded-lg bg-slate-100 border-2 border-slate-300 px-3 py-2 text-gray-900 resize-y focus:ring-2 focus:ring-brandGreen focus:border-brandGreen shadow-md"
-          placeholder="About Me"
-        />
-      </div>
+  return (
+    <div>
+      <Hero 
+        title="Edit About Page"
+        subtitle="Update your personal information and biography"
+        variant="static"
+        height="40vh"
+        backgroundImage="https://picsum.photos/1920/600?random=about"
+      />
 
-      <div>
-        <label className="block text-brandText mb-2 font-medium">Page Content</label>
-        {loading ? (
-          <div className="w-full h-40 bg-slate-100 border-2 border-slate-300 rounded-lg flex items-center justify-center">
-            <span className="text-gray-500">Loading editor...</span>
+      <div style={{ padding: '3rem 2rem', maxWidth: '900px', margin: '0 auto' }}>
+        <Card>
+          <div style={{ display: 'grid', gap: '2rem' }}>
+            {/* Page Title */}
+            <div>
+              <label style={{ 
+                display: 'block', 
+                marginBottom: '0.5rem', 
+                fontWeight: '500' 
+              }}>
+                Page Title
+              </label>
+              <TextArea
+                value={page.title}
+                onChange={(e) => setPage(p => ({ ...(p as any), title: e.target.value }))}
+                rows={2}
+                placeholder="About Me"
+              />
+              <p style={{ 
+                fontSize: '0.875rem', 
+                color: 'var(--text-secondary, #7f8c8d)', 
+                marginTop: '0.5rem' 
+              }}>
+                The title that appears at the top of your About page.
+              </p>
+            </div>
+
+            {/* Page Content */}
+            <div>
+              <label style={{ 
+                display: 'block', 
+                marginBottom: '0.5rem', 
+                fontWeight: '500' 
+              }}>
+                About Content
+              </label>
+              {loading ? (
+                <div style={{ 
+                  width: '100%', 
+                  height: '300px', 
+                  background: 'var(--card-background, #f8f9fa)', 
+                  border: '2px solid var(--border-color, #e5e7eb)', 
+                  borderRadius: '8px', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center' 
+                }}>
+                  <span style={{ color: 'var(--text-secondary, #7f8c8d)' }}>
+                    Loading editor...
+                  </span>
+                </div>
+              ) : (
+                <RichTextEditor 
+                  value={page?.content || ''} 
+                  onChange={(v) => setPage(p => ({ ...(p as any), content: v }))} 
+                />
+              )}
+              <p style={{ 
+                fontSize: '0.875rem', 
+                color: 'var(--text-secondary, #7f8c8d)', 
+                marginTop: '0.5rem' 
+              }}>
+                Tell visitors about yourself, your background, and what you do.
+              </p>
+            </div>
+
+            {/* Action Buttons */}
+            <div style={{ 
+              display: 'flex', 
+              gap: '1rem', 
+              justifyContent: 'flex-end',
+              paddingTop: '1rem',
+              borderTop: '1px solid var(--border-color, #e5e7eb)'
+            }}>
+              <button
+                onClick={cancel}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  background: 'transparent',
+                  color: 'var(--text-secondary, #7f8c8d)',
+                  border: '1px solid var(--border-color, #e5e7eb)',
+                  borderRadius: '0.375rem',
+                  cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                disabled={saving}
+                onClick={save}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  background: saving ? '#6b7280' : 'var(--primary-color, #2c3e50)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '0.375rem',
+                  cursor: saving ? 'not-allowed' : 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: '500'
+                }}
+              >
+                {saving ? 'Saving…' : 'Save Changes'}
+              </button>
+            </div>
           </div>
-        ) : (
-          <RichTextEditor 
-            value={page?.content || ''} 
-            onChange={(v) => setPage(p => ({ ...(p as any), content: v }))} 
-          />
-        )}
+        </Card>
       </div>
     </div>
   )

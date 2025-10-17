@@ -1,10 +1,11 @@
 // Homepage component - displays hero image, intro text, and featured projects
-// Fetches customizable content from backend settings and featured posts
+// Redesigned with ACME UI components for modern, professional appearance
 // Connected to: backend /settings and /posts/featured endpoints, Projects page via links
 
 import { useEffect, useState } from 'react'
 import { api } from '@/lib/api'
 import { Link } from 'react-router-dom'
+import { Hero, Card } from '@/components/AcmeUI'
 
 // Type definitions for homepage content structure
 type Settings = { homeHeroUrl?: string | null; homeIntro?: string | null }
@@ -20,47 +21,91 @@ export default function Home() {
   }, [])
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
-      {settings?.homeHeroUrl && (
-        <div className="w-full flex justify-center mb-6">
-          <img
-            src={settings.homeHeroUrl}
-            alt="Hero"
-            className="rounded-2xl shadow-lg max-h-[380px] object-cover"
+    <div>
+      {/* Hero Section */}
+      <Hero 
+        backgroundImage={settings?.homeHeroUrl || undefined}
+        title="Robert Lukenbill IV"
+        subtitle="Software Developer & Portfolio"
+        variant="static"
+        height="60vh"
+      >
+        {settings?.homeIntro && (
+          <div 
+            style={{ 
+              marginTop: '1rem',
+              maxWidth: '600px',
+              textAlign: 'center',
+              background: 'rgba(0, 0, 0, 0.6)',
+              padding: '1rem',
+              borderRadius: '8px',
+              color: 'white'
+            }}
+            dangerouslySetInnerHTML={{ __html: settings.homeIntro }}
           />
-        </div>
-      )}
-
-      {settings?.homeIntro && (
-        <div 
-          className="text-brandTextMuted text-lg text-center mb-10 max-w-3xl mx-auto prose prose-invert"
-          dangerouslySetInnerHTML={{ __html: settings.homeIntro }}
-        />
-      )}
-
-      <h2 className="text-brandText text-2xl font-semibold mb-4 text-center">Highlighted Projects</h2>
-      <div className="grid md:grid-cols-3 gap-6">
-        {featured.map(p => (
-          <Link
-            key={p.id}
-            to={`/projects/${p.id}`}
-            className="bg-brandMint/20/40 hover:bg-brandMint/20/60 rounded-2xl p-4 border border-brandSteel/30"
-          >
-            {p.coverUrl && (
-              <img src={p.coverUrl} className="rounded-xl mb-3 h-40 w-full object-cover" />
-            )}
-            <h3 className="text-brandText font-medium mb-2">{p.title}</h3>
-            <div 
-              className="text-brandTextMuted text-sm"
-              dangerouslySetInnerHTML={{ __html: p.excerpt }}
-            />
-          </Link>
-        ))}
-        {featured.length === 0 && (
-          <p className="text-center text-brandTextMuted col-span-full">
-            No featured projects yet. Mark up to three posts as “Featured” in Admin.
-          </p>
         )}
+      </Hero>
+
+      {/* Featured Projects Section */}
+      <div style={{ padding: '3rem 2rem', maxWidth: '1200px', margin: '0 auto' }}>
+        <h2 style={{ 
+          textAlign: 'center', 
+          marginBottom: '2rem',
+          fontSize: '2rem',
+          fontWeight: 'bold'
+        }}>
+          Featured Projects
+        </h2>
+        
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+          gap: '2rem',
+          marginBottom: '2rem'
+        }}>
+          {featured.map(p => (
+            <Card key={p.id} title={p.title}>
+              {p.coverUrl && (
+                <img 
+                  src={p.coverUrl} 
+                  alt={p.title}
+                  style={{ 
+                    width: '100%', 
+                    height: '200px', 
+                    objectFit: 'cover',
+                    borderRadius: '8px',
+                    marginBottom: '1rem'
+                  }}
+                />
+              )}
+              <div dangerouslySetInnerHTML={{ __html: p.excerpt }} />
+              <div style={{ marginTop: '1rem' }}>
+                <Link 
+                  to={`/projects/${p.id}`}
+                  style={{
+                    display: 'inline-block',
+                    background: 'var(--primary-color, #2c3e50)',
+                    color: 'white',
+                    padding: '0.5rem 1rem',
+                    borderRadius: '4px',
+                    textDecoration: 'none',
+                    fontSize: '0.9rem'
+                  }}
+                >
+                  View Project
+                </Link>
+              </div>
+            </Card>
+          ))}
+          
+          {featured.length === 0 && (
+            <Card title="No Featured Projects">
+              <p style={{ textAlign: 'center', color: 'var(--text-secondary, #7f8c8d)' }}>
+                No featured projects yet. Mark up to three posts as "Featured" in Admin.
+              </p>
+            </Card>
+          )}
+        </div>
       </div>
     </div>
   )

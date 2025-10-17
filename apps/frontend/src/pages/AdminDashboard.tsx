@@ -4,6 +4,7 @@ import { useAuth } from '@/state/auth'
 import { api } from '../lib/api'
 import ImageManager from '@/components/ImageManager'
 import { RichTextEditor } from '@/components/RichText'
+import { Hero, Card, TabbedCard } from '@/components/AcmeUI'
 
 export default function AdminDashboard() {
   const { user } = useAuth()
@@ -11,66 +12,255 @@ export default function AdminDashboard() {
   const [hero, setHero] = useState('')
   const [intro, setIntro] = useState('')
   const [saving, setSaving] = useState(false)
+  const [stats, setStats] = useState({ posts: 0, featuredPosts: 0 })
 
   useEffect(() => {
-    if (user?.role !== 'ADMIN') navigate('/')
+    if (user?.role !== 'ADMIN') {
+      navigate('/')
+      return
+    }
+
+    // Load settings
     api.get('/settings').then(r => {
       setHero(r.data.settings?.homeHeroUrl ?? '')
       setIntro(r.data.settings?.homeIntro ?? '')
     })
-  }, [user])
+
+    // Load statistics
+    api.get('/posts').then(r => {
+      const posts = r.data.posts || []
+      setStats({
+        posts: posts.length,
+        featuredPosts: posts.filter((p: any) => p.featured).length
+      })
+    })
+  }, [user, navigate])
 
   async function save() {
     setSaving(true)
-    await api.put('/settings', { homeHeroUrl: hero, homeIntro: intro })
-    setSaving(false)
+    try {
+      await api.put('/settings', { homeHeroUrl: hero, homeIntro: intro })
+      alert('Settings saved successfully!')
+    } catch (err) {
+      console.error('Failed to save settings:', err)
+      alert('Failed to save settings. Please try again.')
+    } finally {
+      setSaving(false)
+    }
   }
 
+  if (user?.role !== 'ADMIN') {
+    return null
+  }
+
+  const dashboardTabs = [
+    {
+      label: 'Overview',
+      icon: '📊',
+      content: (
+        <div>
+          <h3 style={{ marginBottom: '1rem', fontSize: '1.25rem', fontWeight: 'bold' }}>
+            Portfolio Statistics
+          </h3>
+          
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+            gap: '1rem',
+            marginBottom: '2rem'
+          }}>
+            <div style={{ 
+              textAlign: 'center', 
+              padding: '1.5rem', 
+              background: 'var(--card-background, #f8f9fa)', 
+              borderRadius: '8px' 
+            }}>
+              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#3498db' }}>
+                {stats.posts}
+              </div>
+              <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary, #7f8c8d)' }}>
+                Total Projects
+              </div>
+            </div>
+            
+            <div style={{ 
+              textAlign: 'center', 
+              padding: '1.5rem', 
+              background: 'var(--card-background, #f8f9fa)', 
+              borderRadius: '8px' 
+            }}>
+              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#f39c12' }}>
+                {stats.featuredPosts}
+              </div>
+              <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary, #7f8c8d)' }}>
+                Featured Projects
+              </div>
+            </div>
+          </div>
+
+          <h4 style={{ marginBottom: '1rem' }}>Quick Actions</h4>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
+            <Link 
+              to="/projects/new"
+              style={{
+                display: 'block',
+                padding: '1rem',
+                background: 'var(--primary-color, #2c3e50)',
+                color: 'white',
+                textDecoration: 'none',
+                borderRadius: '8px',
+                textAlign: 'center'
+              }}
+            >
+              📝 Create New Project
+            </Link>
+            
+            <Link 
+              to="/projects"
+              style={{
+                display: 'block',
+                padding: '1rem',
+                background: '#059669',
+                color: 'white',
+                textDecoration: 'none',
+                borderRadius: '8px',
+                textAlign: 'center'
+              }}
+            >
+              📂 Manage Projects
+            </Link>
+          </div>
+        </div>
+      )
+    },
+    {
+      label: 'Homepage Settings',
+      icon: '🏠',
+      content: (
+        <div>
+          <div style={{ marginBottom: '2rem' }}>
+            <h4 style={{ marginBottom: '1rem' }}>Hero Image</h4>
+            <ImageManager
+              value={hero}
+              onChange={setHero}
+              label="Homepage Hero Image"
+            />
+            <p style={{ 
+              fontSize: '0.875rem', 
+              color: 'var(--text-secondary, #7f8c8d)', 
+              marginTop: '0.5rem' 
+            }}>
+              This image appears at the top of your homepage. Upload an image or paste a URL.
+            </p>
+          </div>
+
+          <div style={{ marginBottom: '2rem' }}>
+            <h4 style={{ marginBottom: '1rem' }}>Introduction Text</h4>
+            <RichTextEditor 
+              value={intro} 
+              onChange={setIntro}
+            />
+            <p style={{ 
+              fontSize: '0.875rem', 
+              color: 'var(--text-secondary, #7f8c8d)', 
+              marginTop: '0.5rem' 
+            }}>
+              This text appears in the hero section on your homepage. Use it to introduce yourself or your work.
+            </p>
+          </div>
+
+          <button 
+            disabled={saving} 
+            onClick={save}
+            style={{
+              padding: '0.75rem 1.5rem',
+              background: saving ? '#6b7280' : 'var(--primary-color, #2c3e50)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '0.375rem',
+              cursor: saving ? 'not-allowed' : 'pointer',
+              fontSize: '1rem',
+              fontWeight: '500'
+            }}
+          >
+            {saving ? 'Saving…' : 'Save Homepage Settings'}
+          </button>
+        </div>
+      )
+    },
+    {
+      label: 'Pages',
+      icon: '📄',
+      content: (
+        <div>
+          <h4 style={{ marginBottom: '1rem' }}>Manage Static Pages</h4>
+          <div style={{ display: 'grid', gap: '1rem' }}>
+            <Link 
+              to="/admin/edit-about"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                padding: '1rem',
+                background: 'var(--card-background, #f8f9fa)',
+                color: 'var(--text-primary, #2c3e50)',
+                textDecoration: 'none',
+                borderRadius: '8px',
+                border: '1px solid var(--border-color, #e5e7eb)'
+              }}
+            >
+              <span style={{ marginRight: '1rem', fontSize: '1.5rem' }}>👤</span>
+              <div>
+                <div style={{ fontWeight: '500' }}>Edit About Page</div>
+                <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary, #7f8c8d)' }}>
+                  Update your personal information and biography
+                </div>
+              </div>
+            </Link>
+
+            <Link 
+              to="/admin/edit-links"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                padding: '1rem',
+                background: 'var(--card-background, #f8f9fa)',
+                color: 'var(--text-primary, #2c3e50)',
+                textDecoration: 'none',
+                borderRadius: '8px',
+                border: '1px solid var(--border-color, #e5e7eb)'
+              }}
+            >
+              <span style={{ marginRight: '1rem', fontSize: '1.5rem' }}>🔗</span>
+              <div>
+                <div style={{ fontWeight: '500' }}>Edit Links Page</div>
+                <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary, #7f8c8d)' }}>
+                  Manage social media and contact links
+                </div>
+              </div>
+            </Link>
+          </div>
+        </div>
+      )
+    }
+  ]
+
   return (
-    <div className="mx-auto max-w-4xl p-6">
-      <h1 className="text-3xl text-brandText font-semibold mb-6">Admin</h1>
+    <div>
+      <Hero 
+        title="Admin Dashboard"
+        subtitle="Manage your portfolio content and settings"
+        variant="static"
+        height="40vh"
+        backgroundImage="https://picsum.photos/1920/600?random=admin"
+      />
 
-      <section className="rounded-2xl border border-brandSteel/30 bg-brandMint/20/40 p-4 mb-6">
-        <h2 className="text-brandText font-medium mb-4">Homepage Settings</h2>
-        
-        <div className="mb-4">
-          <ImageManager
-            value={hero}
-            onChange={setHero}
-            label="Hero Image (Main homepage banner image)"
-            className=""
-          />
-          <p className="text-xs text-brandText mt-1">
-            This image appears at the top of your homepage. Upload an image or paste a URL.
-          </p>
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-brandText mb-2 font-medium">
-            Homepage Introduction Text
-          </label>
-          <RichTextEditor 
-            value={intro} 
-            onChange={setIntro}
-          />
-          <p className="text-xs text-brandText mt-2">
-            This text appears below the hero image on your homepage. Use it to introduce yourself or your work.
-          </p>
-        </div>
-
-        <button disabled={saving} onClick={save} className="px-4 py-2 rounded-lg bg-brandGreen text-white hover:opacity-90 disabled:opacity-50">
-          {saving ? 'Saving…' : 'Save Homepage Settings'}
-        </button>
-      </section>
-
-      <section>
-        <h2 className="text-brandText font-medium mb-4">Content Management</h2>
-        <div className="grid md:grid-cols-2 gap-4">
-          <Link to="/projects/new" className="rounded-xl bg-brandGreen text-white px-4 py-3 text-center hover:opacity-90">Create New Post</Link>
-          <Link to="/admin/edit-about" className="rounded-xl bg-brandGreen text-white px-4 py-3 text-center hover:opacity-90">Edit About Me</Link>
-          <Link to="/admin/edit-links" className="rounded-xl bg-brandGreen text-white px-4 py-3 text-center hover:opacity-90">Edit Links</Link>
-        </div>
-      </section>
+      <div style={{ padding: '3rem 2rem', maxWidth: '1200px', margin: '0 auto' }}>
+        <TabbedCard
+          title="Portfolio Management"
+          tabs={dashboardTabs}
+          defaultTab={0}
+        />
+      </div>
     </div>
   )
 }

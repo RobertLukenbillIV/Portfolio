@@ -3,7 +3,8 @@
 // Connected to: main.tsx (wrapped in AuthProvider), all page components
 
 import { Routes, Route } from 'react-router-dom'
-import Navbar from './components/Navbar'           // Persistent navigation header
+import { Navigation } from '@/components/AcmeUI'               // ACME UI navigation component
+import { useAuth } from '@/state/auth'             // Authentication state
 import Home from './pages/Home'                    // Landing page with featured content
 import Projects from './pages/Projects'            // Portfolio grid displaying all projects
 import PostDetail from './pages/PostDetail'        // Individual project detail page
@@ -17,13 +18,50 @@ import QuillTest from './pages/QuillTest'          // Test page for debugging Qu
 import Login from './routes/Login'                 // Authentication form
 
 export default function App() {
+  const { user, logout } = useAuth()
+  
+  // Navigation links configuration
+  const navigationLinks = [
+    { label: 'Home', href: '/' },
+    { label: 'Projects', href: '/projects' },
+    { label: 'About', href: '/about' },
+    { label: 'Links', href: '/links' },
+    ...(user ? [
+      { 
+        label: 'Admin', 
+        href: '/admin',
+        children: [
+          { label: 'Dashboard', href: '/admin' },
+          { label: 'New Project', href: '/projects/new' },
+          { label: 'Edit About', href: '/admin/edit-about' },
+          { label: 'Edit Links', href: '/admin/edit-links' }
+        ]
+      }
+    ] : []),
+    ...(user ? [] : [{ label: 'Login', href: '/login' }])
+  ]
+
   return (
     <>
-      {/* Persistent navigation - appears on all pages */}
-      <Navbar />
+      {/* ACME UI Navigation - replaces old Navbar */}
+      <Navigation 
+        title="Robert Lukenbill IV"
+        variant="sidebar"
+        items={navigationLinks.map(link => ({
+          label: link.label,
+          href: link.href,
+          icon: link.label === 'Home' ? '🏠' : 
+                link.label === 'Projects' ? '💼' : 
+                link.label === 'About' ? '👤' : 
+                link.label === 'Links' ? '🔗' : 
+                link.label === 'Admin' ? '⚙️' : undefined
+        }))}
+      />
       
-      {/* Application routes - each corresponds to a different page/functionality */}
-      <Routes>
+      {/* Main content area with navigation spacing */}
+      <main style={{ marginLeft: '250px', padding: '2rem' }}>
+        {/* Application routes - each corresponds to a different page/functionality */}
+        <Routes>
         {/* Public routes - accessible to all visitors */}
         <Route path="/" element={<Home />} />                                    {/* Homepage with featured content */}
         <Route path="/links" element={<Links />} />                              {/* Social/contact links page */}
@@ -37,13 +75,14 @@ export default function App() {
         {/* Development/Debug routes */}
         <Route path="/test-quill" element={<QuillTest />} />                     {/* Test Quill list functionality */}
         
-        {/* Admin routes - require authentication */}
-        <Route path="/admin" element={<AdminDashboard />} />                     {/* Content management */}
-        <Route path="/projects/new" element={<PostEditor mode="create" />} />    {/* Create new project */}
-        <Route path="/admin/posts/:id/edit" element={<PostEditor mode="edit" />} /> {/* Edit existing project */}
-        <Route path="/admin/edit-about" element={<EditAbout />} />               {/* Direct edit About page */}
-        <Route path="/admin/edit-links" element={<EditLinks />} />               {/* Direct edit Links page */}
-      </Routes>
+          {/* Admin routes - require authentication */}
+          <Route path="/admin" element={<AdminDashboard />} />                     {/* Content management */}
+          <Route path="/projects/new" element={<PostEditor mode="create" />} />    {/* Create new project */}
+          <Route path="/admin/posts/:id/edit" element={<PostEditor mode="edit" />} /> {/* Edit existing project */}
+          <Route path="/admin/edit-about" element={<EditAbout />} />               {/* Direct edit About page */}
+          <Route path="/admin/edit-links" element={<EditLinks />} />               {/* Direct edit Links page */}
+        </Routes>
+      </main>
     </>
   )
 }

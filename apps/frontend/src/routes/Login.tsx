@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/state/auth'
+import { Card, TextInput } from '@/components/AcmeUI'
 
 export default function Login() {
   const nav = useNavigate()
@@ -25,49 +26,67 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-dark flex items-center justify-center p-4">
-      <form onSubmit={submit} className="bg-brandNavy border border-brandSteel/30 rounded-lg p-6 max-w-md w-full space-y-4">
-        <h1 className="text-2xl font-bold text-brandFoam">Admin Login</h1>
-
+    <div style={{ 
+      minHeight: '100vh', 
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'center',
+      padding: '2rem',
+      background: 'var(--page-background, #f5f5f5)'
+    }}>
+      <Card title="Admin Login" style={{ maxWidth: '400px', width: '100%' }}>
         {err && (
-          <div className="rounded border border-red-500 bg-red-900/20 px-3 py-2 text-red-300">
+          <div style={{
+            padding: '0.75rem',
+            marginBottom: '1rem',
+            background: '#fee2e2',
+            border: '1px solid #fca5a5',
+            borderRadius: '0.375rem',
+            color: '#dc2626'
+          }}>
             {err}
           </div>
         )}
 
-        <label className="block">
-          <span className="block text-sm font-medium mb-1 text-brandFoam">Email</span>
-          <input
-            className="w-full px-3 py-2 rounded border border-brandSteel/50 bg-brandNavy text-brandFoam placeholder-brandSteel focus:border-brandMint focus:outline-none"
+        <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <TextInput
+            label="Email"
+            type="email"
             placeholder="you@example.com"
-            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
-        </label>
 
-        <label className="block">
-          <span className="block text-sm font-medium mb-1 text-brandFoam">Password</span>
-          <input
-            className="w-full px-3 py-2 rounded border border-brandSteel/50 bg-brandNavy text-brandFoam placeholder-brandSteel focus:border-brandMint focus:outline-none"
+          <TextInput
+            label="Password"
             type="password"
             placeholder="••••••••"
-            autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-        </label>
 
-        <button
-          className="w-full px-4 py-2 bg-brandMint text-dark font-medium rounded hover:opacity-90 disabled:opacity-60"
-          type="submit"
-          disabled={loading}
-        >
-          {loading ? 'Signing in…' : 'Sign in'}
-        </button>
-      </form>
+          <button
+            style={{
+              padding: '0.75rem 1.5rem',
+              background: 'var(--primary-color, #2c3e50)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '0.375rem',
+              fontSize: '1rem',
+              fontWeight: '500',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.6 : 1,
+              marginTop: '0.5rem'
+            }}
+            type="submit"
+            disabled={loading}
+          >
+            {loading ? 'Signing in…' : 'Sign in'}
+          </button>
+        </form>
+      </Card>
     </div>
   )
 }

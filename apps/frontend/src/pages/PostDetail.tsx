@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '@/state/auth'
 import { api } from '@/lib/api'
+import { Hero, Card } from '@/components/AcmeUI'
 
 // Type definition for individual post data
 type Post = {
@@ -46,8 +47,15 @@ export default function PostDetail() {
   // Loading state
   if (loading) {
     return (
-      <div className="mx-auto max-w-3xl p-6 text-center">
-        <p className="text-brandTextMuted">Loading...</p>
+      <div>
+        <Hero 
+          title="Loading..."
+          variant="static"
+          height="30vh"
+        />
+        <div style={{ padding: '2rem', textAlign: 'center' }}>
+          <p>Loading project details...</p>
+        </div>
       </div>
     )
   }
@@ -55,71 +63,139 @@ export default function PostDetail() {
   // Error state
   if (error || !post) {
     return (
-      <div className="mx-auto max-w-3xl p-6 text-center">
-        <p className="text-red-600 mb-4">{error || 'Post not found'}</p>
-        <button 
-          onClick={() => navigate('/projects')}
-          className="btn-primary"
-        >
-          Back to Projects
-        </button>
+      <div>
+        <Hero 
+          title="Project Not Found"
+          subtitle={error || 'The requested project could not be found'}
+          variant="static"
+          height="40vh"
+        />
+        <div style={{ padding: '2rem', maxWidth: '600px', margin: '0 auto' }}>
+          <Card
+            title="Error"
+            footer={
+              <button 
+                onClick={() => navigate('/projects')}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  background: 'var(--primary-color, #2c3e50)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '0.375rem',
+                  cursor: 'pointer'
+                }}
+              >
+                Back to Projects
+              </button>
+            }
+          >
+            <p style={{ textAlign: 'center', margin: '1rem 0' }}>
+              {error || 'Post not found'}
+            </p>
+          </Card>
+        </div>
       </div>
     )
   }
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
+  }
+
   return (
-    <div className="mx-auto max-w-3xl p-6">
-      {/* Post header with cover image */}
-      {post.coverUrl && (
-        <img 
-          src={post.coverUrl} 
-          alt={post.title}
-          className="w-full h-64 object-cover rounded-2xl mb-6"
-        />
-      )}
-      
-      {/* Post title and metadata */}
-      <h1 className="text-3xl font-bold text-brandText mb-2">{post.title}</h1>
-      <div 
-        className="text-brandTextMuted mb-6"
-        dangerouslySetInnerHTML={{ __html: post.excerpt }}
+    <div>
+      {/* Hero section with cover image */}
+      <Hero 
+        title={post.title}
+        subtitle={post.excerpt.replace(/<[^>]*>/g, '')} // Strip HTML tags for subtitle
+        variant="static"
+        height="60vh"
+        backgroundImage={post.coverUrl || "https://picsum.photos/1920/800?random=project"}
       />
-      
-      {/* Post content */}
-      <div 
-        className="prose prose-lg max-w-none text-brandTextMuted"
-        dangerouslySetInnerHTML={{ __html: post.content }}
-      />
-      
-      {/* Admin controls */}
-      {user?.role === 'ADMIN' && (
-        <div className="mt-8 pt-6 border-t border-brandSteel/30 flex gap-3">
-          <button
-            onClick={() => navigate(`/admin/posts/${id}/edit`)}
-            className="btn-primary"
-          >
-            Edit Post
-          </button>
+
+      <div style={{ padding: '3rem 2rem', maxWidth: '900px', margin: '0 auto' }}>
+        {/* Project metadata */}
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          marginBottom: '2rem',
+          padding: '1rem',
+          background: 'var(--card-background, #f8f9fa)',
+          borderRadius: '8px'
+        }}>
+          <div>
+            <small style={{ color: 'var(--text-secondary, #7f8c8d)' }}>
+              Published {formatDate(post.createdAt)}
+            </small>
+            {post.updatedAt !== post.createdAt && (
+              <small style={{ 
+                display: 'block', 
+                color: 'var(--text-secondary, #7f8c8d)' 
+              }}>
+                Updated {formatDate(post.updatedAt)}
+              </small>
+            )}
+          </div>
+          
+          {user?.role === 'ADMIN' && (
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button
+                onClick={() => navigate(`/admin/posts/${id}/edit`)}
+                style={{
+                  padding: '0.5rem 1rem',
+                  background: 'var(--primary-color, #2c3e50)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '0.375rem',
+                  cursor: 'pointer',
+                  fontSize: '0.875rem'
+                }}
+              >
+                ✏️ Edit
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Project content */}
+        <Card>
+          <div 
+            style={{ 
+              lineHeight: '1.7',
+              fontSize: '1.1rem'
+            }}
+            dangerouslySetInnerHTML={{ __html: post.content }}
+          />
+        </Card>
+        
+        {/* Navigation footer */}
+        <div style={{ 
+          marginTop: '3rem',
+          padding: '2rem',
+          textAlign: 'center',
+          borderTop: '1px solid var(--border-color, #e5e7eb)'
+        }}>
           <button
             onClick={() => navigate('/projects')}
-            className="btn-ghost"
+            style={{
+              padding: '0.75rem 2rem',
+              background: 'transparent',
+              color: 'var(--primary-color, #2c3e50)',
+              border: '2px solid var(--primary-color, #2c3e50)',
+              borderRadius: '0.375rem',
+              cursor: 'pointer',
+              fontSize: '1rem'
+            }}
           >
-            Back to Projects
+            ← Back to Projects
           </button>
         </div>
-      )}
-      
-      {/* Navigation for non-admin users */}
-      {!user && (
-        <div className="mt-8 pt-6 border-t border-brandSteel/30">
-          <button
-            onClick={() => navigate('/projects')}
-            className="btn-primary"
-          >
-            Back to Projects
-          </button>
-        </div>
-      )}
+      </div>
     </div>
   )
 }

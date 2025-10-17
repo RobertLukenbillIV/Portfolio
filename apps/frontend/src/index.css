@@ -3,7 +3,17 @@
 @tailwind utilities;
 
 /* App chrome */
-:root { color-scheme: dark; }
+:root { 
+  color-scheme: dark;
+  --primary-color: #212830;  /* brandGreen */
+  --background-color: #010409;  /* brandBackground */
+  --text-primary: #f8f9fa;  /* brandText */
+  --text-secondary: #798a98;  /* brandFoam */
+  --card-background: rgba(161, 194, 189, 0.2);  /* brandMint/20 */
+  --border-color: rgba(112, 137, 147, 0.3);  /* brandSteel/30 */
+  --navy-color: #0d1117;  /* brandNavy */
+  --mint-color: #A1C2BD;  /* brandMint */
+}
 html, body, #root { height: 100%; }
 body { @apply bg-brandBackground text-brandText; }
 
