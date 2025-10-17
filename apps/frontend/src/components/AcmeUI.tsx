@@ -1,5 +1,6 @@
 // Placeholder ACME UI components since the actual package doesn't export React components
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 
 interface HeroProps {
   title: string
@@ -212,6 +213,7 @@ export const Navigation: React.FC<NavigationProps> = ({
 }) => {
   const [isExpanded, setIsExpanded] = React.useState(false);
   const [openSubmenus, setOpenSubmenus] = React.useState<Record<string, boolean>>({});
+  const navigate = useNavigate();
 
   const toggleNavigation = () => {
     setIsExpanded(!isExpanded);
@@ -227,6 +229,15 @@ export const Navigation: React.FC<NavigationProps> = ({
     }));
   };
 
+  const handleLinkClick = (e: React.MouseEvent, link: NavigationLink) => {
+    e.preventDefault();
+    if (link.onClick) {
+      link.onClick(e);
+    } else if (link.href) {
+      navigate(link.href);
+    }
+  };
+
   const renderNavLinks = (navLinks: NavigationLink[], level = 0): React.ReactNode => {
     return (
       <ul className={`nav-links level-${level} list-none p-0 m-0`}>
@@ -237,14 +248,13 @@ export const Navigation: React.FC<NavigationProps> = ({
           return (
             <li key={linkKey} className={`nav-link-item relative ${hasChildren ? 'has-children bg-black bg-opacity-10' : ''} ${openSubmenus[linkKey] ? 'open' : ''} border-b border-white border-opacity-5`}>
               <div className="nav-link-wrapper flex items-center justify-between">
-                <a 
-                  href={link.href || '#'} 
-                  className="nav-link block py-4 px-5 text-white no-underline transition-colors duration-200 hover:bg-white hover:bg-opacity-10 flex-1"
-                  onClick={link.onClick}
+                <button 
+                  onClick={(e) => handleLinkClick(e, link)}
+                  className="nav-link block py-4 px-5 text-white no-underline transition-colors duration-200 hover:bg-white hover:bg-opacity-10 flex-1 text-left bg-transparent border-none cursor-pointer w-full"
                 >
                   {link.icon && <span className="mr-3">{link.icon}</span>}
                   {link.label}
-                </a>
+                </button>
                 {hasChildren && (
                   <button 
                     className="submenu-toggle bg-none border-none text-white py-4 px-3 cursor-pointer transition-all duration-200 hover:bg-white hover:bg-opacity-10"

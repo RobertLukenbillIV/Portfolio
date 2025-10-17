@@ -51,6 +51,10 @@ export default function App() {
         links={navigationLinks.map(link => ({
           label: link.label,
           href: link.href,
+          children: link.children?.map(child => ({
+            label: child.label,
+            href: child.href
+          })),
           icon: link.label === 'Home' ? '🏠' : 
                 link.label === 'Projects' ? '💼' : 
                 link.label === 'About' ? '👤' : 
