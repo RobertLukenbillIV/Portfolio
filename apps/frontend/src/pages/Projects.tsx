@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api } from '@/lib/api'
 import { Link } from 'react-router-dom'
-import { Card, Hero } from '@/components/AcmeUI'
+import { Card, Hero, SearchField, Button, Badge, Switch } from '@/components/AcmeUI'
 import { useAuth } from '@/state/auth'
 
 // Type definition for Post/Project data structure
@@ -18,6 +18,8 @@ export type Post = {
 
 export default function Projects() {
   const [posts, setPosts] = useState<Post[]>([])
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filterFeatured, setFilterFeatured] = useState(false)
   const { user } = useAuth()
   
   useEffect(() => {
@@ -25,6 +27,14 @@ export default function Projects() {
     const endpoint = user?.role === 'ADMIN' ? '/posts' : '/posts/public'
     api.get(endpoint).then(r => setPosts(r.data.posts ?? []))
   }, [user])
+
+  // Filter posts based on search term and featured filter
+  const filteredPosts = posts.filter(post => {
+    const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         post.excerpt.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesFeatured = !filterFeatured || post.featured
+    return matchesSearch && matchesFeatured
+  })
 
   const handleDelete = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this project?')) {
@@ -63,51 +73,94 @@ export default function Projects() {
 
       {/* Projects Grid */}
       <div style={{ padding: '3rem 2rem', maxWidth: '1200px', margin: '0 auto' }}>
-        {user?.role === 'ADMIN' && (
-          <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
-            <Link 
-              to="/projects/new"
-              style={{
-                display: 'inline-block',
-                background: 'var(--primary-color, #2c3e50)',
-                color: 'white',
-                padding: '0.75rem 1.5rem',
-                borderRadius: '4px',
-                textDecoration: 'none',
-                fontSize: '1rem',
-                fontWeight: '500'
-              }}
-            >
-              Create New Project
-            </Link>
+        {/* Admin Actions and Search/Filter */}
+        <div style={{ marginBottom: '2rem' }}>
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap', marginBottom: '1rem' }}>
+            {user?.role === 'ADMIN' && (
+              <Link to="/projects/new" style={{ textDecoration: 'none' }}>
+                <Button variant="primary">
+                  Create New Project
+                </Button>
+              </Link>
+            )}
+            
+            <div style={{ flex: 1, minWidth: '300px' }}>
+              <SearchField
+                value={searchTerm}
+                onChange={setSearchTerm}
+                placeholder="Search projects..."
+                icon={
+                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                }
+              />
+            </div>
+            
+            <Switch
+              checked={filterFeatured}
+              onChange={setFilterFeatured}
+              label="Featured Only"
+              color="warning"
+            />
           </div>
-        )}
+          
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', fontSize: '0.875rem', color: 'var(--text-secondary, #7f8c8d)' }}>
+            <span>
+              Showing {filteredPosts.length} of {posts.length} projects
+            </span>
+            {searchTerm && (
+              <Badge variant="primary" size="small">
+                Search: "{searchTerm}"
+              </Badge>
+            )}
+            {filterFeatured && (
+              <Badge variant="warning" size="small">
+                Featured Only
+              </Badge>
+            )}
+          </div>
+        </div>
 
         <div style={{ 
           display: 'grid', 
           gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', 
           gap: '2rem'
         }}>
-          {posts.map(post => (
-            <Card key={post.id} title={post.title}>
-              {post.coverUrl && (
-                <img 
-                  src={post.coverUrl} 
-                  alt={post.title}
-                  style={{ 
-                    width: '100%', 
-                    height: '200px', 
-                    objectFit: 'cover',
-                    borderRadius: '8px',
-                    marginBottom: '1rem'
-                  }}
-                />
-              )}
+          {filteredPosts.map(post => (
+            <Card key={post.id}>
+              <div style={{ position: 'relative' }}>
+                {/* Featured Badge */}
+                {post.featured && (
+                  <div style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', zIndex: 10 }}>
+                    <Badge variant="warning">⭐ Featured</Badge>
+                  </div>
+                )}
+                
+                {post.coverUrl && (
+                  <img 
+                    src={post.coverUrl} 
+                    alt={post.title}
+                    style={{ 
+                      width: '100%', 
+                      height: '200px', 
+                      objectFit: 'cover',
+                      borderRadius: '8px',
+                      marginBottom: '1rem'
+                    }}
+                  />
+                )}
+              </div>
               
-              <div 
-                dangerouslySetInnerHTML={{ __html: post.excerpt }} 
-                style={{ marginBottom: '1rem', color: 'var(--text-secondary, #7f8c8d)' }}
-              />
+              <div style={{ marginBottom: '1rem' }}>
+                <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem', fontWeight: 'bold' }}>
+                  {post.title}
+                </h3>
+                <div 
+                  dangerouslySetInnerHTML={{ __html: post.excerpt }} 
+                  style={{ color: 'var(--text-secondary, #7f8c8d)' }}
+                />
+              </div>
 
               {/* Project Status Indicators */}
               <div style={{ 
@@ -116,30 +169,12 @@ export default function Projects() {
                 marginBottom: '1rem',
                 flexWrap: 'wrap'
               }}>
-                {post.featured && (
-                  <span style={{
-                    background: '#f59e0b',
-                    color: 'white',
-                    padding: '0.25rem 0.5rem',
-                    borderRadius: '0.25rem',
-                    fontSize: '0.75rem',
-                    fontWeight: '500'
-                  }}>
-                    ⭐ Featured
-                  </span>
-                )}
                 {!post.published && (
-                  <span style={{
-                    background: '#6b7280',
-                    color: 'white',
-                    padding: '0.25rem 0.5rem',
-                    borderRadius: '0.25rem',
-                    fontSize: '0.75rem',
-                    fontWeight: '500'
-                  }}>
-                    📝 Draft
-                  </span>
+                  <Badge variant="secondary">Draft</Badge>
                 )}
+                <Badge variant="light" size="small">
+                  {new Date(post.createdAt).toLocaleDateString()}
+                </Badge>
               </div>
 
               {/* Action Buttons */}
@@ -149,68 +184,35 @@ export default function Projects() {
                 justifyContent: 'space-between',
                 alignItems: 'center'
               }}>
-                <Link 
-                  to={`/projects/${post.id}`}
-                  style={{
-                    display: 'inline-block',
-                    background: 'var(--primary-color, #2c3e50)',
-                    color: 'white',
-                    padding: '0.5rem 1rem',
-                    borderRadius: '4px',
-                    textDecoration: 'none',
-                    fontSize: '0.9rem'
-                  }}
-                >
-                  View Details
+                <Link to={`/projects/${post.id}`} style={{ textDecoration: 'none' }}>
+                  <Button variant="primary">
+                    View Details
+                  </Button>
                 </Link>
 
                 {user?.role === 'ADMIN' && (
                   <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <Link 
-                      to={`/admin/posts/${post.id}/edit`}
-                      style={{
-                        display: 'inline-block',
-                        background: '#059669',
-                        color: 'white',
-                        padding: '0.5rem',
-                        borderRadius: '4px',
-                        textDecoration: 'none',
-                        fontSize: '0.8rem'
-                      }}
-                    >
-                      ✏️
+                    <Link to={`/admin/posts/${post.id}/edit`} style={{ textDecoration: 'none' }}>
+                      <Button variant="success" size="small">
+                        Edit
+                      </Button>
                     </Link>
                     
-                    <button
+                    <Button
+                      variant={post.featured ? "warning" : "ghost"}
+                      size="small"
                       onClick={() => toggleFeatured(post.id, post.featured)}
-                      style={{
-                        background: post.featured ? '#f59e0b' : '#6b7280',
-                        color: 'white',
-                        padding: '0.5rem',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '0.8rem'
-                      }}
-                      title={post.featured ? 'Remove from featured' : 'Add to featured'}
                     >
-                      ⭐
-                    </button>
-
-                    <button
+                      {post.featured ? '⭐' : '☆'}
+                    </Button>
+                    
+                    <Button
+                      variant="danger"
+                      size="small"
                       onClick={() => handleDelete(post.id)}
-                      style={{
-                        background: '#dc2626',
-                        color: 'white',
-                        padding: '0.5rem',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '0.8rem'
-                      }}
                     >
                       🗑️
-                    </button>
+                    </Button>
                   </div>
                 )}
               </div>
@@ -218,15 +220,27 @@ export default function Projects() {
           ))}
         </div>
 
-        {posts.length === 0 && (
-          <Card title="No Projects Yet">
-            <p style={{ textAlign: 'center', color: 'var(--text-secondary, #7f8c8d)' }}>
-              {user?.role === 'ADMIN' 
-                ? 'No projects have been created yet. Create your first project to get started!'
-                : 'No projects are currently available. Check back later!'
+        {filteredPosts.length === 0 && (
+          <div style={{ 
+            textAlign: 'center', 
+            padding: '3rem', 
+            color: 'var(--text-secondary, #7f8c8d)' 
+          }}>
+            <h3>No projects found</h3>
+            <p>
+              {searchTerm || filterFeatured 
+                ? 'Try adjusting your search or filters.' 
+                : 'No projects have been created yet.'
               }
             </p>
-          </Card>
+            {user?.role === 'ADMIN' && !searchTerm && !filterFeatured && (
+              <Link to="/projects/new" style={{ textDecoration: 'none', marginTop: '1rem', display: 'inline-block' }}>
+                <Button variant="primary">
+                  Create Your First Project
+                </Button>
+              </Link>
+            )}
+          </div>
         )}
       </div>
     </div>

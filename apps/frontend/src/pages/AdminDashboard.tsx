@@ -4,7 +4,7 @@ import { useAuth } from '@/state/auth'
 import { api } from '../lib/api'
 import ImageManager from '@/components/ImageManager'
 import { RichTextEditor } from '@/components/RichText'
-import { Hero, Card, TabbedCard } from '@/components/AcmeUI'
+import { Hero, Card, TabbedCard, Button, Badge, LoadingWrapper, Avatar } from '@/components/AcmeUI'
 
 export default function AdminDashboard() {
   const { user } = useAuth()
@@ -93,41 +93,23 @@ export default function AdminDashboard() {
                 {stats.featuredPosts}
               </div>
               <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary, #7f8c8d)' }}>
-                Featured Projects
+                Featured Projects <Badge variant="warning" size="small">Max 3</Badge>
               </div>
             </div>
           </div>
 
           <h4 style={{ marginBottom: '1rem' }}>Quick Actions</h4>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
-            <Link 
-              to="/projects/new"
-              style={{
-                display: 'block',
-                padding: '1rem',
-                background: 'var(--primary-color, #2c3e50)',
-                color: 'white',
-                textDecoration: 'none',
-                borderRadius: '8px',
-                textAlign: 'center'
-              }}
-            >
-              📝 Create New Project
+            <Link to="/projects/new" style={{ textDecoration: 'none' }}>
+              <Button variant="primary" size="large" className="w-full">
+                📝 Create New Project
+              </Button>
             </Link>
             
-            <Link 
-              to="/projects"
-              style={{
-                display: 'block',
-                padding: '1rem',
-                background: '#059669',
-                color: 'white',
-                textDecoration: 'none',
-                borderRadius: '8px',
-                textAlign: 'center'
-              }}
-            >
-              📂 Manage Projects
+            <Link to="/projects" style={{ textDecoration: 'none' }}>
+              <Button variant="success" size="large" className="w-full">
+                📂 Manage Projects
+              </Button>
             </Link>
           </div>
         </div>
@@ -169,22 +151,15 @@ export default function AdminDashboard() {
             </p>
           </div>
 
-          <button 
+          <Button 
             disabled={saving} 
+            loading={saving}
             onClick={save}
-            style={{
-              padding: '0.75rem 1.5rem',
-              background: saving ? '#6b7280' : 'var(--primary-color, #2c3e50)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '0.375rem',
-              cursor: saving ? 'not-allowed' : 'pointer',
-              fontSize: '1rem',
-              fontWeight: '500'
-            }}
+            variant="primary"
+            size="large"
           >
-            {saving ? 'Saving…' : 'Save Homepage Settings'}
-          </button>
+            Save Homepage Settings
+          </Button>
         </div>
       )
     },
@@ -195,48 +170,28 @@ export default function AdminDashboard() {
         <div>
           <h4 style={{ marginBottom: '1rem' }}>Manage Static Pages</h4>
           <div style={{ display: 'grid', gap: '1rem' }}>
-            <Link 
-              to="/admin/edit-about"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                padding: '1rem',
-                background: 'var(--card-background, #f8f9fa)',
-                color: 'var(--text-primary, #2c3e50)',
-                textDecoration: 'none',
-                borderRadius: '8px',
-                border: '1px solid var(--border-color, #e5e7eb)'
-              }}
-            >
-              <span style={{ marginRight: '1rem', fontSize: '1.5rem' }}>👤</span>
-              <div>
-                <div style={{ fontWeight: '500' }}>Edit About Page</div>
-                <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary, #7f8c8d)' }}>
-                  Update your personal information and biography
+            <Link to="/admin/edit-about" style={{ textDecoration: 'none' }}>
+              <Button variant="ghost" size="large" className="w-full justify-start">
+                <span style={{ marginRight: '1rem', fontSize: '1.5rem' }}>👤</span>
+                <div className="text-left">
+                  <div style={{ fontWeight: '500' }}>Edit About Page</div>
+                  <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary, #7f8c8d)' }}>
+                    Update your personal information and biography
+                  </div>
                 </div>
-              </div>
+              </Button>
             </Link>
 
-            <Link 
-              to="/admin/edit-links"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                padding: '1rem',
-                background: 'var(--card-background, #f8f9fa)',
-                color: 'var(--text-primary, #2c3e50)',
-                textDecoration: 'none',
-                borderRadius: '8px',
-                border: '1px solid var(--border-color, #e5e7eb)'
-              }}
-            >
-              <span style={{ marginRight: '1rem', fontSize: '1.5rem' }}>🔗</span>
-              <div>
-                <div style={{ fontWeight: '500' }}>Edit Links Page</div>
-                <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary, #7f8c8d)' }}>
-                  Manage social media and contact links
+            <Link to="/admin/edit-links" style={{ textDecoration: 'none' }}>
+              <Button variant="ghost" size="large" className="w-full justify-start">
+                <span style={{ marginRight: '1rem', fontSize: '1.5rem' }}>🔗</span>
+                <div className="text-left">
+                  <div style={{ fontWeight: '500' }}>Edit Links Page</div>
+                  <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary, #7f8c8d)' }}>
+                    Manage social media and contact links
+                  </div>
                 </div>
-              </div>
+              </Button>
             </Link>
           </div>
         </div>

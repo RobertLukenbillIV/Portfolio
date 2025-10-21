@@ -4,7 +4,7 @@ import { api } from '@/lib/api'
 import { useAuth } from '@/state/auth'
 import { RichTextEditor } from '@/components/RichText'
 import ImageManager from '@/components/ImageManager'
-import { Hero, Card, TextArea } from '@/components/AcmeUI'
+import { Hero, Card, TextInput, Button, Switch, Badge } from '@/components/AcmeUI'
 
 export default function PostEditor({ mode }: { mode: 'create' | 'edit' }) {
   const { user } = useAuth()
@@ -14,6 +14,7 @@ export default function PostEditor({ mode }: { mode: 'create' | 'edit' }) {
   const [excerpt, setExcerpt] = useState('')
   const [content, setContent] = useState('')
   const [coverUrl, setCoverUrl] = useState('')
+  const [featured, setFeatured] = useState(false)
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
@@ -28,6 +29,7 @@ export default function PostEditor({ mode }: { mode: 'create' | 'edit' }) {
         setExcerpt(p?.excerpt ?? '')
         setContent(p?.content ?? '')
         setCoverUrl(p?.coverUrl ?? '')
+        setFeatured(p?.featured ?? false)
       })
     }
   }, [mode, id])
@@ -42,11 +44,11 @@ export default function PostEditor({ mode }: { mode: 'create' | 'edit' }) {
     try {
       if (mode === 'create') {
         const { data } = await api.post('/posts', {
-          title, excerpt, content, coverUrl,
+          title, excerpt, content, coverUrl, featured,
         })
         navigate(`/projects/${data.post.id}`)
       } else {
-        await api.put(`/posts/${id}`, { title, excerpt, content, coverUrl })
+        await api.put(`/posts/${id}`, { title, excerpt, content, coverUrl, featured })
         navigate(`/projects/${id}`)
       }
     } catch (error) {
@@ -83,11 +85,12 @@ export default function PostEditor({ mode }: { mode: 'create' | 'edit' }) {
               }}>
                 Project Title *
               </label>
-              <TextArea
+              <TextInput
+                type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="Enter a descriptive title for your project..."
-                rows={2}
+                placeholder="Enter project title"
+                required
               />
             </div>
 
@@ -158,6 +161,37 @@ export default function PostEditor({ mode }: { mode: 'create' | 'edit' }) {
               </p>
             </div>
 
+            {/* Featured Toggle */}
+            <div>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '0.75rem',
+                padding: '1rem',
+                background: 'var(--card-background, #f8f9fa)',
+                borderRadius: '8px',
+                border: '1px solid var(--border-color, #e5e7eb)'
+              }}>
+                <Switch
+                  checked={featured}
+                  onChange={setFeatured}
+                  label="Featured Project"
+                  color="warning"
+                />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: '500', marginBottom: '0.25rem' }}>
+                    Feature on Homepage
+                  </div>
+                  <div style={{ 
+                    fontSize: '0.875rem', 
+                    color: 'var(--text-secondary, #7f8c8d)' 
+                  }}>
+                    Featured projects appear on the homepage <Badge variant="warning" size="small">Max 3</Badge>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Action Buttons */}
             <div style={{ 
               display: 'flex', 
@@ -166,35 +200,20 @@ export default function PostEditor({ mode }: { mode: 'create' | 'edit' }) {
               paddingTop: '1rem',
               borderTop: '1px solid var(--border-color, #e5e7eb)'
             }}>
-              <button
+              <Button
+                variant="ghost"
                 onClick={() => navigate(-1)}
-                style={{
-                  padding: '0.75rem 1.5rem',
-                  background: 'transparent',
-                  color: 'var(--text-secondary, #7f8c8d)',
-                  border: '1px solid var(--border-color, #e5e7eb)',
-                  borderRadius: '0.375rem',
-                  cursor: 'pointer'
-                }}
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="primary"
                 disabled={saving}
+                loading={saving}
                 onClick={save}
-                style={{
-                  padding: '0.75rem 1.5rem',
-                  background: saving ? '#6b7280' : 'var(--primary-color, #2c3e50)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '0.375rem',
-                  cursor: saving ? 'not-allowed' : 'pointer',
-                  fontSize: '1rem',
-                  fontWeight: '500'
-                }}
               >
-                {saving ? 'Saving…' : (mode === 'create' ? 'Create Project' : 'Update Project')}
-              </button>
+                {mode === 'create' ? 'Create Project' : 'Update Project'}
+              </Button>
             </div>
           </div>
         </Card>

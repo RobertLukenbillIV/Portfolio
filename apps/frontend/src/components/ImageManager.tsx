@@ -4,6 +4,7 @@
 import { useState } from 'react'
 import ImageInput from './ImageInput'
 import ImageGallery from './ImageGallery'
+import { Button } from './AcmeUI'
 
 interface ImageManagerProps {
   value: string
@@ -35,13 +36,13 @@ export default function ImageManager({
       {/* Gallery Toggle */}
       {showGallery && (
         <div className="flex items-center gap-2">
-          <button
-            type="button"
+          <Button
+            variant="success"
+            size="small"
             onClick={() => setShowGalleryPanel(!showGalleryPanel)}
-            className="px-3 py-1 text-sm bg-brandGreen text-white rounded hover:opacity-90 transition-opacity"
           >
             {showGalleryPanel ? 'Hide' : 'Browse'} uploaded images
-          </button>
+          </Button>
           {showGalleryPanel && (
             <span className="text-xs text-brandText">
               Click an image to select it
