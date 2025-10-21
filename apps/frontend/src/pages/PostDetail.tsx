@@ -130,42 +130,20 @@ export default function PostDetail() {
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat'
         }} />
-        
-        {/* Dark overlay for better text readability */}
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          backgroundColor: 'rgba(44, 62, 80, 0.7)',
-          zIndex: 1
-        }} />
-        
-        {/* Title overlay */}
-        <div style={{
-          position: 'relative',
-          zIndex: 2,
-          color: 'white',
-          textAlign: 'center',
-          backgroundColor: 'rgba(44, 62, 80, 0.9)',
-          padding: '2rem',
-          borderRadius: '1rem',
-          maxWidth: '800px',
-          border: '1px solid rgba(52, 152, 219, 0.3)'
-        }}>
-          <h1 style={{ 
-            fontSize: '3rem', 
-            fontWeight: 'bold', 
-            margin: '0',
-            textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
-          }}>
-            {post.title}
-          </h1>
-        </div>
       </div>
 
       <div style={{ padding: '3rem 2rem', maxWidth: '900px', margin: '0 auto' }}>
+        {/* Project title */}
+        <h1 style={{ 
+          fontSize: '3rem', 
+          fontWeight: 'bold', 
+          margin: '0 0 2rem 0',
+          color: 'var(--text-primary, #2c3e50)',
+          textAlign: 'center'
+        }}>
+          {post.title}
+        </h1>
+
         {/* Project metadata */}
         <div style={{ 
           display: 'flex', 
