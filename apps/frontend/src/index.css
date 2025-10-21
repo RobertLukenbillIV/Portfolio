@@ -18,18 +18,17 @@
   --hero-letterbox-bg: #ffffff;  /* White letterbox for light mode */
 }
 
-/* Dark mode variables */
-@media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: dark;
-    --background-color: #1a1a1a;
-    --text-primary: #f8f9fa;
-    --text-secondary: #adb5bd;
-    --card-background: #2c2c2c;
-    --border-color: #404040;
-    --button-hover-bg: #404040;
-    --hero-letterbox-bg: #000000;  /* Black letterbox for dark mode */
-  }
+/* Dark mode variables - controlled by JavaScript theme toggle */
+:root.dark,
+[data-theme="dark"] {
+  color-scheme: dark;
+  --background-color: #1a1a1a;
+  --text-primary: #f8f9fa;
+  --text-secondary: #adb5bd;
+  --card-background: #2c2c2c;
+  --border-color: #404040;
+  --button-hover-bg: #404040;
+  --hero-letterbox-bg: #000000;  /* Black letterbox for dark mode */
 }
 html, body, #root { height: 100%; }
 body { 

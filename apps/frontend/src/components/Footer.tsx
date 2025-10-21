@@ -1,10 +1,14 @@
 // Footer component for the main portfolio layout
 // Uses the ACME UI Footnote component with social media links
+// Includes theme toggle button in the bottom right corner
 
 import React from 'react'
-import { Footnote } from './AcmeUI'
+import { Footnote, ThemeToggle } from './AcmeUI'
+import { useTheme } from '@/state/theme'
 
 export default function Footer() {
+  const { theme, toggleTheme } = useTheme()
+  
   const socialLinks = [
     {
       href: 'https://github.com/RobertLukenbillIV',
@@ -19,29 +23,45 @@ export default function Footer() {
   ]
 
   return (
-    <Footnote
-      variant="footer"
-      content={
-        <div>
-          <h3 style={{ 
-            margin: '0 0 1rem 0', 
-            fontSize: '1.5rem',
-            color: '#ecf0f1'
-          }}>
-            Connect with Me
-          </h3>
-          <p style={{ 
-            margin: '0 0 1.5rem 0', 
-            fontSize: '1rem', 
-            color: '#bdc3c7',
-            lineHeight: '1.6'
-          }}>
-            Here's the following social media links to contact me or find out more about my work:
-          </p>
-        </div>
-      }
-      socialLinks={socialLinks}
-      pageLinks={[]} // Remove the page links completely
-    />
+    <div style={{ position: 'relative' }}>
+      <Footnote
+        variant="footer"
+        content={
+          <div>
+            <h3 style={{ 
+              margin: '0 0 1rem 0', 
+              fontSize: '1.5rem',
+              color: '#ecf0f1'
+            }}>
+              Connect with Me
+            </h3>
+            <p style={{ 
+              margin: '0 0 1.5rem 0', 
+              fontSize: '1rem', 
+              color: '#bdc3c7',
+              lineHeight: '1.6'
+            }}>
+              Here's the following social media links to contact me or find out more about my work:
+            </p>
+          </div>
+        }
+        socialLinks={socialLinks}
+        pageLinks={[]} // Remove the page links completely
+      />
+      
+      {/* Theme toggle in bottom right corner */}
+      <div style={{
+        position: 'absolute',
+        bottom: '1rem',
+        right: '1rem',
+        zIndex: 10
+      }}>
+        <ThemeToggle 
+          theme={theme} 
+          onToggle={toggleTheme}
+          size="medium"
+        />
+      </div>
+    </div>
   )
 }
