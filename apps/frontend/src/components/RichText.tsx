@@ -82,6 +82,22 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
     // Handler that opens our portal input positioned under the toolbar button
     const openLinkInput = () => {
       const range = editor.getSelection(true)
+      
+      // Require text selection before showing link input
+      if (!range || range.length === 0) {
+        // Show brief visual feedback that text selection is required
+        const editorContainer = quillRef.current?.editor?.container
+        const linkButton = editorContainer?.querySelector('.ql-toolbar .ql-link') as HTMLElement | null
+        if (linkButton) {
+          linkButton.style.background = 'rgba(239, 68, 68, 0.1)'
+          linkButton.style.transition = 'background-color 0.2s ease'
+          setTimeout(() => {
+            linkButton.style.background = ''
+          }, 300)
+        }
+        return
+      }
+      
       setSavedRange(range)
 
       // Find the specific toolbar link button for THIS editor instance
@@ -92,8 +108,9 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
         const updatePosition = () => {
           const rect = linkButton.getBoundingClientRect()
           // Use absolute positioning with scroll offsets for proper tracking
+          // Center the 320px portal under the link button specifically
           let top = rect.bottom + window.scrollY + 2
-          let left = rect.left + window.scrollX + (rect.width / 2) - 140
+          let left = rect.left + window.scrollX + (rect.width / 2) - 160 // 320px portal width / 2 = 160
           
           // Ensure the portal stays within viewport bounds
           const portalWidth = 320
@@ -126,14 +143,10 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
       }
 
       // Pre-fill with existing link if selection has one
-      if (range && range.length > 0) {
-        const formats = editor.getFormat(range)
-        const link = (formats as any)?.link
-        if (link && typeof link === 'string') setLinkValue(link)
-        else setLinkValue('')
-      } else {
-        setLinkValue('')
-      }
+      const formats = editor.getFormat(range)
+      const link = (formats as any)?.link
+      if (link && typeof link === 'string') setLinkValue(link)
+      else setLinkValue('')
 
       setShowLinkInput(true)
       // focus shortly after rendering
@@ -239,7 +252,7 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
       if (linkButton) {
         const rect = linkButton.getBoundingClientRect()
         let top = rect.bottom + window.scrollY + 2
-        let left = rect.left + window.scrollX + (rect.width / 2) - 140
+        let left = rect.left + window.scrollX + (rect.width / 2) - 160 // Center 320px portal under link button
         
         const portalWidth = 320
         const portalHeight = 50
