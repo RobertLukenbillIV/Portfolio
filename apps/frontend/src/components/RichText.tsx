@@ -89,12 +89,12 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
       if (linkButton) {
         const rect = linkButton.getBoundingClientRect()
         // For fixed positioning, use viewport coordinates (no scroll offset)
-        let top = rect.bottom + 6
-        let left = rect.left
+        let top = rect.bottom + 2 // Closer to the button
+        let left = rect.left + (rect.width / 2) - 140 // Center under button (accounting for dynamic width)
         
         // Ensure the portal stays within viewport bounds
-        const portalWidth = 400 // approximate width of the portal
-        const portalHeight = 60 // approximate height of the portal
+        const portalWidth = 320 // slightly wider to accommodate remove button
+        const portalHeight = 50 // smaller height for more compact design
         
         if (left + portalWidth > window.innerWidth) {
           left = window.innerWidth - portalWidth - 10
@@ -353,12 +353,15 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
 
       {showLinkInput && typeof document !== 'undefined' && createPortal(
         <div
-          className="fixed bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg p-2 animate-in fade-in-0 zoom-in-95 duration-200 quill-link-portal"
+          className="fixed bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg animate-in fade-in-0 zoom-in-95 duration-200 quill-link-portal"
           style={{ top: linkPos.top, left: linkPos.left, zIndex: 2000001 }}
           role="dialog"
           aria-label="Insert link"
         >
-          <div className="flex items-center gap-2">
+          {/* Small arrow pointing up to the button */}
+          <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-l-transparent border-r-transparent border-b-gray-300 dark:border-b-gray-600"></div>
+          
+          <div className="flex items-center gap-1 p-2">
             <input
               ref={inputRef}
               type="text"
@@ -373,12 +376,18 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
                   setShowLinkInput(false)
                 }
               }}
-              placeholder="Enter link URL"
-              className="w-80 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Enter URL"
+              className="w-48 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-transparent"
             />
-            <button className="btn btn-primary" onClick={applyLink} type="button">OK</button>
-            <button className="btn btn-ghost" onClick={() => setShowLinkInput(false)} type="button">Cancel</button>
-            <button className="btn btn-ghost" onClick={removeLink} type="button">Remove</button>
+            <button className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors" onClick={applyLink} type="button">
+              {linkValue ? 'Update' : 'Add'}
+            </button>
+            {linkValue && (
+              <button className="px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition-colors" onClick={removeLink} type="button">
+                Remove
+              </button>
+            )}
+            <button className="px-2 py-1 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors" onClick={() => setShowLinkInput(false)} type="button">×</button>
           </div>
         </div>,
         document.body
