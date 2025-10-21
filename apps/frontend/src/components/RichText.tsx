@@ -1,112 +1,303 @@
 import { useState, useRef, useMemo, useEffect, useCallback } from 'react'
-import ReactQuill, { Quill } from 'react-quill'
+import ReactQuill from 'react-quill'
+import { createPortal } from 'react-dom'
 import 'react-quill/dist/quill.snow.css'
 
 export function RichTextEditor({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const [editorValue, setEditorValue] = useState(value || '')
   const quillRef = useRef<ReactQuill>(null)
-  
+
+  // Portal state for the custom link input
+  const [showLinkInput, setShowLinkInput] = useState(false)
+  const [linkPos, setLinkPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 })
+  const [linkValue, setLinkValue] = useState('')
+  const [savedRange, setSavedRange] = useState<any>(null)
+  const inputRef = useRef<HTMLInputElement | null>(null)
+
+  // Portal state for the custom image input
+  const [showImageInput, setShowImageInput] = useState(false)
+  const [imagePos, setImagePos] = useState<{ top: number; left: number }>({ top: 0, left: 0 })
+  const [imageValue, setImageValue] = useState('')
+  const [imageAlt, setImageAlt] = useState('')
+  const [savedImageRange, setSavedImageRange] = useState<any>(null)
+  const imageInputRef = useRef<HTMLInputElement | null>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
+  const [isUploading, setIsUploading] = useState(false)
+
   const modules = useMemo(() => ({
     toolbar: [
       [{ header: [1, 2, 3, false] }],
-      ['bold', 'italic', 'underline', 'strike'],  
-      [{'list': 'ordered'}, {'list': 'bullet'}],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ list: 'ordered' }, { list: 'bullet' }],
       ['link', 'image', 'code-block'],
       ['clean'],
     ],
   }), [])
 
-  // Custom tooltip positioning function
-  const positionTooltip = useCallback(() => {
-    const tooltip = document.querySelector('.ql-tooltip') as HTMLElement
-    const linkButton = document.querySelector('.ql-link') as HTMLElement
+  // Normalize URL - add protocol if missing
+  const normalizeUrl = (url: string): string => {
+    const trimmed = url.trim()
+    if (!trimmed) return ''
     
-    if (tooltip && linkButton && tooltip.classList.contains('ql-editing')) {
-      const buttonRect = linkButton.getBoundingClientRect()
-      
-      // Position tooltip directly below the link button
-      tooltip.style.position = 'fixed'
-      tooltip.style.top = `${buttonRect.bottom + 5}px`
-      tooltip.style.left = `${buttonRect.left}px`
-      tooltip.style.transform = 'none'
-      tooltip.style.zIndex = '999999'
-      
-      // Ensure input has proper placeholder
-      const input = tooltip.querySelector('input[type="text"]') as HTMLInputElement
-      if (input && !input.placeholder) {
-        input.placeholder = 'Enter link URL'
-      }
+    // If it already has a protocol, return as-is
+    if (/^https?:\/\//i.test(trimmed)) return trimmed
+    
+    // If it starts with www or looks like a domain, add https://
+    if (/^(www\.|[a-zA-Z0-9-]+\.[a-zA-Z]{2,})/i.test(trimmed)) {
+      return `https://${trimmed}`
     }
-  }, [])
+    
+    // If it starts with //, add https:
+    if (/^\/\//.test(trimmed)) return `https:${trimmed}`
+    
+    // If it's a relative path or fragment, return as-is
+    if (/^[/#?]/.test(trimmed)) return trimmed
+    
+    // If it looks like an email, add mailto:
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) return `mailto:${trimmed}`
+    
+    // Otherwise, assume it's a domain and add https://
+    return `https://${trimmed}`
+  }
 
-  // Set up tooltip positioning when editor is ready
+  // Validate if URL is reasonable
+  const isValidUrl = (url: string): boolean => {
+    if (!url.trim()) return false
+    
+    try {
+      // Try to create URL object for validation
+      new URL(url)
+      return true
+    } catch {
+      // If URL constructor fails, check for relative paths which are also valid
+      return /^[/#?]/.test(url.trim())
+    }
+  }
+
+  // Attach a custom toolbar handler for the link button that opens a portal-mounted input
   useEffect(() => {
     if (!quillRef.current) return
-    
     const editor = quillRef.current.getEditor()
-    
-    // Function to handle link button click
-    const handleLinkClick = () => {
-      // Wait for tooltip to be created
-      setTimeout(positionTooltip, 20)
-      // Also check again after a longer delay
-      setTimeout(positionTooltip, 100)
-    }
-    
-    // Function to handle selection changes
-    const handleSelectionChange = () => {
-      setTimeout(positionTooltip, 20)
-    }
-    
-    // Set up MutationObserver to watch for tooltip changes
-    const observer = new MutationObserver(() => {
-      positionTooltip()
-    })
-    
-    // Observe the document for tooltip changes
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ['class', 'style']
-    })
-    
-    // Add event listeners
-    const linkButton = document.querySelector('.ql-link')
-    if (linkButton) {
-      linkButton.addEventListener('click', handleLinkClick)
-    }
-    
-    editor.on('selection-change', handleSelectionChange)
-    
-    return () => {
-      observer.disconnect()
-      if (linkButton) {
-        linkButton.removeEventListener('click', handleLinkClick)
-      }
-      editor.off('selection-change', handleSelectionChange)
-    }
-  }, [positionTooltip])
 
-  // Sync with parent value when it changes (for loading existing content)
+    // Handler that opens our portal input positioned under the toolbar button
+    const openLinkInput = () => {
+      const range = editor.getSelection(true)
+      setSavedRange(range)
+
+      // Find toolbar link button and compute position
+      const linkButton = document.querySelector('.ql-toolbar .ql-link') as HTMLElement | null
+      if (linkButton) {
+        const rect = linkButton.getBoundingClientRect()
+        setLinkPos({ top: rect.bottom + window.scrollY + 6, left: rect.left + window.scrollX })
+      } else {
+        // Fallback to near top-left of editor
+        const editorEl = quillRef.current?.editor?.container || (document.querySelector('.ql-editor') as HTMLElement)
+        const rect = editorEl?.getBoundingClientRect()
+        setLinkPos({ top: (rect?.top ?? 100) + window.scrollY + 6, left: (rect?.left ?? 100) + window.scrollX })
+      }
+
+      // Pre-fill with existing link if selection has one
+      if (range && range.length > 0) {
+        const formats = editor.getFormat(range)
+        const link = (formats as any)?.link
+        if (link && typeof link === 'string') setLinkValue(link)
+        else setLinkValue('')
+      } else {
+        setLinkValue('')
+      }
+
+      setShowLinkInput(true)
+      // focus shortly after rendering
+      setTimeout(() => inputRef.current?.focus(), 0)
+    }
+
+    // Handler for image button that opens our portal input
+    const openImageInput = () => {
+      const range = editor.getSelection(true)
+      setSavedImageRange(range)
+
+      // Find toolbar image button and compute position
+      const imageButton = document.querySelector('.ql-toolbar .ql-image') as HTMLElement | null
+      if (imageButton) {
+        const rect = imageButton.getBoundingClientRect()
+        setImagePos({ top: rect.bottom + window.scrollY + 6, left: rect.left + window.scrollX })
+      } else {
+        // Fallback to near top-left of editor
+        const editorEl = quillRef.current?.editor?.container || (document.querySelector('.ql-editor') as HTMLElement)
+        const rect = editorEl?.getBoundingClientRect()
+        setImagePos({ top: (rect?.top ?? 100) + window.scrollY + 6, left: (rect?.left ?? 100) + window.scrollX })
+      }
+
+      setImageValue('')
+      setImageAlt('')
+      setShowImageInput(true)
+      // focus shortly after rendering
+      setTimeout(() => imageInputRef.current?.focus(), 0)
+    }
+
+    // Install our handlers on the toolbar module
+    try {
+      const toolbar = editor.getModule('toolbar') as any
+      if (toolbar && typeof toolbar.addHandler === 'function') {
+        toolbar.addHandler('link', openLinkInput)
+        toolbar.addHandler('image', openImageInput)
+      }
+    } catch (err) {
+      // ignore if toolbar not available
+    }
+
+    // Close on escape or outside click
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setShowLinkInput(false)
+        setShowImageInput(false)
+      }
+    }
+    const onClick = (e: MouseEvent) => {
+      const target = e.target as Node | null
+      if (showLinkInput) {
+        const portalEl = document.querySelector('.quill-link-portal')
+        if (portalEl && target && !portalEl.contains(target)) {
+          setShowLinkInput(false)
+        }
+      }
+      if (showImageInput) {
+        const portalEl = document.querySelector('.quill-image-portal')
+        if (portalEl && target && !portalEl.contains(target)) {
+          setShowImageInput(false)
+        }
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    window.addEventListener('mousedown', onClick)
+
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      window.removeEventListener('mousedown', onClick)
+    }
+  }, [showLinkInput, showImageInput])  // Sync with parent value when it changes (for loading existing content)
   useEffect(() => {
-    // Only update if the prop value is different from our current state
-    // and the prop value is not empty (to avoid clearing on initial render)
     if (value !== editorValue && value !== '') {
       setEditorValue(value)
-      
-      // Force update the Quill editor using proper API
       if (quillRef.current) {
         const editor = quillRef.current.getEditor()
         const currentContent = editor.root.innerHTML
         if (currentContent !== value && (editor.getText().trim() === '' || currentContent.length === 0)) {
-          // Use Quill's clipboard API to properly convert and set HTML content
           const delta = editor.clipboard.convert({ html: value })
-          editor.setContents(delta, 'silent') // 'silent' prevents triggering change events
+          editor.setContents(delta, 'silent')
         }
       }
     }
   }, [value])
+
+  const applyLink = () => {
+    if (!quillRef.current) return
+    const editor = quillRef.current.getEditor()
+    const range = savedRange ?? editor.getSelection(true)
+    if (!range) return setShowLinkInput(false)
+
+    if (linkValue && linkValue.trim() !== '') {
+      const normalizedUrl = normalizeUrl(linkValue)
+      
+      if (!isValidUrl(normalizedUrl)) {
+        // Could show an error message here, but for now just ignore invalid URLs
+        return
+      }
+
+      // Apply link formatting to the selected range. If length === 0, insert link text.
+      if (range.length > 0) {
+        editor.formatText(range.index, range.length, 'link', normalizedUrl, 'user')
+      } else {
+        // Insert the URL as text and link it
+        editor.insertText(range.index, normalizedUrl, { link: normalizedUrl }, 'user')
+      }
+    }
+
+    setShowLinkInput(false)
+  }
+
+  const removeLink = () => {
+    if (!quillRef.current) return
+    const editor = quillRef.current.getEditor()
+    const range = savedRange ?? editor.getSelection(true)
+    if (!range) return setShowLinkInput(false)
+    if (range.length > 0) editor.formatText(range.index, range.length, 'link', false, 'user')
+    setShowLinkInput(false)
+  }
+
+  // Image upload function
+  const uploadImage = async (file: File): Promise<string | null> => {
+    try {
+      setIsUploading(true)
+      const formData = new FormData()
+      formData.append('image', file)
+
+      const response = await fetch('/api/upload/image', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
+      })
+
+      if (!response.ok) {
+        throw new Error('Upload failed')
+      }
+
+      const data = await response.json()
+      return data.url
+    } catch (error) {
+      console.error('Image upload error:', error)
+      return null
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
+  // Handle file selection for upload
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    const url = await uploadImage(file)
+    if (url) {
+      setImageValue(url)
+    }
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
+
+  const applyImage = () => {
+    if (!quillRef.current) return
+    const editor = quillRef.current.getEditor()
+    const range = savedImageRange ?? editor.getSelection(true)
+    if (!range) return setShowImageInput(false)
+
+    if (imageValue && imageValue.trim() !== '') {
+      const normalizedUrl = normalizeUrl(imageValue)
+      
+      if (!isValidUrl(normalizedUrl)) {
+        // Could show an error message here, but for now just ignore invalid URLs
+        return
+      }
+
+      // Insert image at cursor position
+      editor.insertEmbed(range.index, 'image', normalizedUrl, 'user')
+      
+      // If alt text is provided, we could set it as a title attribute
+      // Note: Quill doesn't natively support alt text, but we could extend it
+      if (imageAlt.trim()) {
+        // For now, we'll just insert the image - alt text support would require custom Quill modules
+        console.log('Alt text provided but not applied:', imageAlt)
+      }
+
+      // Move cursor after the image
+      editor.setSelection(range.index + 1)
+    }
+
+    setShowImageInput(false)
+  }
 
   const handleChange = (content: string) => {
     setEditorValue(content)
@@ -114,13 +305,123 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
   }
 
   return (
-    <ReactQuill 
-      ref={quillRef}
-      theme="snow" 
-      value={editorValue} 
-      onChange={handleChange} 
-      modules={modules}
-      placeholder="Enter your content here..."
-    />
+    <>
+      <ReactQuill
+        ref={quillRef}
+        theme="snow"
+        value={editorValue}
+        onChange={handleChange}
+        modules={modules}
+        placeholder="Enter your content here..."
+      />
+
+      {showLinkInput && typeof document !== 'undefined' && createPortal(
+        <div
+          className="fixed bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg p-2 animate-in fade-in-0 zoom-in-95 duration-200 quill-link-portal"
+          style={{ top: linkPos.top, left: linkPos.left, zIndex: 2000001 }}
+          role="dialog"
+          aria-label="Insert link"
+        >
+          <div className="flex items-center gap-2">
+            <input
+              ref={inputRef}
+              type="text"
+              value={linkValue}
+              onChange={(e) => setLinkValue(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  applyLink()
+                } else if (e.key === 'Escape') {
+                  e.preventDefault()
+                  setShowLinkInput(false)
+                }
+              }}
+              placeholder="Enter link URL"
+              className="w-80 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <button className="btn btn-primary" onClick={applyLink} type="button">OK</button>
+            <button className="btn btn-ghost" onClick={() => setShowLinkInput(false)} type="button">Cancel</button>
+            <button className="btn btn-ghost" onClick={removeLink} type="button">Remove</button>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {showImageInput && typeof document !== 'undefined' && createPortal(
+        <div
+          className="fixed bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg p-3 animate-in fade-in-0 zoom-in-95 duration-200 quill-image-portal"
+          style={{ top: imagePos.top, left: imagePos.left, zIndex: 2000001 }}
+          role="dialog"
+          aria-label="Insert image"
+        >
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 border-b border-gray-200 dark:border-gray-600 pb-2">
+              <button 
+                className={`px-3 py-1 rounded text-sm transition-colors ${!fileInputRef.current?.files?.length ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+                onClick={() => imageInputRef.current?.focus()}
+              >
+                URL
+              </button>
+              <button 
+                className={`px-3 py-1 rounded text-sm transition-colors ${fileInputRef.current?.files?.length ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                Upload
+              </button>
+            </div>
+            
+            <div className="flex flex-col gap-2">
+              <input
+                ref={imageInputRef}
+                type="text"
+                value={imageValue}
+                onChange={(e) => setImageValue(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    applyImage()
+                  } else if (e.key === 'Escape') {
+                    e.preventDefault()
+                    setShowImageInput(false)
+                  }
+                }}
+                placeholder="Enter image URL"
+                className="w-80 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              
+              <input
+                type="text"
+                value={imageAlt}
+                onChange={(e) => setImageAlt(e.target.value)}
+                placeholder="Alt text (optional)"
+                className="w-80 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileSelect}
+                className="hidden"
+              />
+            </div>
+            
+            <div className="flex items-center gap-2 pt-2">
+              <button 
+                className="btn btn-primary" 
+                onClick={applyImage} 
+                disabled={isUploading || (!imageValue.trim())}
+                type="button"
+              >
+                {isUploading ? 'Uploading...' : 'Insert'}
+              </button>
+              <button className="btn btn-ghost" onClick={() => setShowImageInput(false)} type="button">Cancel</button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+    </>
   )
 }

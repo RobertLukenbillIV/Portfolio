@@ -397,11 +397,9 @@ div:has(.ql-editor) {
   }
 }
 
-.animate-slideDown {
-  animation: slideDown 0.3s ease;
-}
-
-/* File input styling */
+ .animate-slideDown {
+   animation: slideDown 0.3s ease;
+ }/* File input styling */
 input[type="file"]::file-selector-button {
   background-color: var(--primary-color, #3498db);
   color: white;
