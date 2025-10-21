@@ -11,11 +11,13 @@ export default function SinglePage({ slug, titleOverride }: { slug: 'about' | 'l
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [heroImage, setHeroImage] = useState<string>()
 
   useEffect(() => {
     const controller = new AbortController()
     const timer = setTimeout(() => controller.abort(), 8000) // 8 second timeout
     
+    // Load page content
     api.get(`/pages/${slug}`, { signal: controller.signal })
       .then(r => {
         setPage(r.data.page)
@@ -31,6 +33,36 @@ export default function SinglePage({ slug, titleOverride }: { slug: 'about' | 'l
         setLoading(false)
         clearTimeout(timer)
       })
+    
+    // Load hero image settings
+    api.get('/settings').then(r => {
+      const settings = r.data.settings || {}
+      const imageKey = slug === 'about' ? 'aboutHeroUrls' : 'projectsHeroUrls' // links uses projects for now
+      const modeKey = slug === 'about' ? 'aboutImageMode' : 'projectsImageMode'
+      
+      if (settings[imageKey] && settings[imageKey].length > 0) {
+        if (settings[modeKey] === 'multiple' && settings[imageKey].length > 1) {
+          // Random selection for multiple images
+          const randomIndex = Math.floor(Math.random() * settings[imageKey].length)
+          setHeroImage(settings[imageKey][randomIndex])
+        } else {
+          // Single image mode or only one image available
+          setHeroImage(settings[imageKey][0])
+        }
+      } else {
+        // Fallback to default images
+        setHeroImage(slug === 'about' 
+          ? "https://picsum.photos/1920/600?random=about" 
+          : "https://picsum.photos/1920/600?random=links"
+        )
+      }
+    }).catch(() => {
+      // Fallback on error
+      setHeroImage(slug === 'about' 
+        ? "https://picsum.photos/1920/600?random=about" 
+        : "https://picsum.photos/1920/600?random=links"
+      )
+    })
     
     return () => {
       controller.abort()
@@ -142,10 +174,7 @@ export default function SinglePage({ slug, titleOverride }: { slug: 'about' | 'l
         subtitle={slug === 'about' ? 'Learn more about me' : 'Connect with me'}
         variant="static"
         height="40vh"
-        backgroundImage={slug === 'about' 
-          ? "https://picsum.photos/1920/600?random=about" 
-          : "https://picsum.photos/1920/600?random=links"
-        }
+        backgroundImage={heroImage}
       />
 
       <div style={{ padding: '3rem 2rem', maxWidth: '1200px', margin: '0 auto' }}>

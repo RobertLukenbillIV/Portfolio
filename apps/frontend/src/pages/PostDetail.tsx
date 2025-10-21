@@ -108,14 +108,62 @@ export default function PostDetail() {
 
   return (
     <div>
-      {/* Hero section with cover image */}
-      <Hero 
-        title={post.title}
-        subtitle={post.excerpt.replace(/<[^>]*>/g, '')} // Strip HTML tags for subtitle
-        variant="static"
-        height="60vh"
-        backgroundImage={post.coverUrl || "https://picsum.photos/1920/800?random=project"}
-      />
+      {/* Custom hero section with full image display and letterboxing */}
+      <div style={{
+        height: '60vh',
+        backgroundColor: 'var(--hero-letterbox-bg, var(--background-color, #ffffff))',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        {/* Background image with contain sizing for full image display */}
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          backgroundImage: `url(${post.coverUrl || "https://picsum.photos/1920/800?random=project"})`,
+          backgroundSize: 'contain',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }} />
+        
+        {/* Dark overlay for better text readability */}
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          backgroundColor: 'rgba(44, 62, 80, 0.7)',
+          zIndex: 1
+        }} />
+        
+        {/* Title overlay */}
+        <div style={{
+          position: 'relative',
+          zIndex: 2,
+          color: 'white',
+          textAlign: 'center',
+          backgroundColor: 'rgba(44, 62, 80, 0.9)',
+          padding: '2rem',
+          borderRadius: '1rem',
+          maxWidth: '800px',
+          border: '1px solid rgba(52, 152, 219, 0.3)'
+        }}>
+          <h1 style={{ 
+            fontSize: '3rem', 
+            fontWeight: 'bold', 
+            margin: '0',
+            textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
+          }}>
+            {post.title}
+          </h1>
+        </div>
+      </div>
 
       <div style={{ padding: '3rem 2rem', maxWidth: '900px', margin: '0 auto' }}>
         {/* Project metadata */}
@@ -162,8 +210,20 @@ export default function PostDetail() {
           )}
         </div>
 
+        {/* Project Summary */}
+        <Card title="Project Summary">
+          <div 
+            style={{ 
+              lineHeight: '1.6',
+              fontSize: '1rem',
+              marginBottom: '1rem'
+            }}
+            dangerouslySetInnerHTML={{ __html: post.excerpt }}
+          />
+        </Card>
+
         {/* Project content */}
-        <Card>
+        <Card title="Project Details">
           <div 
             style={{ 
               lineHeight: '1.7',

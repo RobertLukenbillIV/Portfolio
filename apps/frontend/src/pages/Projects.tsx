@@ -20,12 +20,34 @@ export default function Projects() {
   const [posts, setPosts] = useState<Post[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [filterFeatured, setFilterFeatured] = useState(false)
+  const [heroImage, setHeroImage] = useState<string>()
   const { user } = useAuth()
   
   useEffect(() => {
     // Use public endpoint for regular users, admin endpoint for admins
     const endpoint = user?.role === 'ADMIN' ? '/posts' : '/posts/public'
     api.get(endpoint).then(r => setPosts(r.data.posts ?? []))
+    
+    // Load hero image settings
+    api.get('/settings').then(r => {
+      const settings = r.data.settings || {}
+      if (settings.projectsHeroUrls && settings.projectsHeroUrls.length > 0) {
+        if (settings.projectsImageMode === 'multiple' && settings.projectsHeroUrls.length > 1) {
+          // Random selection for multiple images
+          const randomIndex = Math.floor(Math.random() * settings.projectsHeroUrls.length)
+          setHeroImage(settings.projectsHeroUrls[randomIndex])
+        } else {
+          // Single image mode or only one image available
+          setHeroImage(settings.projectsHeroUrls[0])
+        }
+      } else {
+        // Fallback to default image
+        setHeroImage("https://picsum.photos/1920/600?random=projects")
+      }
+    }).catch(() => {
+      // Fallback on error
+      setHeroImage("https://picsum.photos/1920/600?random=projects")
+    })
   }, [user])
 
   // Filter posts based on search term and featured filter
@@ -68,7 +90,7 @@ export default function Projects() {
         subtitle="A collection of software development projects and experiments"
         variant="static"
         height="40vh"
-        backgroundImage="https://picsum.photos/1920/600?random=projects"
+        backgroundImage={heroImage}
       />
 
       {/* Projects Grid */}

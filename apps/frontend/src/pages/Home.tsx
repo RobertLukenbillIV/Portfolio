@@ -8,8 +8,33 @@ import { Link } from 'react-router-dom'
 import { Hero, Card } from '@/components/AcmeUI'
 
 // Type definitions for homepage content structure
-type Settings = { homeHeroUrl?: string | null; homeIntro?: string | null }
+type Settings = { 
+  homeHeroUrl?: string | null
+  homeHeroUrls?: string[]
+  homeIntro?: string | null
+  homeImageMode?: 'single' | 'multiple'
+}
 type PostCard = { id: string; title: string; excerpt: string; coverUrl?: string | null }
+
+// Utility function to get a random hero image
+const getRandomHeroImage = (settings: Settings | null): string | undefined => {
+  if (!settings) return undefined
+  
+  // Support new multiple images format
+  if (settings.homeHeroUrls && settings.homeHeroUrls.length > 0) {
+    if (settings.homeImageMode === 'multiple' && settings.homeHeroUrls.length > 1) {
+      // Random selection for multiple images
+      const randomIndex = Math.floor(Math.random() * settings.homeHeroUrls.length)
+      return settings.homeHeroUrls[randomIndex]
+    } else {
+      // Single image mode or only one image available
+      return settings.homeHeroUrls[0]
+    }
+  }
+  
+  // Fallback to old single image format for backward compatibility
+  return settings.homeHeroUrl || undefined
+}
 
 export default function Home() {
   const [settings, setSettings] = useState<Settings | null>(null)
@@ -24,7 +49,7 @@ export default function Home() {
     <div>
       {/* Hero Section */}
       <Hero 
-        backgroundImage={settings?.homeHeroUrl || undefined}
+        backgroundImage={getRandomHeroImage(settings)}
         title="Robert Lukenbill IV"
         subtitle="Software Developer & Portfolio"
         variant="static"
