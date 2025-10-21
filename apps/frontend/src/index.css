@@ -16,6 +16,9 @@
   --error-color: #e74c3c;  /* Red */
   --button-hover-bg: #f8f9fa;  /* Light hover */
   --hero-letterbox-bg: #ffffff;  /* White letterbox for light mode */
+  --link-color: #0066cc;  /* Standard blue for unvisited links */
+  --link-visited-color: #800080;  /* Standard purple for visited links */
+  --link-hover-color: #004499;  /* Darker blue for hover */
 }
 
 /* Dark mode variables - controlled by JavaScript theme toggle */
@@ -29,12 +32,41 @@
   --border-color: #404040;
   --button-hover-bg: #404040;
   --hero-letterbox-bg: #000000;  /* Black letterbox for dark mode */
+  --link-color: #66b3ff;  /* Lighter blue for dark mode unvisited links */
+  --link-visited-color: #cc99ff;  /* Lighter purple for dark mode visited links */
+  --link-hover-color: #99ccff;  /* Even lighter blue for dark mode hover */
 }
 html, body, #root { height: 100%; }
 body { 
   background-color: var(--background-color);
   color: var(--text-primary);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+}
+
+/* Standard link styling */
+a {
+  color: var(--link-color);
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+a:visited {
+  color: var(--link-visited-color);
+}
+
+a:hover, a:focus {
+  color: var(--link-hover-color);
+  text-decoration: underline;
+}
+
+/* Exception for button-style links and navigation links that should not use standard link colors */
+a.btn, a[style*="text-decoration: none"], .nav a, nav a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a.btn:visited, a[style*="text-decoration: none"]:visited, .nav a:visited, nav a:visited {
+  color: inherit;
 }
 
 /* Reusable UI tokens */
