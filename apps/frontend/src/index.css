@@ -236,16 +236,44 @@ a.btn:visited, a[style*="text-decoration: none"]:visited, .nav a:visited, nav a:
 /* RichTextEditor z-index and modal fixes */
 .ql-tooltip {
   z-index: 999999 !important; /* Even higher z-index */
-  position: absolute !important; /* Keep normal positioning relative to editor */
+  position: fixed !important; /* Fixed positioning for reliable placement */
   transform: translateZ(0) !important; /* Force hardware acceleration and new stacking context */
   will-change: transform !important; /* Optimize for position changes */
 }
 
 .ql-editing .ql-tooltip {
   z-index: 1000000 !important; /* Maximum priority when actively editing */
-  position: absolute !important;
+  position: fixed !important;
   transform: translateZ(0) !important;
   will-change: transform !important;
+}
+
+/* Custom positioning for link tooltips */
+.ql-tooltip[data-mode="link"] {
+  position: fixed !important;
+  top: auto !important;
+  left: auto !important;
+  bottom: auto !important;
+  right: auto !important;
+  /* Position will be set by JavaScript */
+}
+
+/* Ensure input field styling is correct */
+.ql-tooltip input[type="text"] {
+  width: 200px !important;
+  padding: 8px 12px !important;
+  border: 1px solid var(--border-color, #ddd) !important;
+  border-radius: 4px !important;
+  font-size: 14px !important;
+  background-color: var(--card-background, #ffffff) !important;
+  color: var(--text-primary, #2c3e50) !important;
+}
+
+/* Placeholder text positioning */
+.ql-tooltip input[type="text"]::placeholder {
+  color: var(--text-secondary, #7f8c8d) !important;
+  opacity: 0.7 !important;
+  font-size: 14px !important;
 }
 
 /* Force tooltip to break out of any parent stacking contexts */
