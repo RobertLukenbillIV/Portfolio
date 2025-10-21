@@ -84,34 +84,45 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
       const range = editor.getSelection(true)
       setSavedRange(range)
 
-      // Find toolbar link button and compute position
-      const linkButton = document.querySelector('.ql-toolbar .ql-link') as HTMLElement | null
+      // Find the specific toolbar link button for THIS editor instance
+      const editorContainer = quillRef.current?.editor?.container
+      const linkButton = editorContainer?.querySelector('.ql-toolbar .ql-link') as HTMLElement | null
+      
       if (linkButton) {
-        const rect = linkButton.getBoundingClientRect()
-        // For fixed positioning, use viewport coordinates (no scroll offset)
-        let top = rect.bottom + 2 // Closer to the button
-        let left = rect.left + (rect.width / 2) - 140 // Center under button (accounting for dynamic width)
-        
-        // Ensure the portal stays within viewport bounds
-        const portalWidth = 320 // slightly wider to accommodate remove button
-        const portalHeight = 50 // smaller height for more compact design
-        
-        if (left + portalWidth > window.innerWidth) {
-          left = window.innerWidth - portalWidth - 10
+        const updatePosition = () => {
+          const rect = linkButton.getBoundingClientRect()
+          // Use absolute positioning with scroll offsets for proper tracking
+          let top = rect.bottom + window.scrollY + 2
+          let left = rect.left + window.scrollX + (rect.width / 2) - 140
+          
+          // Ensure the portal stays within viewport bounds
+          const portalWidth = 320
+          const portalHeight = 50
+          
+          if (left + portalWidth > window.innerWidth + window.scrollX) {
+            left = window.innerWidth + window.scrollX - portalWidth - 10
+          }
+          if (left < window.scrollX + 10) {
+            left = window.scrollX + 10
+          }
+          if (top + portalHeight > window.innerHeight + window.scrollY) {
+            top = rect.top + window.scrollY - portalHeight - 6
+          }
+          
+          setLinkPos({ top, left })
         }
-        if (left < 10) {
-          left = 10
-        }
-        if (top + portalHeight > window.innerHeight) {
-          top = rect.top - portalHeight - 6 // Position above button instead
-        }
         
-        setLinkPos({ top, left })
+        // Initial positioning
+        updatePosition()
+        
       } else {
         // Fallback to near top-left of editor
         const editorEl = quillRef.current?.editor?.container || (document.querySelector('.ql-editor') as HTMLElement)
         const rect = editorEl?.getBoundingClientRect()
-        setLinkPos({ top: (rect?.top ?? 100) + 6, left: (rect?.left ?? 100) })
+        setLinkPos({ 
+          top: (rect?.top ?? 100) + window.scrollY + 6, 
+          left: (rect?.left ?? 100) + window.scrollX 
+        })
       }
 
       // Pre-fill with existing link if selection has one
@@ -134,26 +145,27 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
       const range = editor.getSelection(true)
       setSavedImageRange(range)
 
-      // Find toolbar image button and compute position
-      const imageButton = document.querySelector('.ql-toolbar .ql-image') as HTMLElement | null
+      // Find the specific toolbar image button for THIS editor instance
+      const editorContainer = quillRef.current?.editor?.container
+      const imageButton = editorContainer?.querySelector('.ql-toolbar .ql-image') as HTMLElement | null
+      
       if (imageButton) {
         const rect = imageButton.getBoundingClientRect()
-        // For fixed positioning, use viewport coordinates (no scroll offset)
-        let top = rect.bottom + 6
-        let left = rect.left
+        let top = rect.bottom + window.scrollY + 6
+        let left = rect.left + window.scrollX
         
         // Ensure the portal stays within viewport bounds
-        const portalWidth = 400 // approximate width of the portal
-        const portalHeight = 150 // approximate height of the portal
+        const portalWidth = 400
+        const portalHeight = 150
         
-        if (left + portalWidth > window.innerWidth) {
-          left = window.innerWidth - portalWidth - 10
+        if (left + portalWidth > window.innerWidth + window.scrollX) {
+          left = window.innerWidth + window.scrollX - portalWidth - 10
         }
-        if (left < 10) {
-          left = 10
+        if (left < window.scrollX + 10) {
+          left = window.scrollX + 10
         }
-        if (top + portalHeight > window.innerHeight) {
-          top = rect.top - portalHeight - 6 // Position above button instead
+        if (top + portalHeight > window.innerHeight + window.scrollY) {
+          top = rect.top + window.scrollY - portalHeight - 6
         }
         
         setImagePos({ top, left })
@@ -161,7 +173,10 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
         // Fallback to near top-left of editor
         const editorEl = quillRef.current?.editor?.container || (document.querySelector('.ql-editor') as HTMLElement)
         const rect = editorEl?.getBoundingClientRect()
-        setImagePos({ top: (rect?.top ?? 100) + 6, left: (rect?.left ?? 100) })
+        setImagePos({ 
+          top: (rect?.top ?? 100) + window.scrollY + 6, 
+          left: (rect?.left ?? 100) + window.scrollX 
+        })
       }
 
       setImageValue('')
@@ -211,7 +226,91 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
       window.removeEventListener('keydown', onKey)
       window.removeEventListener('mousedown', onClick)
     }
-  }, [showLinkInput, showImageInput])  // Sync with parent value when it changes (for loading existing content)
+  }, [showLinkInput, showImageInput])
+
+  // Handle scroll updates for link positioning
+  useEffect(() => {
+    if (!showLinkInput) return
+
+    const updateLinkPosition = () => {
+      const editorContainer = quillRef.current?.editor?.container
+      const linkButton = editorContainer?.querySelector('.ql-toolbar .ql-link') as HTMLElement | null
+      
+      if (linkButton) {
+        const rect = linkButton.getBoundingClientRect()
+        let top = rect.bottom + window.scrollY + 2
+        let left = rect.left + window.scrollX + (rect.width / 2) - 140
+        
+        const portalWidth = 320
+        const portalHeight = 50
+        
+        if (left + portalWidth > window.innerWidth + window.scrollX) {
+          left = window.innerWidth + window.scrollX - portalWidth - 10
+        }
+        if (left < window.scrollX + 10) {
+          left = window.scrollX + 10
+        }
+        if (top + portalHeight > window.innerHeight + window.scrollY) {
+          top = rect.top + window.scrollY - portalHeight - 6
+        }
+        
+        setLinkPos({ top, left })
+      }
+    }
+
+    const handleScroll = () => updateLinkPosition()
+    const handleResize = () => updateLinkPosition()
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    window.addEventListener('resize', handleResize, { passive: true })
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [showLinkInput])
+
+  // Handle scroll updates for image positioning
+  useEffect(() => {
+    if (!showImageInput) return
+
+    const updateImagePosition = () => {
+      const editorContainer = quillRef.current?.editor?.container
+      const imageButton = editorContainer?.querySelector('.ql-toolbar .ql-image') as HTMLElement | null
+      
+      if (imageButton) {
+        const rect = imageButton.getBoundingClientRect()
+        let top = rect.bottom + window.scrollY + 6
+        let left = rect.left + window.scrollX
+        
+        const portalWidth = 400
+        const portalHeight = 150
+        
+        if (left + portalWidth > window.innerWidth + window.scrollX) {
+          left = window.innerWidth + window.scrollX - portalWidth - 10
+        }
+        if (left < window.scrollX + 10) {
+          left = window.scrollX + 10
+        }
+        if (top + portalHeight > window.innerHeight + window.scrollY) {
+          top = rect.top + window.scrollY - portalHeight - 6
+        }
+        
+        setImagePos({ top, left })
+      }
+    }
+
+    const handleScroll = () => updateImagePosition()
+    const handleResize = () => updateImagePosition()
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    window.addEventListener('resize', handleResize, { passive: true })
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [showImageInput])  // Sync with parent value when it changes (for loading existing content)
   useEffect(() => {
     if (value !== editorValue && value !== '') {
       setEditorValue(value)
@@ -353,7 +452,7 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
 
       {showLinkInput && typeof document !== 'undefined' && createPortal(
         <div
-          className="fixed bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg animate-in fade-in-0 zoom-in-95 duration-200 quill-link-portal"
+          className="absolute bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg animate-in fade-in-0 zoom-in-95 duration-200 quill-link-portal"
           style={{ top: linkPos.top, left: linkPos.left, zIndex: 2000001 }}
           role="dialog"
           aria-label="Insert link"
@@ -395,7 +494,7 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
 
       {showImageInput && typeof document !== 'undefined' && createPortal(
         <div
-          className="fixed bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg p-3 animate-in fade-in-0 zoom-in-95 duration-200 quill-image-portal"
+          className="absolute bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg p-3 animate-in fade-in-0 zoom-in-95 duration-200 quill-image-portal"
           style={{ top: imagePos.top, left: imagePos.left, zIndex: 2000001 }}
           role="dialog"
           aria-label="Insert image"
