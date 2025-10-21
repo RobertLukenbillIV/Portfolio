@@ -235,13 +235,30 @@ a.btn:visited, a[style*="text-decoration: none"]:visited, .nav a:visited, nav a:
 
 /* RichTextEditor z-index and modal fixes */
 .ql-tooltip {
-  z-index: 99999 !important; /* Very high z-index to appear above all page containers */
+  z-index: 999999 !important; /* Even higher z-index */
   position: absolute !important; /* Keep normal positioning relative to editor */
+  transform: translateZ(0) !important; /* Force hardware acceleration and new stacking context */
+  will-change: transform !important; /* Optimize for position changes */
 }
 
 .ql-editing .ql-tooltip {
-  z-index: 100000 !important; /* Even higher when actively editing */
-  position: absolute !important; /* Keep normal positioning relative to editor */
+  z-index: 1000000 !important; /* Maximum priority when actively editing */
+  position: absolute !important;
+  transform: translateZ(0) !important;
+  will-change: transform !important;
+}
+
+/* Force tooltip to break out of any parent stacking contexts */
+.ql-tooltip[data-mode="link"]::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 999998;
+  pointer-events: none;
+  background: transparent;
 }
 
 /* Ensure Quill container allows overflow for tooltips */
@@ -281,21 +298,32 @@ div[style*="padding"], div[style*="margin"] {
 /* Override any potential z-index conflicts from layout containers */
 .min-h-screen {
   z-index: 0 !important;
+  transform: translateZ(0) !important; /* Create stacking context but keep low */
 }
 
 /* Ensure main content doesn't interfere with tooltips */
 main {
   position: relative !important;
   z-index: 1 !important;
+  transform: none !important; /* Don't create stacking context */
 }
 
 /* Special handling for sidebar layouts */
 .flex > div:first-child {
   z-index: 10 !important; /* Sidebar */
+  transform: none !important;
 }
 
 .flex > div:last-child {
   z-index: 1 !important;  /* Main content */
+  transform: none !important;
+}
+
+/* Ensure any container that might contain RichTextEditor doesn't create stacking context */
+div:has(.ql-editor) {
+  transform: none !important;
+  z-index: auto !important;
+  position: relative !important;
 }
 
 /* Dark mode support for Quill tooltips and inputs */
