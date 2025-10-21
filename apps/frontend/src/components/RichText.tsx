@@ -20,9 +20,9 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
   const [imageValue, setImageValue] = useState('')
   const [imageAlt, setImageAlt] = useState('')
   const [savedImageRange, setSavedImageRange] = useState<any>(null)
+  const [isUploading, setIsUploading] = useState(false)
   const imageInputRef = useRef<HTMLInputElement | null>(null)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
-  const [isUploading, setIsUploading] = useState(false)
 
   const modules = useMemo(() => ({
     toolbar: [
@@ -88,12 +88,30 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
       const linkButton = document.querySelector('.ql-toolbar .ql-link') as HTMLElement | null
       if (linkButton) {
         const rect = linkButton.getBoundingClientRect()
-        setLinkPos({ top: rect.bottom + window.scrollY + 6, left: rect.left + window.scrollX })
+        // For fixed positioning, use viewport coordinates (no scroll offset)
+        let top = rect.bottom + 6
+        let left = rect.left
+        
+        // Ensure the portal stays within viewport bounds
+        const portalWidth = 400 // approximate width of the portal
+        const portalHeight = 60 // approximate height of the portal
+        
+        if (left + portalWidth > window.innerWidth) {
+          left = window.innerWidth - portalWidth - 10
+        }
+        if (left < 10) {
+          left = 10
+        }
+        if (top + portalHeight > window.innerHeight) {
+          top = rect.top - portalHeight - 6 // Position above button instead
+        }
+        
+        setLinkPos({ top, left })
       } else {
         // Fallback to near top-left of editor
         const editorEl = quillRef.current?.editor?.container || (document.querySelector('.ql-editor') as HTMLElement)
         const rect = editorEl?.getBoundingClientRect()
-        setLinkPos({ top: (rect?.top ?? 100) + window.scrollY + 6, left: (rect?.left ?? 100) + window.scrollX })
+        setLinkPos({ top: (rect?.top ?? 100) + 6, left: (rect?.left ?? 100) })
       }
 
       // Pre-fill with existing link if selection has one
@@ -120,12 +138,30 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
       const imageButton = document.querySelector('.ql-toolbar .ql-image') as HTMLElement | null
       if (imageButton) {
         const rect = imageButton.getBoundingClientRect()
-        setImagePos({ top: rect.bottom + window.scrollY + 6, left: rect.left + window.scrollX })
+        // For fixed positioning, use viewport coordinates (no scroll offset)
+        let top = rect.bottom + 6
+        let left = rect.left
+        
+        // Ensure the portal stays within viewport bounds
+        const portalWidth = 400 // approximate width of the portal
+        const portalHeight = 150 // approximate height of the portal
+        
+        if (left + portalWidth > window.innerWidth) {
+          left = window.innerWidth - portalWidth - 10
+        }
+        if (left < 10) {
+          left = 10
+        }
+        if (top + portalHeight > window.innerHeight) {
+          top = rect.top - portalHeight - 6 // Position above button instead
+        }
+        
+        setImagePos({ top, left })
       } else {
         // Fallback to near top-left of editor
         const editorEl = quillRef.current?.editor?.container || (document.querySelector('.ql-editor') as HTMLElement)
         const rect = editorEl?.getBoundingClientRect()
-        setImagePos({ top: (rect?.top ?? 100) + window.scrollY + 6, left: (rect?.left ?? 100) + window.scrollX })
+        setImagePos({ top: (rect?.top ?? 100) + 6, left: (rect?.left ?? 100) })
       }
 
       setImageValue('')
