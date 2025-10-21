@@ -236,12 +236,12 @@ a.btn:visited, a[style*="text-decoration: none"]:visited, .nav a:visited, nav a:
 /* RichTextEditor z-index and modal fixes */
 .ql-tooltip {
   z-index: 99999 !important; /* Very high z-index to appear above all page containers */
-  position: fixed !important; /* Ensure it's positioned relative to viewport, not container */
+  position: absolute !important; /* Keep normal positioning relative to editor */
 }
 
 .ql-editing .ql-tooltip {
   z-index: 100000 !important; /* Even higher when actively editing */
-  position: fixed !important;
+  position: absolute !important; /* Keep normal positioning relative to editor */
 }
 
 /* Ensure Quill container allows overflow for tooltips */
@@ -255,6 +255,22 @@ div[data-testid*="rich"] .ql-container,
 .ql-editor-container .ql-container {
   overflow: visible !important;
   z-index: auto !important;
+}
+
+/* Ensure ReactQuill wrapper doesn't create stacking context issues */
+.quill {
+  position: relative !important;
+  z-index: auto !important;
+}
+
+/* Ensure cards and containers don't clip tooltips */
+.card, [class*="card"] {
+  overflow: visible !important;
+}
+
+/* Specific fixes for common container patterns */
+div[style*="padding"], div[style*="margin"] {
+  overflow: visible !important;
 }
 
 /* Ensure all parent containers allow tooltips to show */
