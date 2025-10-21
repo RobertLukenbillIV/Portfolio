@@ -233,6 +233,46 @@ a.btn:visited, a[style*="text-decoration: none"]:visited, .nav a:visited, nav a:
   margin-right: 0.5em; /* Add some space between the bullet and the text */
 }
 
+/* RichTextEditor z-index and modal fixes */
+.ql-tooltip {
+  z-index: 10000 !important; /* Ensure tooltips and popups appear above other elements */
+}
+
+.ql-editing .ql-tooltip {
+  z-index: 10001 !important; /* Even higher when actively editing */
+}
+
+/* Dark mode support for Quill tooltips and inputs */
+:root.dark .ql-tooltip,
+[data-theme="dark"] .ql-tooltip {
+  background-color: var(--card-background, #2c2c2c) !important;
+  border-color: var(--border-color, #404040) !important;
+  color: var(--text-primary, #f8f9fa) !important;
+}
+
+:root.dark .ql-tooltip input,
+[data-theme="dark"] .ql-tooltip input {
+  background-color: var(--background-color, #1a1a1a) !important;
+  border-color: var(--border-color, #404040) !important;
+  color: var(--text-primary, #f8f9fa) !important;
+}
+
+:root.dark .ql-tooltip input::placeholder,
+[data-theme="dark"] .ql-tooltip input::placeholder {
+  color: var(--text-secondary, #adb5bd) !important;
+  opacity: 0.7 !important;
+}
+
+:root.dark .ql-tooltip .ql-action,
+[data-theme="dark"] .ql-tooltip .ql-action {
+  color: var(--primary-color, #3498db) !important;
+}
+
+:root.dark .ql-tooltip .ql-remove,
+[data-theme="dark"] .ql-tooltip .ql-remove {
+  color: var(--error-color, #e74c3c) !important;
+}
+
 /* Navigation animations */
 @keyframes slideDown {
   from {

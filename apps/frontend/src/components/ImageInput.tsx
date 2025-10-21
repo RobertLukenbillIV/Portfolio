@@ -86,42 +86,38 @@ export default function ImageInput({
         {label}
       </label>
 
-      {/* Mode Toggle */}
-      <div className="flex gap-2 mb-3">
+      {/* Mode Toggle - Tab Style */}
+      <div className="flex border-b" style={{ borderColor: 'var(--border-color, #ddd)' }}>
         <button
           type="button"
           onClick={() => setMode('url')}
-          className={`px-3 py-1 text-sm rounded-md transition-colors ${
-            mode === 'url'
-              ? 'text-white'
-              : 'text-gray-600 hover:text-gray-200'
-          }`}
+          className="px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px"
           style={{
-            backgroundColor: mode === 'url' ? 'var(--primary-color, #3498db)' : '#6b7280',
-            color: mode === 'url' ? 'white' : '#6b7280'
+            backgroundColor: mode === 'url' ? 'rgba(52, 152, 219, 0.05)' : 'transparent',
+            borderBottomColor: mode === 'url' ? 'var(--primary-color, #3498db)' : 'transparent',
+            color: mode === 'url' ? 'var(--primary-color, #3498db)' : 'var(--text-secondary, #7f8c8d)'
           }}
         >
-          URL
+          🔗 URL
         </button>
         <button
           type="button"
           onClick={() => setMode('upload')}
-          className={`px-3 py-1 text-sm rounded-md transition-colors ${
-            mode === 'upload'
-              ? 'text-white'
-              : 'text-gray-600 hover:text-gray-200'
-          }`}
+          className="px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px"
           style={{
-            backgroundColor: mode === 'upload' ? 'var(--primary-color, #3498db)' : '#6b7280',
-            color: mode === 'upload' ? 'white' : '#6b7280'
+            backgroundColor: mode === 'upload' ? 'rgba(52, 152, 219, 0.05)' : 'transparent',
+            borderBottomColor: mode === 'upload' ? 'var(--primary-color, #3498db)' : 'transparent',
+            color: mode === 'upload' ? 'var(--primary-color, #3498db)' : 'var(--text-secondary, #7f8c8d)'
           }}
         >
-          Upload
+          📁 Upload
         </button>
       </div>
 
-      {/* URL Input Mode */}
-      {mode === 'url' && (
+      {/* Content Area */}
+      <div className="pt-4">
+        {/* URL Input Mode */}
+        {mode === 'url' && (
         <input
           type="url"
           value={value}
@@ -210,12 +206,13 @@ export default function ImageInput({
       )}
 
       {/* Helper Text */}
-      <p className="text-xs" style={{ color: 'var(--text-secondary, #7f8c8d)' }}>
-        {mode === 'upload' 
-          ? 'Max file size: 5MB. Supported formats: JPG, PNG, GIF, WebP, SVG'
-          : 'Enter a direct link to an image file'
-        }
-      </p>
+        <p className="text-xs" style={{ color: 'var(--text-secondary, #7f8c8d)' }}>
+          {mode === 'upload' 
+            ? 'Max file size: 5MB. Supported formats: JPG, PNG, GIF, WebP, SVG'
+            : 'Enter a direct link to an image file'
+          }
+        </p>
+      </div>
     </div>
   )
 }
