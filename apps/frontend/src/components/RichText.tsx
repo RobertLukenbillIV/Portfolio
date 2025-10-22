@@ -105,10 +105,75 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
 
       // Find the specific toolbar link button for THIS editor instance
       const editorContainer = quillRef.current?.editor?.container
-      const toolbarEl = editorContainer?.querySelector('.ql-toolbar') as HTMLElement | null
+      
+      // Try multiple ways to find the toolbar
+      console.log('🔍 Debugging editor and toolbar structure:')
+      console.log('Editor container:', editorContainer)
+      console.log('Container children:', editorContainer?.children)
+      
+      // Try different toolbar selectors
+      const toolbarSelectors = [
+        '.ql-toolbar',
+        '[class*="toolbar"]',
+        '.quill-toolbar',
+        'div[role="toolbar"]'
+      ]
+      
+      let toolbarEl: HTMLElement | null = null
+      for (const selector of toolbarSelectors) {
+        toolbarEl = editorContainer?.querySelector(selector) as HTMLElement | null
+        if (toolbarEl) {
+          console.log(`✅ Found toolbar with selector: ${selector}`, toolbarEl)
+          break
+        }
+      }
+      
+      // If still no toolbar, look in parent containers or siblings
+      if (!toolbarEl && editorContainer) {
+        console.log('🔍 Looking for toolbar in parent/sibling elements...')
+        
+        // Check siblings
+        const parent = editorContainer.parentElement
+        toolbarEl = parent?.querySelector('.ql-toolbar') as HTMLElement | null ||
+                   parent?.querySelector('[class*="toolbar"]') as HTMLElement | null
+        
+        if (toolbarEl) {
+          console.log('✅ Found toolbar in parent/sibling:', toolbarEl)
+        } else {
+          // Look for any element with toolbar-like buttons
+          const potentialToolbars = document.querySelectorAll('div')
+          for (const div of Array.from(potentialToolbars)) {
+            const buttons = div.querySelectorAll('button')
+            if (buttons.length >= 3) { // Likely a toolbar if it has multiple buttons
+              console.log('🤔 Potential toolbar candidate:', div, 'buttons:', buttons.length)
+              // Check if any button looks like formatting buttons
+              const hasFormattingButtons = Array.from(buttons).some(btn => 
+                btn.className.includes('ql-') || 
+                btn.querySelector('svg') ||
+                ['B', 'I', 'U'].includes(btn.textContent?.trim() || '')
+              )
+              if (hasFormattingButtons) {
+                toolbarEl = div as HTMLElement
+                console.log('✅ Found toolbar by button analysis:', toolbarEl)
+                break
+              }
+            }
+          }
+        }
+      }
+      
+      if (!toolbarEl) {
+        console.log('❌ Could not find any toolbar element')
+        // Fallback to document-wide search for Quill buttons
+        toolbarEl = document.querySelector('.ql-toolbar') as HTMLElement | null ||
+                   document.querySelector('[class*="toolbar"]') as HTMLElement | null
+        if (toolbarEl) {
+          console.log('✅ Found toolbar with document-wide search:', toolbarEl)
+        }
+      }
       
       // Debug: Let's understand the toolbar structure
-      console.log('🔍 Debugging toolbar structure:')
+      console.log('📊 Final toolbar analysis:')
       console.log('Toolbar element:', toolbarEl)
       console.log('All toolbar buttons:', Array.from(toolbarEl?.querySelectorAll('button') || []).map(btn => ({ 
         className: btn.className, 
@@ -158,6 +223,18 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
         
         if (linkButton) {
           console.log('✅ Found link button by icon analysis:', linkButton)
+        } else {
+          console.log('🔍 All buttons analysis for manual identification:')
+          allButtons.forEach((btn, index) => {
+            console.log(`Button ${index}:`, {
+              element: btn,
+              className: btn.className,
+              innerHTML: btn.innerHTML,
+              title: btn.title,
+              textContent: btn.textContent?.trim(),
+              rect: btn.getBoundingClientRect()
+            })
+          })
         }
       }
       
