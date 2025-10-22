@@ -59,6 +59,19 @@ model Settings {
   homeIntro   String?
   githubUrl   String?
   linkedinUrl String?
+  
+  // Hero images for different pages (JSON arrays)
+  homeHeroUrls     String? // JSON array of home hero image URLs
+  projectsHeroUrls String? // JSON array of projects hero image URLs
+  adminHeroUrls    String? // JSON array of admin hero image URLs
+  aboutHeroUrls    String? // JSON array of about hero image URLs
+  
+  // Image display modes for each page
+  homeImageMode     String? @default("single")     // "single" or "multiple"
+  projectsImageMode String? @default("single")     // "single" or "multiple"
+  adminImageMode    String? @default("single")     // "single" or "multiple"
+  aboutImageMode    String? @default("single")     // "single" or "multiple"
+  
   updatedAt   DateTime @updatedAt
   createdAt   DateTime @default(now())
 }
