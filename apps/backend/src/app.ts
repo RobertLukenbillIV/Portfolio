@@ -298,7 +298,8 @@ app.get('/api/health', (_req, res) => {
     ok: true, 
     timestamp: new Date().toISOString(),
     env: process.env.NODE_ENV,                    // Production vs development
-    cors: !!process.env.CORS_ORIGINS             // Whether CORS env vars are set
+    cors: !!process.env.CORS_ORIGINS,            // Whether CORS env vars are set
+    version: '1.0.1'                             // Version bump to trigger redeploy
   })
 })
 
