@@ -39,7 +39,9 @@ const defaultOrigins = [
   'http://localhost:5173',      // Vite development server default port
   'https://portfolio-frontend-eight-sooty.vercel.app', // Current Vercel deployment
   'https://portfolio-frontend-git-main-robertlukenbilliv.vercel.app', // Git-based deployment
-  'https://portfolio-frontend-robertlukenbilliv.vercel.app' // User-based deployment
+  'https://portfolio-frontend-robertlukenbilliv.vercel.app', // User-based deployment
+  'https://portfolio-frontend-umber.vercel.app',  // Additional Vercel deployment
+  'https://portfolio-frontend-robertlukenbilliv.vercel.app'  // Ensure this is included
 ]
 
 // Helper function to validate if an origin is allowed
@@ -60,6 +62,7 @@ function isOriginAllowed(origin: string | undefined): boolean {
       defaultOrigins.includes(origin) ||
       host.endsWith('.vercel.app') ||
       host.includes('vercel') || // Extra safety for Vercel domains
+      host.includes('portfolio-frontend') || // Specific portfolio frontend domains
       (host === 'localhost') ||
       (!isProd && (host === '127.0.0.1' || host.startsWith('192.168.')))
     

@@ -141,20 +141,28 @@ export default function AdminDashboard() {
   async function saveSocialMedia() {
     setSavingSocial(true)
     try {
+      console.log('Saving social media:', { githubUrl, linkedinUrl })
+      
       // Store in localStorage for now (until database migration is complete)
       localStorage.setItem('admin_github_url', githubUrl)
       localStorage.setItem('admin_linkedin_url', linkedinUrl)
+      
+      console.log('Stored in localStorage successfully')
       
       // Trigger a custom event to notify Footer component of changes
       window.dispatchEvent(new CustomEvent('socialMediaUpdated', {
         detail: { githubUrl, linkedinUrl }
       }))
       
+      console.log('Dispatched custom event')
+      
       // Show success tooltip
+      console.log('Setting tooltip to true')
       setShowSuccessTooltip(true)
       
       // Hide tooltip after 3 seconds with animation
       setTimeout(() => {
+        console.log('Hiding tooltip')
         setShowSuccessTooltip(false)
       }, 3000)
       
@@ -712,14 +720,21 @@ export default function AdminDashboard() {
                 right: '2rem',
                 backgroundColor: '#10b981',
                 color: 'white',
-                padding: '0.75rem 1rem',
+                padding: '1rem 1.5rem',
                 borderRadius: '0.5rem',
-                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-                zIndex: 1000,
-                animation: 'slideInUp 0.3s ease-out'
+                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)',
+                zIndex: 10000,
+                animation: 'slideInUp 0.3s ease-out',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                border: '1px solid #059669',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
               }}
             >
-              ✅ Social media links saved successfully!
+              <span>✅</span>
+              Social media links saved successfully!
             </div>
           )}
         </div>
