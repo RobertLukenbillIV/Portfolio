@@ -160,12 +160,6 @@ export default function AdminDashboard() {
       console.log('Setting tooltip to true')
       setShowSuccessTooltip(true)
       
-      // Hide tooltip after 3 seconds with animation
-      setTimeout(() => {
-        console.log('Hiding tooltip')
-        setShowSuccessTooltip(false)
-      }, 3000)
-      
     } catch (err) {
       console.error('Failed to save social media settings:', err)
       alert('Failed to save social media links. Please try again.')
@@ -173,6 +167,32 @@ export default function AdminDashboard() {
       setSavingSocial(false)
     }
   }
+
+  // Handle tooltip auto-hide with useEffect to avoid closure issues
+  useEffect(() => {
+    if (showSuccessTooltip) {
+      console.log('Tooltip is now visible, setting timeout')
+      
+      // Debug: Check if tooltip element exists in DOM
+      setTimeout(() => {
+        const tooltipElement = document.getElementById('success-tooltip')
+        console.log('Tooltip element in DOM:', tooltipElement)
+        if (tooltipElement) {
+          console.log('Tooltip computed styles:', window.getComputedStyle(tooltipElement))
+        }
+      }, 100)
+      
+      const timeoutId = setTimeout(() => {
+        console.log('Hiding tooltip after 3 seconds')
+        setShowSuccessTooltip(false)
+      }, 3000)
+      
+      return () => {
+        console.log('Cleaning up tooltip timeout')
+        clearTimeout(timeoutId)
+      }
+    }
+  }, [showSuccessTooltip])
 
   // Helper functions for managing hero images
   const updateHeroImages = (page: keyof typeof heroImages, images: string[]) => {
@@ -714,6 +734,7 @@ export default function AdminDashboard() {
           {/* Success Tooltip */}
           {showSuccessTooltip && (
             <div 
+              id="success-tooltip"
               style={{
                 position: 'fixed',
                 bottom: '2rem',
@@ -722,18 +743,20 @@ export default function AdminDashboard() {
                 color: 'white',
                 padding: '1rem 1.5rem',
                 borderRadius: '0.5rem',
-                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)',
-                zIndex: 10000,
+                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1)',
+                zIndex: 99999,
                 animation: 'slideInUp 0.3s ease-out',
                 fontSize: '0.875rem',
                 fontWeight: '500',
-                border: '1px solid #059669',
+                border: '2px solid #059669',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.5rem'
+                gap: '0.5rem',
+                minWidth: '250px',
+                pointerEvents: 'none'
               }}
             >
-              <span>✅</span>
+              <span style={{ fontSize: '1rem' }}>✅</span>
               Social media links saved successfully!
             </div>
           )}
