@@ -22,25 +22,50 @@ export default function Footer() {
     }
   ])
 
-  // Load social media URLs from localStorage and listen for updates
+  // Load social media URLs from backend and listen for updates
   useEffect(() => {
-    const loadSocialLinks = () => {
-      // Load from localStorage (temporary solution until database migration)
-      const githubUrl = localStorage.getItem('admin_github_url') || 'https://github.com/RobertLukenbillIV'
-      const linkedinUrl = localStorage.getItem('admin_linkedin_url') || 'https://linkedin.com/in/robert-lukenbill'
-      
-      setSocialLinks([
-        {
-          href: githubUrl,
-          label: 'GitHub',
-          icon: '🐙'
-        },
-        {
-          href: linkedinUrl,
-          label: 'LinkedIn', 
-          icon: '💼'
-        }
-      ])
+    const loadSocialLinks = async () => {
+      try {
+        // Try to load from backend first
+        const response = await api.get('/settings')
+        const settings = response.data.settings || {}
+        
+        // Use backend data if available, fallback to localStorage, then defaults
+        const githubUrl = settings.githubUrl || localStorage.getItem('admin_github_url') || 'https://github.com/RobertLukenbillIV'
+        const linkedinUrl = settings.linkedinUrl || localStorage.getItem('admin_linkedin_url') || 'https://linkedin.com/in/robert-lukenbill'
+        
+        setSocialLinks([
+          {
+            href: githubUrl,
+            label: 'GitHub',
+            icon: '🐙'
+          },
+          {
+            href: linkedinUrl,
+            label: 'LinkedIn', 
+            icon: '💼'
+          }
+        ])
+      } catch (error) {
+        console.error('Failed to load settings from backend, using localStorage fallback:', error)
+        
+        // Fallback to localStorage if backend fails
+        const githubUrl = localStorage.getItem('admin_github_url') || 'https://github.com/RobertLukenbillIV'
+        const linkedinUrl = localStorage.getItem('admin_linkedin_url') || 'https://linkedin.com/in/robert-lukenbill'
+        
+        setSocialLinks([
+          {
+            href: githubUrl,
+            label: 'GitHub',
+            icon: '🐙'
+          },
+          {
+            href: linkedinUrl,
+            label: 'LinkedIn', 
+            icon: '💼'
+          }
+        ])
+      }
     }
 
     // Load initial values
