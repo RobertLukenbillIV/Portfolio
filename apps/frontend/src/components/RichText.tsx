@@ -643,13 +643,25 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
 
       {showLinkInput && typeof document !== 'undefined' && createPortal(
         <div
-          className="absolute bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg animate-in fade-in-0 zoom-in-95 duration-200 quill-link-portal"
-          style={{ top: linkPos.top, left: linkPos.left, zIndex: 2000001 }}
+          className="absolute bg-red-500 dark:bg-red-600 border-4 border-yellow-400 rounded-md shadow-lg animate-in fade-in-0 zoom-in-95 duration-200 quill-link-portal"
+          style={{ 
+            top: linkPos.top, 
+            left: linkPos.left, 
+            zIndex: 2000001,
+            position: 'absolute',
+            backgroundColor: 'red',
+            border: '4px solid yellow'
+          }}
           role="dialog"
           aria-label="Insert link"
         >
+          {/* Debug info overlay */}
+          <div className="absolute -top-8 left-0 bg-black text-white text-xs p-1 rounded">
+            L:{Math.round(linkPos.left)} T:{Math.round(linkPos.top)}
+          </div>
+          
           {/* Small arrow pointing up to the button - adjust for larger portal offset */}
-          <div className="absolute -top-1 transform w-0 h-0 border-l-4 border-r-4 border-b-4 border-l-transparent border-r-transparent border-b-gray-300 dark:border-b-gray-600" 
+          <div className="absolute -top-1 transform w-0 h-0 border-l-4 border-r-4 border-b-4 border-l-transparent border-r-transparent border-b-yellow-400" 
                style={{ left: 'calc(50% - 20px)', transform: 'translateX(-50%)' }}></div>
           
           <div className="flex items-center gap-1 p-2">
