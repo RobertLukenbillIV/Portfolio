@@ -967,18 +967,6 @@ export default function AdminDashboard() {
                 </div>
               </Button>
             </Link>
-
-            <Link to="/admin/edit-links" style={{ textDecoration: 'none' }}>
-              <Button variant="ghost" size="large" className="w-full justify-start">
-                <span style={{ marginRight: '1rem', fontSize: '1.5rem' }}>🔗</span>
-                <div className="text-left">
-                  <div style={{ fontWeight: '500' }}>Edit Links Page</div>
-                  <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary, #7f8c8d)' }}>
-                    Manage social media and contact links
-                  </div>
-                </div>
-              </Button>
-            </Link>
           </div>
         </div>
       )
