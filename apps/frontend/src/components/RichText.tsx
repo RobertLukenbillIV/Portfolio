@@ -106,19 +106,90 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
       // Find the specific toolbar link button for THIS editor instance
       const editorContainer = quillRef.current?.editor?.container
       const toolbarEl = editorContainer?.querySelector('.ql-toolbar') as HTMLElement | null
-      // Prefer the actual button element for precise bounds
-      const linkButton = toolbarEl?.querySelector('button.ql-link') as HTMLElement | null
-        || toolbarEl?.querySelector('.ql-link') as HTMLElement | null
+      
+      // Debug: Let's understand the toolbar structure
+      console.log('🔍 Debugging toolbar structure:')
+      console.log('Toolbar element:', toolbarEl)
+      console.log('All toolbar buttons:', Array.from(toolbarEl?.querySelectorAll('button') || []).map(btn => ({ 
+        className: btn.className, 
+        title: btn.title,
+        textContent: btn.textContent?.trim(),
+        rect: btn.getBoundingClientRect()
+      })))
+      
+      // Try different selectors to find the link button
+      const linkButtonSelectors = [
+        'button.ql-link',
+        '.ql-link',
+        'button[title*="link" i]',
+        'button[aria-label*="link" i]',
+        '.ql-formats button:nth-child(2)', // Often link is second button after bold
+        '.ql-formats button:nth-child(3)', // Sometimes third
+      ]
+      
+      let linkButton: HTMLElement | null = null
+      for (const selector of linkButtonSelectors) {
+        linkButton = toolbarEl?.querySelector(selector) as HTMLElement | null
+        if (linkButton) {
+          console.log(`✅ Found link button with selector: ${selector}`, {
+            element: linkButton,
+            className: linkButton.className,
+            title: linkButton.title,
+            rect: linkButton.getBoundingClientRect()
+          })
+          break
+        }
+      }
+      
+      if (!linkButton) {
+        console.log('❌ No link button found, trying to find by icon or content')
+        // Look for SVG icons or specific content that might indicate link button
+        const allButtons = Array.from(toolbarEl?.querySelectorAll('button') || [])
+        linkButton = allButtons.find(btn => {
+          const svg = btn.querySelector('svg')
+          const hasLinkIcon = svg?.innerHTML.includes('path') && (
+            svg.innerHTML.includes('M10 13') || // Common link icon path
+            svg.innerHTML.includes('link') ||
+            btn.title?.toLowerCase().includes('link') ||
+            btn.getAttribute('aria-label')?.toLowerCase().includes('link')
+          )
+          return hasLinkIcon
+        }) as HTMLElement || null
+        
+        if (linkButton) {
+          console.log('✅ Found link button by icon analysis:', linkButton)
+        }
+      }
       
       if (linkButton) {
         const updatePosition = () => {
           const rect = linkButton.getBoundingClientRect()
+          console.log('📍 Link button positioning:', {
+            rect,
+            windowScroll: { x: window.scrollX, y: window.scrollY }
+          })
+          
           // Use absolute positioning with scroll offsets for proper tracking
           // Center the portal under the center of the link button
           const portalWidth = 320
           const portalHeight = 50
           let top = rect.bottom + window.scrollY + 2
           let left = rect.left + window.scrollX + (rect.width / 2) - (portalWidth / 2)
+          
+          console.log('📍 Calculated portal position:', { top, left })
+          
+          // Ensure the portal stays within viewport bounds
+          if (left + portalWidth > window.innerWidth + window.scrollX) {
+            left = window.innerWidth + window.scrollX - portalWidth - 10
+          }
+          if (left < window.scrollX + 10) {
+            left = window.scrollX + 10
+          }
+          if (top + portalHeight > window.innerHeight + window.scrollY) {
+            top = rect.top + window.scrollY - portalHeight - 6
+          }
+          
+          console.log('📍 Final portal position:', { top, left })
           
           // Ensure the portal stays within viewport bounds
           if (left + portalWidth > window.innerWidth + window.scrollX) {
