@@ -19,6 +19,17 @@ export default function AdminDashboard() {
   const [savingSocial, setSavingSocial] = useState(false)
   const [showSuccessTooltip, setShowSuccessTooltip] = useState(false)
   
+  // Image management state
+  const [uploadMode, setUploadMode] = useState<'url' | 'upload'>('url')
+  const [newImageUrl, setNewImageUrl] = useState('')
+  const [showImageBrowser, setShowImageBrowser] = useState<string | null>(null) // page name when browsing
+  const [browsingForMultiple, setBrowsingForMultiple] = useState(false)
+  const [availableImages, setAvailableImages] = useState<string[]>([])
+  const [selectedImages, setSelectedImages] = useState<string[]>([])
+  
+  // Save status tooltips
+  const [showSaveTooltip, setShowSaveTooltip] = useState<{show: boolean, message: string}>({show: false, message: ''})
+  
   // Hero images state for different pages
   const [heroImages, setHeroImages] = useState<{
     home: string[]
@@ -108,6 +119,16 @@ export default function AdminDashboard() {
         featuredPosts: posts.filter((p: any) => p.featured).length
       })
     })
+
+    // Load available images for browsing
+    api.get('/upload/list').then(r => {
+      if (r.data && r.data.images) {
+        setAvailableImages(r.data.images)
+      }
+    }).catch(err => {
+      console.log('No uploaded images found or upload endpoint not available')
+      setAvailableImages([])
+    })
   }, [user, navigate])
 
   async function save() {
@@ -129,7 +150,12 @@ export default function AdminDashboard() {
       }
       
       await api.put('/settings', settingsData)
-      alert('Settings saved successfully!')
+      
+      // Show tooltip and reload page
+      setShowSaveTooltip({show: true, message: 'Settings saved successfully!'})
+      setTimeout(() => {
+        window.location.reload()
+      }, 1500)
     } catch (err) {
       console.error('Failed to save settings:', err)
       alert('Failed to save settings. Please try again.')
@@ -141,8 +167,6 @@ export default function AdminDashboard() {
   async function saveSocialMedia() {
     setSavingSocial(true)
     try {
-      console.log('Saving social media:', { githubUrl, linkedinUrl })
-      
       // Get current settings first
       const currentSettings = await api.get('/settings')
       const settings = currentSettings.data.settings || {}
@@ -154,8 +178,6 @@ export default function AdminDashboard() {
         linkedinUrl
       })
       
-      console.log('Saved to backend successfully')
-      
       // Also store in localStorage as backup
       localStorage.setItem('admin_github_url', githubUrl)
       localStorage.setItem('admin_linkedin_url', linkedinUrl)
@@ -165,11 +187,11 @@ export default function AdminDashboard() {
         detail: { githubUrl, linkedinUrl }
       }))
       
-      console.log('Dispatched custom event')
-      
-      // Show success tooltip
-      console.log('Setting tooltip to true')
-      setShowSuccessTooltip(true)
+      // Show tooltip and reload page to Social Media tab
+      setShowSaveTooltip({show: true, message: 'Social media links saved successfully!'})
+      setTimeout(() => {
+        window.location.reload()
+      }, 1500)
       
     } catch (err) {
       console.error('Failed to save social media settings:', err)
@@ -180,6 +202,19 @@ export default function AdminDashboard() {
   }
 
   // Handle tooltip auto-hide with useEffect to avoid closure issues
+  useEffect(() => {
+    if (showSaveTooltip.show) {
+      const timeoutId = setTimeout(() => {
+        setShowSaveTooltip({show: false, message: ''})
+      }, 3000)
+      
+      return () => {
+        clearTimeout(timeoutId)
+      }
+    }
+  }, [showSaveTooltip.show])
+
+  // Legacy tooltip for backward compatibility
   useEffect(() => {
     if (showSuccessTooltip) {
       console.log('Tooltip is now visible, setting timeout')
@@ -226,6 +261,47 @@ export default function AdminDashboard() {
       ...prev, 
       [page]: prev[page].filter((_, i) => i !== index) 
     }))
+  }
+
+  // New image management functions
+  const addImageFromUrl = () => {
+    if (newImageUrl.trim()) {
+      setAvailableImages(prev => {
+        if (!prev.includes(newImageUrl.trim())) {
+          return [...prev, newImageUrl.trim()]
+        }
+        return prev
+      })
+      setNewImageUrl('')
+    }
+  }
+
+  const openImageBrowser = (page: string, multiple: boolean = false) => {
+    setShowImageBrowser(page)
+    setBrowsingForMultiple(multiple)
+    setSelectedImages([])
+  }
+
+  const selectImage = (imageUrl: string) => {
+    if (browsingForMultiple) {
+      setSelectedImages(prev => 
+        prev.includes(imageUrl) 
+          ? prev.filter(url => url !== imageUrl)
+          : [...prev, imageUrl]
+      )
+    } else {
+      // Single selection
+      updateHeroImages(showImageBrowser as keyof typeof heroImages, [imageUrl])
+      setShowImageBrowser(null)
+    }
+  }
+
+  const confirmMultipleSelection = () => {
+    if (showImageBrowser && selectedImages.length > 0) {
+      updateHeroImages(showImageBrowser as keyof typeof heroImages, selectedImages)
+      setShowImageBrowser(null)
+      setSelectedImages([])
+    }
   }
 
   const updateImageMode = (page: keyof typeof imageMode, mode: 'single' | 'multiple') => {
@@ -818,6 +894,150 @@ export default function AdminDashboard() {
           defaultTab={0}
         />
       </div>
+
+      {/* Image Browser Modal */}
+      {showImageBrowser && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '2rem',
+            borderRadius: '12px',
+            maxWidth: '80vw',
+            maxHeight: '80vh',
+            overflow: 'auto',
+            width: '600px'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h3 style={{ margin: 0 }}>
+                Select {browsingForMultiple ? 'Multiple Images' : 'Image'} for {showImageBrowser}
+              </h3>
+              <button
+                onClick={() => setShowImageBrowser(null)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '1.5rem',
+                  cursor: 'pointer',
+                  padding: '0.25rem'
+                }}
+              >
+                ×
+              </button>
+            </div>
+            
+            {availableImages.length === 0 ? (
+              <p style={{ textAlign: 'center', color: 'var(--text-secondary, #7f8c8d)' }}>
+                No images available. Upload some images first.
+              </p>
+            ) : (
+              <div>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
+                  gap: '1rem',
+                  marginBottom: '1rem'
+                }}>
+                  {availableImages.map((url, index) => (
+                    <div
+                      key={index}
+                      onClick={() => selectImage(url)}
+                      style={{
+                        position: 'relative',
+                        aspectRatio: '1',
+                        borderRadius: '8px',
+                        overflow: 'hidden',
+                        border: selectedImages.includes(url) 
+                          ? '3px solid var(--primary-color, #3498db)'
+                          : '1px solid var(--border-color, #e1e5e9)',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      <img
+                        src={url}
+                        alt={`Available ${index + 1}`}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover'
+                        }}
+                      />
+                      {selectedImages.includes(url) && (
+                        <div style={{
+                          position: 'absolute',
+                          top: '4px',
+                          right: '4px',
+                          backgroundColor: 'var(--primary-color, #3498db)',
+                          color: 'white',
+                          borderRadius: '50%',
+                          width: '24px',
+                          height: '24px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '14px',
+                          fontWeight: 'bold'
+                        }}>
+                          ✓
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                
+                {browsingForMultiple && (
+                  <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                    <Button
+                      variant="ghost"
+                      onClick={() => setShowImageBrowser(null)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="primary"
+                      onClick={confirmMultipleSelection}
+                      disabled={selectedImages.length === 0}
+                    >
+                      Select {selectedImages.length} Image{selectedImages.length !== 1 ? 's' : ''}
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Save Success Tooltip */}
+      {showSaveTooltip.show && (
+        <div style={{
+          position: 'fixed',
+          bottom: '2rem',
+          right: '2rem',
+          backgroundColor: '#27ae60',
+          color: 'white',
+          padding: '1rem 1.5rem',
+          borderRadius: '8px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          zIndex: 1001,
+          animation: 'slideInUp 0.3s ease-out',
+          fontSize: '0.9rem',
+          fontWeight: '500'
+        }}>
+          {showSaveTooltip.message}
+        </div>
+      )}
     </div>
   )
 }
