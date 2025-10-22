@@ -107,11 +107,6 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
       const editorContainer = quillRef.current?.editor?.container
       
       // Try multiple ways to find the toolbar
-      console.log('🔍 Debugging editor and toolbar structure:')
-      console.log('Editor container:', editorContainer)
-      console.log('Container children:', editorContainer?.children)
-      
-      // Try different toolbar selectors
       const toolbarSelectors = [
         '.ql-toolbar',
         '[class*="toolbar"]',
@@ -122,166 +117,63 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
       let toolbarEl: HTMLElement | null = null
       for (const selector of toolbarSelectors) {
         toolbarEl = editorContainer?.querySelector(selector) as HTMLElement | null
-        if (toolbarEl) {
-          console.log(`✅ Found toolbar with selector: ${selector}`, toolbarEl)
-          break
-        }
+        if (toolbarEl) break
       }
       
       // If still no toolbar, look in parent containers or siblings
       if (!toolbarEl && editorContainer) {
-        console.log('🔍 Looking for toolbar in parent/sibling elements...')
-        
         // Check siblings
         const parent = editorContainer.parentElement
         toolbarEl = parent?.querySelector('.ql-toolbar') as HTMLElement | null ||
                    parent?.querySelector('[class*="toolbar"]') as HTMLElement | null
         
-        if (toolbarEl) {
-          console.log('✅ Found toolbar in parent/sibling:', toolbarEl)
-        } else {
-          // Look for any element with toolbar-like buttons
-          const potentialToolbars = document.querySelectorAll('div')
-          for (const div of Array.from(potentialToolbars)) {
-            const buttons = div.querySelectorAll('button')
-            if (buttons.length >= 3) { // Likely a toolbar if it has multiple buttons
-              console.log('🤔 Potential toolbar candidate:', div, 'buttons:', buttons.length)
-              // Check if any button looks like formatting buttons
-              const hasFormattingButtons = Array.from(buttons).some(btn => 
-                btn.className.includes('ql-') || 
-                btn.querySelector('svg') ||
-                ['B', 'I', 'U'].includes(btn.textContent?.trim() || '')
-              )
-              if (hasFormattingButtons) {
-                toolbarEl = div as HTMLElement
-                console.log('✅ Found toolbar by button analysis:', toolbarEl)
-                break
-              }
-            }
+        if (!toolbarEl) {
+          // Fallback to document-wide search
+          toolbarEl = document.querySelector('.ql-toolbar') as HTMLElement | null ||
+                     document.querySelector('[class*="toolbar"]') as HTMLElement | null
+        }
+      }
+      
+      // Find the link button
+      const linkButton = toolbarEl?.querySelector('button.ql-link') as HTMLElement | null ||
+                         toolbarEl?.querySelector('.ql-link') as HTMLElement | null
+      
+      // Debug: Let's identify what the last button is
+      if (toolbarEl) {
+        const allButtons = Array.from(toolbarEl.querySelectorAll('button'))
+        console.log('🔍 Toolbar buttons analysis:')
+        allButtons.forEach((btn, index) => {
+          console.log(`Button ${index + 1}:`, {
+            className: btn.className,
+            title: btn.title,
+            innerHTML: btn.innerHTML.substring(0, 100) + (btn.innerHTML.length > 100 ? '...' : ''),
+            textContent: btn.textContent?.trim(),
+            onclick: btn.onclick ? 'has onclick' : 'no onclick',
+            disabled: btn.disabled
+          })
+          if (index === allButtons.length - 1) {
+            console.log('👆 This is the LAST button')
           }
-        }
-      }
-      
-      if (!toolbarEl) {
-        console.log('❌ Could not find any toolbar element')
-        // Fallback to document-wide search for Quill buttons
-        toolbarEl = document.querySelector('.ql-toolbar') as HTMLElement | null ||
-                   document.querySelector('[class*="toolbar"]') as HTMLElement | null
-        if (toolbarEl) {
-          console.log('✅ Found toolbar with document-wide search:', toolbarEl)
-        }
-      }
-      
-      // Debug: Let's understand the toolbar structure
-      console.log('📊 Final toolbar analysis:')
-      console.log('Toolbar element:', toolbarEl)
-      console.log('All toolbar buttons:', Array.from(toolbarEl?.querySelectorAll('button') || []).map(btn => ({ 
-        className: btn.className, 
-        title: btn.title,
-        textContent: btn.textContent?.trim(),
-        rect: btn.getBoundingClientRect()
-      })))
-      
-      // Try different selectors to find the link button
-      const linkButtonSelectors = [
-        'button.ql-link',
-        '.ql-link',
-        'button[title*="link" i]',
-        'button[aria-label*="link" i]',
-        '.ql-formats button:nth-child(2)', // Often link is second button after bold
-        '.ql-formats button:nth-child(3)', // Sometimes third
-      ]
-      
-      let linkButton: HTMLElement | null = null
-      for (const selector of linkButtonSelectors) {
-        linkButton = toolbarEl?.querySelector(selector) as HTMLElement | null
-        if (linkButton) {
-          console.log(`✅ Found link button with selector: ${selector}`, {
-            element: linkButton,
-            className: linkButton.className,
-            title: linkButton.title,
-            rect: linkButton.getBoundingClientRect()
-          })
-          break
-        }
-      }
-      
-      if (!linkButton) {
-        console.log('❌ No link button found, trying to find by icon or content')
-        // Look for SVG icons or specific content that might indicate link button
-        const allButtons = Array.from(toolbarEl?.querySelectorAll('button') || [])
-        linkButton = allButtons.find(btn => {
-          const svg = btn.querySelector('svg')
-          const hasLinkIcon = svg?.innerHTML.includes('path') && (
-            svg.innerHTML.includes('M10 13') || // Common link icon path
-            svg.innerHTML.includes('link') ||
-            btn.title?.toLowerCase().includes('link') ||
-            btn.getAttribute('aria-label')?.toLowerCase().includes('link')
-          )
-          return hasLinkIcon
-        }) as HTMLElement || null
-        
-        if (linkButton) {
-          console.log('✅ Found link button by icon analysis:', linkButton)
-        } else {
-          console.log('🔍 All buttons analysis for manual identification:')
-          allButtons.forEach((btn, index) => {
-            console.log(`Button ${index}:`, {
-              element: btn,
-              className: btn.className,
-              innerHTML: btn.innerHTML,
-              title: btn.title,
-              textContent: btn.textContent?.trim(),
-              rect: btn.getBoundingClientRect()
-            })
-          })
-        }
+        })
       }
       
       if (linkButton) {
         const updatePosition = () => {
           const rect = linkButton.getBoundingClientRect()
           
-          // Temporarily highlight the button we're targeting for visual confirmation
-          linkButton.style.backgroundColor = 'red'
-          linkButton.style.transition = 'background-color 0.3s ease'
-          setTimeout(() => {
-            linkButton.style.backgroundColor = ''
-          }, 1000)
-          
-          console.log('📍 Link button positioning:', {
-            rect,
-            windowScroll: { x: window.scrollX, y: window.scrollY }
-          })
-          
           // Use absolute positioning with scroll offsets for proper tracking
           // Center the portal under the center of the link button
           const portalWidth = 320
           const portalHeight = 50
           let top = rect.bottom + window.scrollY + 2
-          
-          // Adjust centering calculation - use the button's actual center
-          // and account for any potential border/padding differences
           let left = rect.left + window.scrollX + (rect.width / 2) - (portalWidth / 2)
           
-          console.log('📍 Calculated portal position:', { 
-            top, 
-            left,
-            buttonCenter: rect.left + (rect.width / 2),
-            portalCenter: left + (portalWidth / 2),
-            offset: (left + (portalWidth / 2)) - (rect.left + (rect.width / 2))
-          })
-          
-          // If the portal appears slightly left, let's try a larger right adjustment
-          // This accounts for any CSS styling or border differences
-          left += 20 // Increased adjustment to make the change more visible
-          
-          console.log('📍 Portal moved right by 20px for testing')
+          // Apply positioning adjustment based on testing
+          left += 20
           
           // Calculate arrow position to point to button center
           const buttonCenter = rect.left + window.scrollX + (rect.width / 2)
           const arrowOffset = buttonCenter - left
-          console.log('🎯 Arrow positioning:', { buttonCenter, portalLeft: left, arrowOffset })
           
           // Ensure the portal stays within viewport bounds
           if (left + portalWidth > window.innerWidth + window.scrollX) {
@@ -294,9 +186,7 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
             top = rect.top + window.scrollY - portalHeight - 6
           }
           
-          console.log('📍 Final portal position (with adjustment):', { top, left })
-          
-          // Ensure the portal stays within viewport bounds
+          setLinkPos({ top, left, arrowOffset })
           if (left + portalWidth > window.innerWidth + window.scrollX) {
             left = window.innerWidth + window.scrollX - portalWidth - 10
           }
@@ -506,7 +396,53 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
       window.removeEventListener('scroll', handleScroll)
       window.removeEventListener('resize', handleResize)
     }
-  }, [showImageInput])  // Sync with parent value when it changes (for loading existing content)
+  }, [showImageInput])
+
+  // Add tooltips to toolbar buttons for better UX
+  useEffect(() => {
+    if (!quillRef.current) return
+    
+    const addToolbarTooltips = () => {
+      const editorContainer = quillRef.current?.editor?.container
+      const toolbar = editorContainer?.querySelector('.ql-toolbar')
+      
+      if (!toolbar) return
+      
+      // Define tooltips for various toolbar buttons
+      const tooltips = {
+        '.ql-header[value="1"]': 'Heading 1',
+        '.ql-header[value="2"]': 'Heading 2', 
+        '.ql-header[value="3"]': 'Heading 3',
+        '.ql-header[value="false"]': 'Normal text',
+        '.ql-bold': 'Bold (Ctrl+B)',
+        '.ql-italic': 'Italic (Ctrl+I)',
+        '.ql-underline': 'Underline (Ctrl+U)',
+        '.ql-strike': 'Strikethrough',
+        '.ql-list[value="ordered"]': 'Numbered list',
+        '.ql-list[value="bullet"]': 'Bullet list',
+        '.ql-link': 'Insert link (Ctrl+K)',
+        '.ql-image': 'Insert image',
+        '.ql-code-block': 'Code block',
+        '.ql-clean': 'Remove formatting from selected text'
+      }
+      
+      // Apply tooltips to buttons
+      Object.entries(tooltips).forEach(([selector, tooltip]) => {
+        const button = toolbar.querySelector(selector) as HTMLElement | null
+        if (button && !button.hasAttribute('title')) {
+          button.setAttribute('title', tooltip)
+        }
+      })
+    }
+    
+    // Add tooltips immediately and after a short delay to ensure DOM is ready
+    addToolbarTooltips()
+    const timeoutId = setTimeout(addToolbarTooltips, 100)
+    
+    return () => clearTimeout(timeoutId)
+  }, [])
+
+  // Sync with parent value when it changes (for loading existing content)
   useEffect(() => {
     if (value !== editorValue && value !== '') {
       setEditorValue(value)
@@ -648,25 +584,17 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
 
       {showLinkInput && typeof document !== 'undefined' && createPortal(
         <div
-          className="absolute bg-red-500 dark:bg-red-600 border-4 border-yellow-400 rounded-md shadow-lg animate-in fade-in-0 zoom-in-95 duration-200 quill-link-portal"
+          className="absolute bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg animate-in fade-in-0 zoom-in-95 duration-200 quill-link-portal"
           style={{ 
             top: linkPos.top, 
             left: linkPos.left, 
-            zIndex: 2000001,
-            position: 'absolute',
-            backgroundColor: 'red',
-            border: '4px solid yellow'
+            zIndex: 2000001
           }}
           role="dialog"
           aria-label="Insert link"
         >
-          {/* Debug info overlay */}
-          <div className="absolute -top-8 left-0 bg-black text-white text-xs p-1 rounded">
-            L:{Math.round(linkPos.left)} T:{Math.round(linkPos.top)}
-          </div>
-          
-          {/* Arrow pointing to the actual center of the link button */}
-          <div className="absolute -top-1 transform w-0 h-0 border-l-4 border-r-4 border-b-4 border-l-transparent border-r-transparent border-b-yellow-400" 
+          {/* Arrow pointing to the link button center */}
+          <div className="absolute -top-1 transform w-0 h-0 border-l-4 border-r-4 border-b-4 border-l-transparent border-r-transparent border-b-gray-300 dark:border-b-gray-600" 
                style={{ left: `${linkPos.arrowOffset || 140}px`, transform: 'translateX(-50%)' }}></div>
           
           <div className="flex items-center gap-1 p-2">
