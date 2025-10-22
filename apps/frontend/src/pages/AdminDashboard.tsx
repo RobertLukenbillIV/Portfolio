@@ -737,27 +737,28 @@ export default function AdminDashboard() {
               id="success-tooltip"
               style={{
                 position: 'fixed',
-                bottom: '2rem',
-                right: '2rem',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
                 backgroundColor: '#10b981',
                 color: 'white',
-                padding: '1rem 1.5rem',
-                borderRadius: '0.5rem',
-                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1)',
-                zIndex: 99999,
-                animation: 'slideInUp 0.3s ease-out',
-                fontSize: '0.875rem',
-                fontWeight: '500',
-                border: '2px solid #059669',
+                padding: '2rem 3rem',
+                borderRadius: '1rem',
+                boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)',
+                zIndex: 999999,
+                fontSize: '1.25rem',
+                fontWeight: 'bold',
+                border: '4px solid #059669',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.5rem',
-                minWidth: '250px',
-                pointerEvents: 'none'
+                gap: '1rem',
+                minWidth: '350px',
+                textAlign: 'center',
+                justifyContent: 'center'
               }}
             >
-              <span style={{ fontSize: '1rem' }}>✅</span>
-              Social media links saved successfully!
+              <span style={{ fontSize: '2rem' }}>✅</span>
+              <span>SUCCESS! Links saved!</span>
             </div>
           )}
         </div>
@@ -767,31 +768,6 @@ export default function AdminDashboard() {
 
   return (
     <div>
-      <style>
-        {`
-          @keyframes slideInUp {
-            from {
-              opacity: 0;
-              transform: translateY(1rem);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-          
-          @keyframes slideOutDown {
-            from {
-              opacity: 1;
-              transform: translateY(0);
-            }
-            to {
-              opacity: 0;
-              transform: translateY(1rem);
-            }
-          }
-        `}
-      </style>
       <Hero 
         title="Admin Dashboard"
         subtitle="Manage your portfolio content and settings"
