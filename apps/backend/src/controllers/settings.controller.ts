@@ -16,15 +16,15 @@ export async function getSettings(_req: Request, res: Response) {
 
 // PUT /api/settings - Update site-wide settings
 // Protected by requireAdmin middleware in routes
-// Called by: frontend admin dashboard for homepage customization
+// Called by: frontend admin dashboard for homepage customization and social media links
 export async function updateSettings(req: Request, res: Response) {
-  const { homeHeroUrl, homeIntro } = req.body        // New hero image URL and intro text
+  const { homeHeroUrl, homeIntro, githubUrl, linkedinUrl } = req.body        // Hero image, intro text, and social media URLs
   
   // Upsert to handle first-time setup or updates
   const settings = await prisma.settings.upsert({
     where: { id: 1 },                                // Singleton record
-    update: { homeHeroUrl, homeIntro },              // Update existing settings
-    create: { id: 1, homeHeroUrl, homeIntro },       // Create if not exists
+    update: { homeHeroUrl, homeIntro, githubUrl, linkedinUrl },              // Update existing settings
+    create: { id: 1, homeHeroUrl, homeIntro, githubUrl, linkedinUrl },       // Create if not exists
   })
   res.json({ settings })
 }

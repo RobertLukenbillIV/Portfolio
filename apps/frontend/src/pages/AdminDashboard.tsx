@@ -66,9 +66,9 @@ export default function AdminDashboard() {
       const settings = r.data.settings || {}
       setIntro(settings.homeIntro ?? '')
       
-      // Load social media URLs from localStorage for now (until database migration is complete)
-      setGithubUrl(localStorage.getItem('admin_github_url') ?? 'https://github.com/RobertLukenbillIV')
-      setLinkedinUrl(localStorage.getItem('admin_linkedin_url') ?? 'https://linkedin.com/in/robert-lukenbill')
+      // Load social media URLs from backend, fallback to localStorage, then defaults
+      setGithubUrl(settings.githubUrl || localStorage.getItem('admin_github_url') || 'https://github.com/RobertLukenbillIV')
+      setLinkedinUrl(settings.linkedinUrl || localStorage.getItem('admin_linkedin_url') || 'https://linkedin.com/in/robert-lukenbill')
       
       // Load hero images - support both old single format and new multiple format
       setHeroImages({
@@ -143,11 +143,22 @@ export default function AdminDashboard() {
     try {
       console.log('Saving social media:', { githubUrl, linkedinUrl })
       
-      // Store in localStorage for now (until database migration is complete)
+      // Get current settings first
+      const currentSettings = await api.get('/settings')
+      const settings = currentSettings.data.settings || {}
+      
+      // Update settings with new social media URLs
+      await api.put('/settings', {
+        ...settings,
+        githubUrl,
+        linkedinUrl
+      })
+      
+      console.log('Saved to backend successfully')
+      
+      // Also store in localStorage as backup
       localStorage.setItem('admin_github_url', githubUrl)
       localStorage.setItem('admin_linkedin_url', linkedinUrl)
-      
-      console.log('Stored in localStorage successfully')
       
       // Trigger a custom event to notify Footer component of changes
       window.dispatchEvent(new CustomEvent('socialMediaUpdated', {
