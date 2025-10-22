@@ -241,6 +241,14 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
       if (linkButton) {
         const updatePosition = () => {
           const rect = linkButton.getBoundingClientRect()
+          
+          // Temporarily highlight the button we're targeting for visual confirmation
+          linkButton.style.backgroundColor = 'red'
+          linkButton.style.transition = 'background-color 0.3s ease'
+          setTimeout(() => {
+            linkButton.style.backgroundColor = ''
+          }, 1000)
+          
           console.log('📍 Link button positioning:', {
             rect,
             windowScroll: { x: window.scrollX, y: window.scrollY }
@@ -264,9 +272,11 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
             offset: (left + (portalWidth / 2)) - (rect.left + (rect.width / 2))
           })
           
-          // If the portal appears slightly left, let's try a small right adjustment
+          // If the portal appears slightly left, let's try a larger right adjustment
           // This accounts for any CSS styling or border differences
-          left += 8 // Small adjustment to move portal slightly right
+          left += 20 // Increased adjustment to make the change more visible
+          
+          console.log('📍 Portal moved right by 20px for testing')
           
           // Ensure the portal stays within viewport bounds
           if (left + portalWidth > window.innerWidth + window.scrollX) {
@@ -638,9 +648,9 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
           role="dialog"
           aria-label="Insert link"
         >
-          {/* Small arrow pointing up to the button - adjust for portal offset */}
+          {/* Small arrow pointing up to the button - adjust for larger portal offset */}
           <div className="absolute -top-1 transform w-0 h-0 border-l-4 border-r-4 border-b-4 border-l-transparent border-r-transparent border-b-gray-300 dark:border-b-gray-600" 
-               style={{ left: 'calc(50% - 8px)', transform: 'translateX(-50%)' }}></div>
+               style={{ left: 'calc(50% - 20px)', transform: 'translateX(-50%)' }}></div>
           
           <div className="flex items-center gap-1 p-2">
             <input
