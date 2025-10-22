@@ -64,7 +64,6 @@ export default function AdminDashboard() {
     // Load settings
     api.get('/settings').then(r => {
       const settings = r.data.settings || {}
-      console.log('Loaded settings from backend:', settings)
       setIntro(settings.homeIntro ?? '')
       
       // Load social media URLs from backend, fallback to localStorage, then defaults
@@ -72,15 +71,13 @@ export default function AdminDashboard() {
       setLinkedinUrl(settings.linkedinUrl || localStorage.getItem('admin_linkedin_url') || 'https://linkedin.com/in/robert-lukenbill')
       
       // Load hero images - support both old single format and new multiple format
-      const heroImagesData = {
+      setHeroImages({
         home: settings.homeHeroUrls ? (Array.isArray(settings.homeHeroUrls) ? settings.homeHeroUrls : [settings.homeHeroUrls]) : 
               settings.homeHeroUrl ? [settings.homeHeroUrl] : [],
         projects: settings.projectsHeroUrls ? (Array.isArray(settings.projectsHeroUrls) ? settings.projectsHeroUrls : [settings.projectsHeroUrls]) : [],
         admin: settings.adminHeroUrls ? (Array.isArray(settings.adminHeroUrls) ? settings.adminHeroUrls : [settings.adminHeroUrls]) : [],
         about: settings.aboutHeroUrls ? (Array.isArray(settings.aboutHeroUrls) ? settings.aboutHeroUrls : [settings.aboutHeroUrls]) : []
-      }
-      console.log('Processed hero images data:', heroImagesData)
-      setHeroImages(heroImagesData)
+      })
       
       // Load image modes
       setImageMode({
@@ -116,7 +113,6 @@ export default function AdminDashboard() {
   async function save() {
     setSaving(true)
     try {
-      console.log('Current hero images state before save:', heroImages)
       const settingsData = {
         homeIntro: intro,
         // Save hero images and modes
@@ -132,9 +128,7 @@ export default function AdminDashboard() {
         homeHeroUrl: heroImages.home[0] || ''
       }
       
-      console.log('Sending settings data:', settingsData)
-      const response = await api.put('/settings', settingsData)
-      console.log('Settings response:', response.data)
+      await api.put('/settings', settingsData)
       alert('Settings saved successfully!')
     } catch (err) {
       console.error('Failed to save settings:', err)
@@ -213,12 +207,7 @@ export default function AdminDashboard() {
 
   // Helper functions for managing hero images
   const updateHeroImages = (page: keyof typeof heroImages, images: string[]) => {
-    console.log(`updateHeroImages called for ${page}:`, images)
-    setHeroImages(prev => {
-      const newState = { ...prev, [page]: images }
-      console.log(`Hero images state updated:`, newState)
-      return newState
-    })
+    setHeroImages(prev => ({ ...prev, [page]: images }))
   }
 
   const addHeroImage = (page: keyof typeof heroImages) => {
