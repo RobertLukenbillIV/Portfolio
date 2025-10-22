@@ -9,7 +9,7 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
 
   // Portal state for the custom link input
   const [showLinkInput, setShowLinkInput] = useState(false)
-  const [linkPos, setLinkPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 })
+  const [linkPos, setLinkPos] = useState<{ top: number; left: number; arrowOffset?: number }>({ top: 0, left: 0 })
   const [linkValue, setLinkValue] = useState('')
   const [savedRange, setSavedRange] = useState<any>(null)
   const inputRef = useRef<HTMLInputElement | null>(null)
@@ -278,6 +278,11 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
           
           console.log('📍 Portal moved right by 20px for testing')
           
+          // Calculate arrow position to point to button center
+          const buttonCenter = rect.left + window.scrollX + (rect.width / 2)
+          const arrowOffset = buttonCenter - left
+          console.log('🎯 Arrow positioning:', { buttonCenter, portalLeft: left, arrowOffset })
+          
           // Ensure the portal stays within viewport bounds
           if (left + portalWidth > window.innerWidth + window.scrollX) {
             left = window.innerWidth + window.scrollX - portalWidth - 10
@@ -302,7 +307,7 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
             top = rect.top + window.scrollY - portalHeight - 6
           }
           
-          setLinkPos({ top, left })
+          setLinkPos({ top, left, arrowOffset })
         }
 
         // Initial positioning
@@ -660,9 +665,9 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
             L:{Math.round(linkPos.left)} T:{Math.round(linkPos.top)}
           </div>
           
-          {/* Small arrow pointing up to the button - adjust for larger portal offset */}
+          {/* Arrow pointing to the actual center of the link button */}
           <div className="absolute -top-1 transform w-0 h-0 border-l-4 border-r-4 border-b-4 border-l-transparent border-r-transparent border-b-yellow-400" 
-               style={{ left: 'calc(50% - 20px)', transform: 'translateX(-50%)' }}></div>
+               style={{ left: `${linkPos.arrowOffset || 140}px`, transform: 'translateX(-50%)' }}></div>
           
           <div className="flex items-center gap-1 p-2">
             <input
