@@ -128,7 +128,7 @@ a.btn:visited, a[style*="text-decoration: none"]:visited, .nav a:visited, nav a:
 
 /* Quill Editor Styling - Light mode */
 .ql-editor {
-  background-color: white !important;
+  background-color: var(--card-background, #ffffff) !important;
   color: var(--text-primary, #2c3e50) !important;
   border: 1px solid var(--border-color, #ddd) !important;
   border-radius: 0.25rem !important;
@@ -138,7 +138,7 @@ a.btn:visited, a[style*="text-decoration: none"]:visited, .nav a:visited, nav a:
 }
 
 .ql-editor:focus {
-  border-color: #3498db !important;
+  border-color: var(--primary-color, #3498db) !important;
   box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1), 0 1px 3px rgba(0, 0, 0, 0.1) !important;
 }
 
@@ -151,7 +151,7 @@ a.btn:visited, a[style*="text-decoration: none"]:visited, .nav a:visited, nav a:
   border: 1px solid var(--border-color, #ddd) !important;
   border-bottom: none !important;
   border-radius: 0.25rem 0.25rem 0 0 !important;
-  background-color: #f8f9fa !important;
+  background-color: var(--button-hover-bg, #f8f9fa) !important;
 }
 
 /* Toolbar button styling for light theme */
@@ -160,12 +160,12 @@ a.btn:visited, a[style*="text-decoration: none"]:visited, .nav a:visited, nav a:
 }
 
 .ql-toolbar .ql-formats button:hover {
-  color: #3498db !important;
+  color: var(--primary-color, #3498db) !important;
   background-color: rgba(52, 152, 219, 0.1) !important;
 }
 
 .ql-toolbar .ql-formats button.ql-active {
-  color: #3498db !important;
+  color: var(--primary-color, #3498db) !important;
   background-color: rgba(52, 152, 219, 0.15) !important;
 }
 
@@ -204,7 +204,7 @@ a.btn:visited, a[style*="text-decoration: none"]:visited, .nav a:visited, nav a:
 }
 
 .ql-toolbar .ql-header .ql-picker-options {
-  background-color: white !important;
+  background-color: var(--card-background, #ffffff) !important;
   border: 1px solid var(--border-color, #ddd) !important;
 }
 
@@ -214,7 +214,7 @@ a.btn:visited, a[style*="text-decoration: none"]:visited, .nav a:visited, nav a:
 
 .ql-toolbar .ql-header .ql-picker-item:hover {
   background-color: var(--button-hover-bg, #f8f9fa) !important;
-  color: #3498db !important;
+  color: var(--primary-color, #3498db) !important;
 }
 
 /* Placeholder text styling */
@@ -362,6 +362,55 @@ div:has(.ql-editor) {
   color: var(--text-primary, #f8f9fa) !important;
 }
 
+/* Dark mode styling for Quill editor */
+:root.dark .ql-editor,
+[data-theme="dark"] .ql-editor {
+  background-color: var(--card-background, #2c2c2c) !important;
+  color: var(--text-primary, #f8f9fa) !important;
+  border-color: var(--border-color, #404040) !important;
+}
+
+:root.dark .ql-editor:focus,
+[data-theme="dark"] .ql-editor:focus {
+  border-color: var(--primary-color, #3498db) !important;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2), 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Dark mode toolbar styling */
+:root.dark .ql-toolbar,
+[data-theme="dark"] .ql-toolbar {
+  background-color: var(--background-color, #1a1a1a) !important;
+  border-color: var(--border-color, #404040) !important;
+}
+
+:root.dark .ql-toolbar .ql-formats button,
+[data-theme="dark"] .ql-toolbar .ql-formats button {
+  color: var(--text-primary, #f8f9fa) !important;
+}
+
+:root.dark .ql-toolbar .ql-formats button:hover,
+[data-theme="dark"] .ql-toolbar .ql-formats button:hover {
+  color: var(--primary-color, #3498db) !important;
+  background-color: rgba(52, 152, 219, 0.1) !important;
+}
+
+:root.dark .ql-toolbar .ql-formats button.ql-active,
+[data-theme="dark"] .ql-toolbar .ql-formats button.ql-active {
+  color: var(--primary-color, #3498db) !important;
+  background-color: rgba(52, 152, 219, 0.2) !important;
+}
+
+/* Dark mode toolbar icon colors */
+:root.dark .ql-toolbar .ql-stroke,
+[data-theme="dark"] .ql-toolbar .ql-stroke {
+  stroke: var(--text-primary, #f8f9fa) !important;
+}
+
+:root.dark .ql-toolbar .ql-fill,
+[data-theme="dark"] .ql-toolbar .ql-fill {
+  fill: var(--text-primary, #f8f9fa) !important;
+}
+
 :root.dark .ql-tooltip input,
 [data-theme="dark"] .ql-tooltip input {
   background-color: var(--background-color, #1a1a1a) !important;
@@ -383,6 +432,34 @@ div:has(.ql-editor) {
 :root.dark .ql-tooltip .ql-remove,
 [data-theme="dark"] .ql-tooltip .ql-remove {
   color: var(--error-color, #e74c3c) !important;
+}
+
+/* Dark mode picker/dropdown styling */
+:root.dark .ql-toolbar .ql-header,
+[data-theme="dark"] .ql-toolbar .ql-header {
+  color: var(--text-primary, #f8f9fa) !important;
+}
+
+:root.dark .ql-toolbar .ql-header .ql-picker-label,
+[data-theme="dark"] .ql-toolbar .ql-header .ql-picker-label {
+  color: var(--text-primary, #f8f9fa) !important;
+}
+
+:root.dark .ql-toolbar .ql-header .ql-picker-options,
+[data-theme="dark"] .ql-toolbar .ql-header .ql-picker-options {
+  background-color: var(--card-background, #2c2c2c) !important;
+  border-color: var(--border-color, #404040) !important;
+}
+
+:root.dark .ql-toolbar .ql-header .ql-picker-item,
+[data-theme="dark"] .ql-toolbar .ql-header .ql-picker-item {
+  color: var(--text-primary, #f8f9fa) !important;
+}
+
+:root.dark .ql-toolbar .ql-header .ql-picker-item:hover,
+[data-theme="dark"] .ql-toolbar .ql-header .ql-picker-item:hover {
+  background-color: var(--background-color, #1a1a1a) !important;
+  color: var(--primary-color, #3498db) !important;
 }
 
 /* Navigation animations */
