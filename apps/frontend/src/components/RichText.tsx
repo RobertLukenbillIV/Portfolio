@@ -251,9 +251,22 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
           const portalWidth = 320
           const portalHeight = 50
           let top = rect.bottom + window.scrollY + 2
+          
+          // Adjust centering calculation - use the button's actual center
+          // and account for any potential border/padding differences
           let left = rect.left + window.scrollX + (rect.width / 2) - (portalWidth / 2)
           
-          console.log('📍 Calculated portal position:', { top, left })
+          console.log('📍 Calculated portal position:', { 
+            top, 
+            left,
+            buttonCenter: rect.left + (rect.width / 2),
+            portalCenter: left + (portalWidth / 2),
+            offset: (left + (portalWidth / 2)) - (rect.left + (rect.width / 2))
+          })
+          
+          // If the portal appears slightly left, let's try a small right adjustment
+          // This accounts for any CSS styling or border differences
+          left += 8 // Small adjustment to move portal slightly right
           
           // Ensure the portal stays within viewport bounds
           if (left + portalWidth > window.innerWidth + window.scrollX) {
@@ -266,7 +279,7 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
             top = rect.top + window.scrollY - portalHeight - 6
           }
           
-          console.log('📍 Final portal position:', { top, left })
+          console.log('📍 Final portal position (with adjustment):', { top, left })
           
           // Ensure the portal stays within viewport bounds
           if (left + portalWidth > window.innerWidth + window.scrollX) {
@@ -625,8 +638,9 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
           role="dialog"
           aria-label="Insert link"
         >
-          {/* Small arrow pointing up to the button */}
-          <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-l-transparent border-r-transparent border-b-gray-300 dark:border-b-gray-600"></div>
+          {/* Small arrow pointing up to the button - adjust for portal offset */}
+          <div className="absolute -top-1 transform w-0 h-0 border-l-4 border-r-4 border-b-4 border-l-transparent border-r-transparent border-b-gray-300 dark:border-b-gray-600" 
+               style={{ left: 'calc(50% - 8px)', transform: 'translateX(-50%)' }}></div>
           
           <div className="flex items-center gap-1 p-2">
             <input
