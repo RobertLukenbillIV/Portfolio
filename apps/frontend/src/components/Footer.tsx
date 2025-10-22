@@ -2,14 +2,14 @@
 // Uses the ACME UI Footnote component with social media links
 // Includes theme toggle button in the bottom right corner
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Footnote, ThemeToggle } from './AcmeUI'
 import { useTheme } from '@/state/theme'
+import { api } from '@/lib/api'
 
 export default function Footer() {
   const { theme, toggleTheme } = useTheme()
-  
-  const socialLinks = [
+  const [socialLinks, setSocialLinks] = useState([
     {
       href: 'https://github.com/RobertLukenbillIV',
       label: 'GitHub',
@@ -20,7 +20,44 @@ export default function Footer() {
       label: 'LinkedIn', 
       icon: '💼'
     }
-  ]
+  ])
+
+  // Load social media URLs from localStorage and listen for updates
+  useEffect(() => {
+    const loadSocialLinks = () => {
+      // Load from localStorage (temporary solution until database migration)
+      const githubUrl = localStorage.getItem('admin_github_url') || 'https://github.com/RobertLukenbillIV'
+      const linkedinUrl = localStorage.getItem('admin_linkedin_url') || 'https://linkedin.com/in/robert-lukenbill'
+      
+      setSocialLinks([
+        {
+          href: githubUrl,
+          label: 'GitHub',
+          icon: '🐙'
+        },
+        {
+          href: linkedinUrl,
+          label: 'LinkedIn', 
+          icon: '💼'
+        }
+      ])
+    }
+
+    // Load initial values
+    loadSocialLinks()
+
+    // Listen for updates from admin dashboard
+    const handleSocialMediaUpdate = (event: CustomEvent) => {
+      loadSocialLinks()
+    }
+
+    window.addEventListener('socialMediaUpdated', handleSocialMediaUpdate as EventListener)
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('socialMediaUpdated', handleSocialMediaUpdate as EventListener)
+    }
+  }, [])
 
   return (
     <div style={{ position: 'relative' }}>

@@ -13,6 +13,12 @@ export default function AdminDashboard() {
   const [saving, setSaving] = useState(false)
   const [stats, setStats] = useState({ posts: 0, featuredPosts: 0 })
   
+  // Social media URLs state
+  const [githubUrl, setGithubUrl] = useState('')
+  const [linkedinUrl, setLinkedinUrl] = useState('')
+  const [savingSocial, setSavingSocial] = useState(false)
+  const [showSuccessTooltip, setShowSuccessTooltip] = useState(false)
+  
   // Hero images state for different pages
   const [heroImages, setHeroImages] = useState<{
     home: string[]
@@ -59,6 +65,10 @@ export default function AdminDashboard() {
     api.get('/settings').then(r => {
       const settings = r.data.settings || {}
       setIntro(settings.homeIntro ?? '')
+      
+      // Load social media URLs from localStorage for now (until database migration is complete)
+      setGithubUrl(localStorage.getItem('admin_github_url') ?? 'https://github.com/RobertLukenbillIV')
+      setLinkedinUrl(localStorage.getItem('admin_linkedin_url') ?? 'https://linkedin.com/in/robert-lukenbill')
       
       // Load hero images - support both old single format and new multiple format
       setHeroImages({
@@ -125,6 +135,34 @@ export default function AdminDashboard() {
       alert('Failed to save settings. Please try again.')
     } finally {
       setSaving(false)
+    }
+  }
+
+  async function saveSocialMedia() {
+    setSavingSocial(true)
+    try {
+      // Store in localStorage for now (until database migration is complete)
+      localStorage.setItem('admin_github_url', githubUrl)
+      localStorage.setItem('admin_linkedin_url', linkedinUrl)
+      
+      // Trigger a custom event to notify Footer component of changes
+      window.dispatchEvent(new CustomEvent('socialMediaUpdated', {
+        detail: { githubUrl, linkedinUrl }
+      }))
+      
+      // Show success tooltip
+      setShowSuccessTooltip(true)
+      
+      // Hide tooltip after 3 seconds with animation
+      setTimeout(() => {
+        setShowSuccessTooltip(false)
+      }, 3000)
+      
+    } catch (err) {
+      console.error('Failed to save social media settings:', err)
+      alert('Failed to save social media links. Please try again.')
+    } finally {
+      setSavingSocial(false)
     }
   }
 
@@ -609,11 +647,113 @@ export default function AdminDashboard() {
           </div>
         </div>
       )
+    },
+    {
+      label: 'Social Media',
+      icon: '🌐',
+      content: (
+        <div style={{ position: 'relative' }}>
+          <h3 style={{ marginBottom: '2rem', fontSize: '1.25rem', fontWeight: 'bold' }}>
+            Social Media Links
+          </h3>
+          
+          <div style={{ display: 'grid', gap: '2rem', marginBottom: '2rem' }}>
+            {/* GitHub URL Input */}
+            <Card title="🐙 GitHub Profile">
+              <TextInput
+                label="GitHub URL"
+                value={githubUrl}
+                onChange={(e) => setGithubUrl(e.target.value)}
+                placeholder="https://github.com/username"
+              />
+              <p style={{ 
+                fontSize: '0.875rem', 
+                color: 'var(--text-secondary, #7f8c8d)', 
+                marginTop: '0.5rem' 
+              }}>
+                This URL will be displayed in the footer's GitHub button.
+              </p>
+            </Card>
+
+            {/* LinkedIn URL Input */}
+            <Card title="💼 LinkedIn Profile">
+              <TextInput
+                label="LinkedIn URL"
+                value={linkedinUrl}
+                onChange={(e) => setLinkedinUrl(e.target.value)}
+                placeholder="https://linkedin.com/in/username"
+              />
+              <p style={{ 
+                fontSize: '0.875rem', 
+                color: 'var(--text-secondary, #7f8c8d)', 
+                marginTop: '0.5rem' 
+              }}>
+                This URL will be displayed in the footer's LinkedIn button.
+              </p>
+            </Card>
+          </div>
+
+          <Button 
+            disabled={savingSocial} 
+            loading={savingSocial}
+            onClick={saveSocialMedia}
+            variant="primary"
+            size="large"
+          >
+            Save Social Media Links
+          </Button>
+
+          {/* Success Tooltip */}
+          {showSuccessTooltip && (
+            <div 
+              style={{
+                position: 'fixed',
+                bottom: '2rem',
+                right: '2rem',
+                backgroundColor: '#10b981',
+                color: 'white',
+                padding: '0.75rem 1rem',
+                borderRadius: '0.5rem',
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                zIndex: 1000,
+                animation: 'slideInUp 0.3s ease-out'
+              }}
+            >
+              ✅ Social media links saved successfully!
+            </div>
+          )}
+        </div>
+      )
     }
   ]
 
   return (
     <div>
+      <style>
+        {`
+          @keyframes slideInUp {
+            from {
+              opacity: 0;
+              transform: translateY(1rem);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          
+          @keyframes slideOutDown {
+            from {
+              opacity: 1;
+              transform: translateY(0);
+            }
+            to {
+              opacity: 0;
+              transform: translateY(1rem);
+            }
+          }
+        `}
+      </style>
       <Hero 
         title="Admin Dashboard"
         subtitle="Manage your portfolio content and settings"
