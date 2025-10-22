@@ -19,6 +19,8 @@ export default function AdminDashboard() {
   const [savingSocial, setSavingSocial] = useState(false)
   const [showSuccessTooltip, setShowSuccessTooltip] = useState(false)
   
+  // Save status tooltips for page reload approach
+  
   // Image management state
   const [uploadMode, setUploadMode] = useState<'url' | 'upload'>('url')
   const [newImageUrl, setNewImageUrl] = useState('')
