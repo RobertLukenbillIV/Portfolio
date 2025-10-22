@@ -131,7 +131,7 @@ export default function EditAbout() {
               </div>
             }
           >
-            <p style={{ margin: '1rem 0', color: '#dc2626' }}>{error}</p>
+            <p style={{ margin: '1rem 0', color: 'var(--error-color, #e74c3c)' }}>{error}</p>
           </Card>
         </div>
       </div>

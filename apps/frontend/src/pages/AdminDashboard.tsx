@@ -376,7 +376,7 @@ export default function AdminDashboard() {
               background: 'var(--card-background, #f8f9fa)', 
               borderRadius: '8px' 
             }}>
-              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#3498db' }}>
+              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--primary-color, #3498db)' }}>
                 {stats.posts}
               </div>
               <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary, #7f8c8d)' }}>
@@ -390,7 +390,7 @@ export default function AdminDashboard() {
               background: 'var(--card-background, #f8f9fa)', 
               borderRadius: '8px' 
             }}>
-              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#f39c12' }}>
+              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--warning-color, #f39c12)' }}>
                 {stats.featuredPosts}
               </div>
               <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary, #7f8c8d)' }}>
@@ -864,7 +864,7 @@ export default function AdminDashboard() {
               zIndex: 1000
             }}>
               <div style={{
-                backgroundColor: 'white',
+                backgroundColor: 'var(--card-background, #ffffff)',
                 borderRadius: '12px',
                 padding: '2rem',
                 maxWidth: '500px',
@@ -1034,7 +1034,7 @@ export default function AdminDashboard() {
                 position: 'absolute',
                 bottom: '1rem',
                 right: '1rem',
-                backgroundColor: '#10b981',
+                backgroundColor: 'var(--success-color, #27ae60)',
                 color: 'white',
                 padding: '0.75rem 1rem',
                 borderRadius: '0.5rem',
@@ -1118,7 +1118,7 @@ export default function AdminDashboard() {
           zIndex: 1000
         }}>
           <div style={{
-            backgroundColor: 'white',
+            backgroundColor: 'var(--card-background, #ffffff)',
             padding: '2rem',
             borderRadius: '12px',
             maxWidth: '80vw',
@@ -1233,7 +1233,7 @@ export default function AdminDashboard() {
           position: 'fixed',
           bottom: '2rem',
           right: '2rem',
-          backgroundColor: '#27ae60',
+          backgroundColor: 'var(--success-color, #27ae60)',
           color: 'white',
           padding: '1rem 1.5rem',
           borderRadius: '8px',

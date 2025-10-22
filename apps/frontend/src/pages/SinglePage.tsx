@@ -101,9 +101,9 @@ export default function SinglePage({ slug, titleOverride }: { slug: 'about' | 'l
           <div style={{
             padding: '1rem',
             background: '#fee2e2',
-            border: '1px solid #fca5a5',
+            border: '1px solid var(--error-color, #e74c3c)',
             borderRadius: '0.5rem',
-            color: '#dc2626',
+            color: 'var(--error-color, #e74c3c)',
             marginBottom: '1rem'
           }}>
             <p>{error}</p>
