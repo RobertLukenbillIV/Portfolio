@@ -87,7 +87,10 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
       if (!range || range.length === 0) {
         // Show brief visual feedback that text selection is required
         const editorContainer = quillRef.current?.editor?.container
-        const linkButton = editorContainer?.querySelector('.ql-toolbar .ql-link') as HTMLElement | null
+        const toolbarEl = editorContainer?.querySelector('.ql-toolbar') as HTMLElement | null
+        // Prefer the actual button element for precise bounds
+        const linkButton = toolbarEl?.querySelector('button.ql-link') as HTMLElement | null
+          || toolbarEl?.querySelector('.ql-link') as HTMLElement | null
         if (linkButton) {
           linkButton.style.background = 'rgba(239, 68, 68, 0.1)'
           linkButton.style.transition = 'background-color 0.2s ease'
@@ -102,20 +105,22 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
 
       // Find the specific toolbar link button for THIS editor instance
       const editorContainer = quillRef.current?.editor?.container
-      const linkButton = editorContainer?.querySelector('.ql-toolbar .ql-link') as HTMLElement | null
+      const toolbarEl = editorContainer?.querySelector('.ql-toolbar') as HTMLElement | null
+      // Prefer the actual button element for precise bounds
+      const linkButton = toolbarEl?.querySelector('button.ql-link') as HTMLElement | null
+        || toolbarEl?.querySelector('.ql-link') as HTMLElement | null
       
       if (linkButton) {
         const updatePosition = () => {
           const rect = linkButton.getBoundingClientRect()
           // Use absolute positioning with scroll offsets for proper tracking
-          // Center the 320px portal under the link button specifically
-          let top = rect.bottom + window.scrollY + 2
-          let left = rect.left + window.scrollX + (rect.width / 2) - 160 // 320px portal width / 2 = 160
-          
-          // Ensure the portal stays within viewport bounds
+          // Center the portal under the center of the link button
           const portalWidth = 320
           const portalHeight = 50
+          let top = rect.bottom + window.scrollY + 2
+          let left = rect.left + window.scrollX + (rect.width / 2) - (portalWidth / 2)
           
+          // Ensure the portal stays within viewport bounds
           if (left + portalWidth > window.innerWidth + window.scrollX) {
             left = window.innerWidth + window.scrollX - portalWidth - 10
           }
@@ -128,10 +133,10 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
           
           setLinkPos({ top, left })
         }
-        
+
         // Initial positioning
         updatePosition()
-        
+
       } else {
         // Fallback to near top-left of editor
         const editorEl = quillRef.current?.editor?.container || (document.querySelector('.ql-editor') as HTMLElement)
@@ -160,7 +165,9 @@ export function RichTextEditor({ value, onChange }: { value: string; onChange: (
 
       // Find the specific toolbar image button for THIS editor instance
       const editorContainer = quillRef.current?.editor?.container
-      const imageButton = editorContainer?.querySelector('.ql-toolbar .ql-image') as HTMLElement | null
+      const toolbarEl = editorContainer?.querySelector('.ql-toolbar') as HTMLElement | null
+      const imageButton = toolbarEl?.querySelector('button.ql-image') as HTMLElement | null
+        || toolbarEl?.querySelector('.ql-image') as HTMLElement | null
       
       if (imageButton) {
         const rect = imageButton.getBoundingClientRect()
