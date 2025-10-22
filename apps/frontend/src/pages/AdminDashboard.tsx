@@ -736,29 +736,28 @@ export default function AdminDashboard() {
             <div 
               id="success-tooltip"
               style={{
-                position: 'fixed',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
+                position: 'absolute',
+                bottom: '1rem',
+                right: '1rem',
                 backgroundColor: '#10b981',
                 color: 'white',
-                padding: '2rem 3rem',
-                borderRadius: '1rem',
-                boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)',
-                zIndex: 999999,
-                fontSize: '1.25rem',
-                fontWeight: 'bold',
-                border: '4px solid #059669',
+                padding: '0.75rem 1rem',
+                borderRadius: '0.5rem',
+                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)',
+                zIndex: 1000,
+                animation: 'slideInUp 0.3s ease-out',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                border: '1px solid #059669',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '1rem',
-                minWidth: '350px',
-                textAlign: 'center',
-                justifyContent: 'center'
+                gap: '0.5rem',
+                minWidth: '200px',
+                pointerEvents: 'none'
               }}
             >
-              <span style={{ fontSize: '2rem' }}>✅</span>
-              <span>SUCCESS! Links saved!</span>
+              <span style={{ fontSize: '1rem' }}>✅</span>
+              Saved successfully!
             </div>
           )}
         </div>
@@ -768,6 +767,31 @@ export default function AdminDashboard() {
 
   return (
     <div>
+      <style>
+        {`
+          @keyframes slideInUp {
+            from {
+              opacity: 0;
+              transform: translateY(1rem);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          
+          @keyframes slideOutDown {
+            from {
+              opacity: 1;
+              transform: translateY(0);
+            }
+            to {
+              opacity: 0;
+              transform: translateY(1rem);
+            }
+          }
+        `}
+      </style>
       <Hero 
         title="Admin Dashboard"
         subtitle="Manage your portfolio content and settings"
