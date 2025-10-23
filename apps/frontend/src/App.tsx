@@ -39,7 +39,10 @@ export default function App() {
       { 
         label: 'Admin', 
         href: '/admin',
-        icon: '⚙️'
+        icon: '⚙️',
+        children: [
+          { label: 'Logout', href: '/logout', onClick: logout }
+        ]
       }
     ] : []),
     ...(user ? [] : [{ 
