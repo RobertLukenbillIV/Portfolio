@@ -1,14 +1,11 @@
 // Footer component for the main portfolio layout
 // Uses the ACME UI Footnote component with social media links
-// Includes theme toggle button in the bottom right corner
 
 import React, { useState, useEffect } from 'react'
-import { Footnote, ThemeToggle } from './AcmeUI'
-import { useTheme } from '@/state/theme'
+import { Footnote } from './AcmeUI'
 import { api } from '@/lib/api'
 
 export default function Footer() {
-  const { theme, toggleTheme } = useTheme()
   const [socialLinks, setSocialLinks] = useState([
     {
       href: 'https://github.com/RobertLukenbillIV',
@@ -114,20 +111,6 @@ export default function Footer() {
         socialLinks={socialLinks}
         pageLinks={[]} // Remove the page links completely
       />
-      
-      {/* Theme toggle in bottom right corner */}
-      <div style={{
-        position: 'absolute',
-        bottom: '1rem',
-        right: '1rem',
-        zIndex: 10
-      }}>
-        <ThemeToggle 
-          theme={theme} 
-          onToggle={toggleTheme}
-          size="medium"
-        />
-      </div>
     </div>
   )
 }
