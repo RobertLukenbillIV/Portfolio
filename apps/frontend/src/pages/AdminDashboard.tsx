@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '@/state/auth'
 import { api } from '../lib/api'
 import ImageManager from '@/components/ImageManager'
+import ImageGallery from '@/components/ImageGallery'
 import { RichTextEditor } from '@/components/RichText'
 import { Hero, Card, TabbedCard, Button, Badge, LoadingWrapper, Avatar, Switch, TextInput } from '@/components/AcmeUI'
 
@@ -180,6 +181,8 @@ export default function AdminDashboard() {
       
       await api.put('/settings', settingsData)
       alert('Settings saved successfully!')
+      // Reload page to reflect changes
+      window.location.reload()
     } catch (err) {
       console.error('Failed to save settings:', err)
       alert('Failed to save settings. Please try again.')
@@ -216,6 +219,11 @@ export default function AdminDashboard() {
       // Show success tooltip
       console.log('Setting tooltip to true')
       setShowSuccessTooltip(true)
+      
+      // Reload page after short delay to show success message
+      setTimeout(() => {
+        window.location.reload()
+      }, 1500)
       
     } catch (err) {
       console.error('Failed to save social media settings:', err)
@@ -524,9 +532,32 @@ export default function AdminDashboard() {
       icon: '🖼️',
       content: (
         <div>
-          <h3 style={{ marginBottom: '2rem', fontSize: '1.25rem', fontWeight: 'bold' }}>
-            Hero Images Management
+          <h3 style={{ marginBottom: '1rem', fontSize: '1.25rem', fontWeight: 'bold' }}>
+            Image Management
           </h3>
+          
+          {/* Single Upload Section */}
+          <Card title="📤 Upload Images" style={{ marginBottom: '3rem' }}>
+            <p style={{ 
+              fontSize: '0.875rem', 
+              color: 'var(--text-secondary, #7f8c8d)', 
+              marginBottom: '1rem' 
+            }}>
+              Upload images to your gallery. Once uploaded, you can select them for different page hero sections below.
+            </p>
+            <ImageManager
+              value=""
+              onChange={() => {
+                // After upload, the gallery will refresh automatically
+                alert('Image uploaded successfully! Select it below for your hero images.')
+              }}
+              label="Upload New Image"
+            />
+          </Card>
+
+          <h4 style={{ marginBottom: '1.5rem', fontSize: '1.1rem' }}>
+            Select Hero Images from Gallery
+          </h4>
           
           {/* Home Page Images */}
           <Card title="🏠 Homepage Hero Images" style={{ marginBottom: '2rem' }}>
@@ -540,46 +571,23 @@ export default function AdminDashboard() {
                 />
               </div>
               
-              {imageMode.home === 'single' ? (
-                <div>
-                  <ImageManager
-                    value={heroImages.home[0] || ''}
-                    onChange={(url) => updateHeroImages('home', url ? [url] : [])}
-                    label="Homepage Hero Image"
-                  />
-                  <p style={{ 
-                    fontSize: '0.875rem', 
-                    color: 'var(--text-secondary, #7f8c8d)', 
-                    marginTop: '0.5rem' 
-                  }}>
-                    Single image that appears at the top of your homepage.
-                  </p>
-                </div>
-              ) : (
-                <div>
-                  <div style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem' }}>
-                    <TextInput
-                      placeholder="Enter image URL to add..."
-                      value={newImageUrls.home}
-                      onChange={(e) => setNewImageUrls(prev => ({ ...prev, home: e.target.value }))}
-                    />
-                    <Button
-                      variant="primary"
-                      onClick={() => addHeroImage('home')}
-                      disabled={!newImageUrls.home.trim()}
-                    >
-                      Add
-                    </Button>
-                  </div>
-                  <p style={{ 
-                    fontSize: '0.875rem', 
-                    color: 'var(--text-secondary, #7f8c8d)', 
-                    marginTop: '0.5rem' 
-                  }}>
-                    Images will cycle randomly on each page reload.
-                  </p>
-                  
-                  <div style={{ display: 'grid', gap: '0.5rem' }}>
+              <ImageGallery
+                onSelect={(url) => {
+                  if (imageMode.home === 'single') {
+                    updateHeroImages('home', [url])
+                  } else {
+                    if (!heroImages.home.includes(url)) {
+                      updateHeroImages('home', [...heroImages.home, url])
+                    }
+                  }
+                }}
+                selectedUrl={heroImages.home[0]}
+              />
+              
+              {heroImages.home.length > 0 && (
+                <div style={{ marginTop: '1rem' }}>
+                  <strong style={{ fontSize: '0.875rem' }}>Selected:</strong>
+                  <div style={{ display: 'grid', gap: '0.5rem', marginTop: '0.5rem' }}>
                     {heroImages.home.map((url, index) => (
                       <div key={index} style={{ 
                         display: 'flex', 
@@ -589,6 +597,7 @@ export default function AdminDashboard() {
                         background: 'var(--card-background, #f8f9fa)',
                         borderRadius: '4px'
                       }}>
+                        <img src={url} alt="" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
                         <span style={{ flex: 1, fontSize: '0.875rem', color: 'var(--text-secondary, #7f8c8d)' }}>
                           {url.length > 50 ? `${url.substring(0, 50)}...` : url}
                         </span>
@@ -619,39 +628,23 @@ export default function AdminDashboard() {
                 />
               </div>
               
-              {imageMode.projects === 'single' ? (
-                <div>
-                  <ImageManager
-                    value={heroImages.projects[0] || ''}
-                    onChange={(url) => updateHeroImages('projects', url ? [url] : [])}
-                    label="Projects Hero Image"
-                  />
-                  <p style={{ 
-                    fontSize: '0.875rem', 
-                    color: 'var(--text-secondary, #7f8c8d)', 
-                    marginTop: '0.5rem' 
-                  }}>
-                    Single image for the projects page header.
-                  </p>
-                </div>
-              ) : (
-                <div>
-                  <div style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem' }}>
-                    <TextInput
-                      placeholder="Enter image URL to add..."
-                      value={newImageUrls.projects}
-                      onChange={(e) => setNewImageUrls(prev => ({ ...prev, projects: e.target.value }))}
-                    />
-                    <Button
-                      variant="primary"
-                      onClick={() => addHeroImage('projects')}
-                      disabled={!newImageUrls.projects.trim()}
-                    >
-                      Add
-                    </Button>
-                  </div>
-                  
-                  <div style={{ display: 'grid', gap: '0.5rem' }}>
+              <ImageGallery
+                onSelect={(url) => {
+                  if (imageMode.projects === 'single') {
+                    updateHeroImages('projects', [url])
+                  } else {
+                    if (!heroImages.projects.includes(url)) {
+                      updateHeroImages('projects', [...heroImages.projects, url])
+                    }
+                  }
+                }}
+                selectedUrl={heroImages.projects[0]}
+              />
+              
+              {heroImages.projects.length > 0 && (
+                <div style={{ marginTop: '1rem' }}>
+                  <strong style={{ fontSize: '0.875rem' }}>Selected:</strong>
+                  <div style={{ display: 'grid', gap: '0.5rem', marginTop: '0.5rem' }}>
                     {heroImages.projects.map((url, index) => (
                       <div key={index} style={{ 
                         display: 'flex', 
@@ -661,6 +654,7 @@ export default function AdminDashboard() {
                         background: 'var(--card-background, #f8f9fa)',
                         borderRadius: '4px'
                       }}>
+                        <img src={url} alt="" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
                         <span style={{ flex: 1, fontSize: '0.875rem', color: 'var(--text-secondary, #7f8c8d)' }}>
                           {url.length > 50 ? `${url.substring(0, 50)}...` : url}
                         </span>
@@ -691,39 +685,23 @@ export default function AdminDashboard() {
                 />
               </div>
               
-              {imageMode.admin === 'single' ? (
-                <div>
-                  <ImageManager
-                    value={heroImages.admin[0] || ''}
-                    onChange={(url) => updateHeroImages('admin', url ? [url] : [])}
-                    label="Admin Dashboard Hero Image"
-                  />
-                  <p style={{ 
-                    fontSize: '0.875rem', 
-                    color: 'var(--text-secondary, #7f8c8d)', 
-                    marginTop: '0.5rem' 
-                  }}>
-                    Single image for the admin dashboard header.
-                  </p>
-                </div>
-              ) : (
-                <div>
-                  <div style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem' }}>
-                    <TextInput
-                      placeholder="Enter image URL to add..."
-                      value={newImageUrls.admin}
-                      onChange={(e) => setNewImageUrls(prev => ({ ...prev, admin: e.target.value }))}
-                    />
-                    <Button
-                      variant="primary"
-                      onClick={() => addHeroImage('admin')}
-                      disabled={!newImageUrls.admin.trim()}
-                    >
-                      Add
-                    </Button>
-                  </div>
-                  
-                  <div style={{ display: 'grid', gap: '0.5rem' }}>
+              <ImageGallery
+                onSelect={(url) => {
+                  if (imageMode.admin === 'single') {
+                    updateHeroImages('admin', [url])
+                  } else {
+                    if (!heroImages.admin.includes(url)) {
+                      updateHeroImages('admin', [...heroImages.admin, url])
+                    }
+                  }
+                }}
+                selectedUrl={heroImages.admin[0]}
+              />
+              
+              {heroImages.admin.length > 0 && (
+                <div style={{ marginTop: '1rem' }}>
+                  <strong style={{ fontSize: '0.875rem' }}>Selected:</strong>
+                  <div style={{ display: 'grid', gap: '0.5rem', marginTop: '0.5rem' }}>
                     {heroImages.admin.map((url, index) => (
                       <div key={index} style={{ 
                         display: 'flex', 
@@ -733,6 +711,7 @@ export default function AdminDashboard() {
                         background: 'var(--card-background, #f8f9fa)',
                         borderRadius: '4px'
                       }}>
+                        <img src={url} alt="" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
                         <span style={{ flex: 1, fontSize: '0.875rem', color: 'var(--text-secondary, #7f8c8d)' }}>
                           {url.length > 50 ? `${url.substring(0, 50)}...` : url}
                         </span>
@@ -763,39 +742,23 @@ export default function AdminDashboard() {
                 />
               </div>
               
-              {imageMode.about === 'single' ? (
-                <div>
-                  <ImageManager
-                    value={heroImages.about[0] || ''}
-                    onChange={(url) => updateHeroImages('about', url ? [url] : [])}
-                    label="About Page Hero Image"
-                  />
-                  <p style={{ 
-                    fontSize: '0.875rem', 
-                    color: 'var(--text-secondary, #7f8c8d)', 
-                    marginTop: '0.5rem' 
-                  }}>
-                    Single image for the about page header.
-                  </p>
-                </div>
-              ) : (
-                <div>
-                  <div style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem' }}>
-                    <TextInput
-                      placeholder="Enter image URL to add..."
-                      value={newImageUrls.about}
-                      onChange={(e) => setNewImageUrls(prev => ({ ...prev, about: e.target.value }))}
-                    />
-                    <Button
-                      variant="primary"
-                      onClick={() => addHeroImage('about')}
-                      disabled={!newImageUrls.about.trim()}
-                    >
-                      Add
-                    </Button>
-                  </div>
-                  
-                  <div style={{ display: 'grid', gap: '0.5rem' }}>
+              <ImageGallery
+                onSelect={(url) => {
+                  if (imageMode.about === 'single') {
+                    updateHeroImages('about', [url])
+                  } else {
+                    if (!heroImages.about.includes(url)) {
+                      updateHeroImages('about', [...heroImages.about, url])
+                    }
+                  }
+                }}
+                selectedUrl={heroImages.about[0]}
+              />
+              
+              {heroImages.about.length > 0 && (
+                <div style={{ marginTop: '1rem' }}>
+                  <strong style={{ fontSize: '0.875rem' }}>Selected:</strong>
+                  <div style={{ display: 'grid', gap: '0.5rem', marginTop: '0.5rem' }}>
                     {heroImages.about.map((url, index) => (
                       <div key={index} style={{ 
                         display: 'flex', 
@@ -805,6 +768,7 @@ export default function AdminDashboard() {
                         background: 'var(--card-background, #f8f9fa)',
                         borderRadius: '4px'
                       }}>
+                        <img src={url} alt="" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
                         <span style={{ flex: 1, fontSize: '0.875rem', color: 'var(--text-secondary, #7f8c8d)' }}>
                           {url.length > 50 ? `${url.substring(0, 50)}...` : url}
                         </span>
@@ -824,13 +788,12 @@ export default function AdminDashboard() {
           </Card>
 
           <Button 
-            disabled={saving} 
-            loading={saving}
+            variant={saving ? 'secondary' : 'success'}
             onClick={save}
-            variant="primary"
+            disabled={saving}
             size="large"
           >
-            Save All Hero Images
+            {saving ? 'Saving...' : '💾 Save All Hero Images'}
           </Button>
         </div>
       )
