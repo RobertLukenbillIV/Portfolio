@@ -6,7 +6,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/state/auth'
 import { api } from '@/lib/api'
-import { UserAvatarMenu, Button, Badge } from './AcmeUI'
+import { Button, Badge } from './AcmeUI'
 
 export default function Navbar() {
   const { user, logout } = useAuth() // Get current user state and logout function
@@ -18,16 +18,6 @@ export default function Navbar() {
   async function handleLogout() {
     await logout() // Clear JWT cookie and local state
     navigate('/') // Redirect to homepage after logout
-  }
-
-  // Handle profile navigation
-  const handleProfile = () => {
-    navigate('/admin')
-  }
-
-  // Handle settings navigation  
-  const handleSettings = () => {
-    navigate('/admin')
   }
 
   // Count featured projects for admin badge
@@ -153,17 +143,14 @@ export default function Navbar() {
         {/* Authentication section - shows different UI based on login status */}
         <div className="hidden md:flex ml-auto items-center gap-3">
           {user ? (
-            // Authenticated user UI - shows user avatar menu
-            <UserAvatarMenu
-              user={{
-                name: user.name || 'Admin',
-                email: user.email || 'admin@example.com',
-                avatar: undefined // You could add avatar support later
-              }}
-              onProfile={handleProfile}
-              onSettings={handleSettings}
-              onLogout={handleLogout}
-            />
+            // Authenticated user UI - shows logout button
+            <Button 
+              variant="danger" 
+              size="medium"
+              onClick={handleLogout}
+            >
+              Logout
+            </Button>
           ) : (
             // Anonymous user UI - shows login link
             <Link to="/login" style={{ textDecoration: 'none' }}>
@@ -179,25 +166,17 @@ export default function Navbar() {
           <div className="md:hidden absolute top-full left-0 w-full bg-brandNavy border-t border-brandSteel/30 p-4 mt-0">
             <div className="flex flex-col gap-3">
               {user ? (
-                <UserAvatarMenu
-                  user={{
-                    name: user.name || 'Admin',
-                    email: user.email || 'admin@example.com',
-                    avatar: undefined
-                  }}
-                  onProfile={() => {
-                    handleProfile()
-                    setIsMobileMenuOpen(false)
-                  }}
-                  onSettings={() => {
-                    handleSettings()
-                    setIsMobileMenuOpen(false)
-                  }}
-                  onLogout={() => {
+                <Button 
+                  variant="danger" 
+                  size="medium" 
+                  className="w-full"
+                  onClick={() => {
                     handleLogout()
                     setIsMobileMenuOpen(false)
                   }}
-                />
+                >
+                  Logout
+                </Button>
               ) : (
                 <Link 
                   to="/login" 
