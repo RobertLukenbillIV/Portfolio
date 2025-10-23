@@ -18,6 +18,14 @@ import Login from './routes/Login'                   // Authentication form
 export default function App() {
   const { user, logout } = useAuth()
   
+  // Handle logout without navigation (Navigation component handles closing)
+  const handleLogout = async (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    await logout()
+    // Navigation to home will happen in auth context
+  }
+  
   // Navigation links configuration for ACME UI sidebar
   const navigationLinks = [
     { 
@@ -41,7 +49,7 @@ export default function App() {
         href: '/admin',
         icon: '⚙️',
         children: [
-          { label: 'Logout', href: '/logout', onClick: logout }
+          { label: 'Logout', onClick: handleLogout }
         ]
       }
     ] : []),
