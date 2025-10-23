@@ -19,23 +19,6 @@ export default function AdminDashboard() {
   const [savingSocial, setSavingSocial] = useState(false)
   const [showSuccessTooltip, setShowSuccessTooltip] = useState(false)
   
-  // Save status tooltips for page reload approach
-  
-  // Image management state
-  const [uploadMode, setUploadMode] = useState<'url' | 'upload'>('url')
-  const [newImageUrl, setNewImageUrl] = useState('')
-  const [showImageBrowser, setShowImageBrowser] = useState<string | null>(null) // page name when browsing
-  const [browsingForMultiple, setBrowsingForMultiple] = useState(false)
-  const [availableImages, setAvailableImages] = useState<string[]>([])
-  const [selectedImages, setSelectedImages] = useState<string[]>([])
-  
-  // Central image gallery state
-  const [centralGallery, setCentralGallery] = useState<string[]>([])
-  const [selectedImageForAssignment, setSelectedImageForAssignment] = useState<string | null>(null)
-  
-  // Save status tooltips
-  const [showSaveTooltip, setShowSaveTooltip] = useState<{show: boolean, message: string}>({show: false, message: ''})
-  
   // Hero images state for different pages
   const [heroImages, setHeroImages] = useState<{
     home: string[]
@@ -72,6 +55,15 @@ export default function AdminDashboard() {
   // Admin dashboard hero image
   const [adminHeroImage, setAdminHeroImage] = useState<string>("https://picsum.photos/1920/600?random=admin")
 
+  // Page management state
+  const [pages, setPages] = useState([
+    { id: '1', title: 'Home', description: 'Landing page with hero section', route: '/', order: 0 },
+    { id: '2', title: 'Projects', description: 'Portfolio showcase', route: '/projects', order: 1 },
+    { id: '3', title: 'About', description: 'Personal information', route: '/about', order: 2 }
+  ])
+  const [expandedPage, setExpandedPage] = useState<string | null>(null)
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
+
   useEffect(() => {
     if (user?.role !== 'ADMIN') {
       navigate('/')
@@ -83,9 +75,9 @@ export default function AdminDashboard() {
       const settings = r.data.settings || {}
       setIntro(settings.homeIntro ?? '')
       
-      // Load social media URLs from backend, fallback to localStorage, then defaults
-      setGithubUrl(settings.githubUrl || localStorage.getItem('admin_github_url') || 'https://github.com/RobertLukenbillIV')
-      setLinkedinUrl(settings.linkedinUrl || localStorage.getItem('admin_linkedin_url') || 'https://linkedin.com/in/robert-lukenbill')
+      // Load social media URLs from localStorage for now (until database migration is complete)
+      setGithubUrl(localStorage.getItem('admin_github_url') ?? 'https://github.com/RobertLukenbillIV')
+      setLinkedinUrl(localStorage.getItem('admin_linkedin_url') ?? 'https://linkedin.com/in/robert-lukenbill')
       
       // Load hero images - support both old single format and new multiple format
       setHeroImages({
@@ -125,16 +117,6 @@ export default function AdminDashboard() {
         featuredPosts: posts.filter((p: any) => p.featured).length
       })
     })
-
-    // Load available images for browsing
-    api.get('/upload/list').then(r => {
-      if (r.data && r.data.images) {
-        setAvailableImages(r.data.images)
-      }
-    }).catch(err => {
-      console.log('No uploaded images found or upload endpoint not available')
-      setAvailableImages([])
-    })
   }, [user, navigate])
 
   async function save() {
@@ -156,12 +138,7 @@ export default function AdminDashboard() {
       }
       
       await api.put('/settings', settingsData)
-      
-      // Show tooltip and reload page
-      setShowSaveTooltip({show: true, message: 'Settings saved successfully!'})
-      setTimeout(() => {
-        window.location.reload()
-      }, 1500)
+      alert('Settings saved successfully!')
     } catch (err) {
       console.error('Failed to save settings:', err)
       alert('Failed to save settings. Please try again.')
@@ -173,31 +150,24 @@ export default function AdminDashboard() {
   async function saveSocialMedia() {
     setSavingSocial(true)
     try {
-      // Get current settings first
-      const currentSettings = await api.get('/settings')
-      const settings = currentSettings.data.settings || {}
+      console.log('Saving social media:', { githubUrl, linkedinUrl })
       
-      // Update settings with new social media URLs
-      await api.put('/settings', {
-        ...settings,
-        githubUrl,
-        linkedinUrl
-      })
-      
-      // Also store in localStorage as backup
+      // Store in localStorage for now (until database migration is complete)
       localStorage.setItem('admin_github_url', githubUrl)
       localStorage.setItem('admin_linkedin_url', linkedinUrl)
+      
+      console.log('Stored in localStorage successfully')
       
       // Trigger a custom event to notify Footer component of changes
       window.dispatchEvent(new CustomEvent('socialMediaUpdated', {
         detail: { githubUrl, linkedinUrl }
       }))
       
-      // Show tooltip and reload page to Social Media tab
-      setShowSaveTooltip({show: true, message: 'Social media links saved successfully!'})
-      setTimeout(() => {
-        window.location.reload()
-      }, 1500)
+      console.log('Dispatched custom event')
+      
+      // Show success tooltip
+      console.log('Setting tooltip to true')
+      setShowSuccessTooltip(true)
       
     } catch (err) {
       console.error('Failed to save social media settings:', err)
@@ -208,19 +178,6 @@ export default function AdminDashboard() {
   }
 
   // Handle tooltip auto-hide with useEffect to avoid closure issues
-  useEffect(() => {
-    if (showSaveTooltip.show) {
-      const timeoutId = setTimeout(() => {
-        setShowSaveTooltip({show: false, message: ''})
-      }, 3000)
-      
-      return () => {
-        clearTimeout(timeoutId)
-      }
-    }
-  }, [showSaveTooltip.show])
-
-  // Legacy tooltip for backward compatibility
   useEffect(() => {
     if (showSuccessTooltip) {
       console.log('Tooltip is now visible, setting timeout')
@@ -269,76 +226,6 @@ export default function AdminDashboard() {
     }))
   }
 
-  // Central gallery management functions
-  const addImageToCentralGallery = (imageUrl: string) => {
-    if (imageUrl.trim()) {
-      setCentralGallery(prev => {
-        if (!prev.includes(imageUrl.trim())) {
-          return [...prev, imageUrl.trim()]
-        }
-        return prev
-      })
-    }
-  }
-
-  const removeImageFromCentralGallery = (imageUrl: string) => {
-    setCentralGallery(prev => prev.filter(url => url !== imageUrl))
-  }
-
-  const assignImageToPage = (imageUrl: string, page: keyof typeof heroImages) => {
-    if (imageMode[page] === 'single') {
-      // For single mode, replace the current image
-      setHeroImages(prev => ({ ...prev, [page]: [imageUrl] }))
-    } else {
-      // For multiple mode, add to the array if not already present
-      setHeroImages(prev => ({
-        ...prev,
-        [page]: prev[page].includes(imageUrl) ? prev[page] : [...prev[page], imageUrl]
-      }))
-    }
-  }
-
-  // New image management functions
-  const addImageFromUrl = () => {
-    if (newImageUrl.trim()) {
-      setAvailableImages(prev => {
-        if (!prev.includes(newImageUrl.trim())) {
-          return [...prev, newImageUrl.trim()]
-        }
-        return prev
-      })
-      setNewImageUrl('')
-    }
-  }
-
-  const openImageBrowser = (page: string, multiple: boolean = false) => {
-    setShowImageBrowser(page)
-    setBrowsingForMultiple(multiple)
-    setSelectedImages([])
-  }
-
-  const selectImage = (imageUrl: string) => {
-    if (browsingForMultiple) {
-      setSelectedImages(prev => 
-        prev.includes(imageUrl) 
-          ? prev.filter(url => url !== imageUrl)
-          : [...prev, imageUrl]
-      )
-    } else {
-      // Single selection
-      updateHeroImages(showImageBrowser as keyof typeof heroImages, [imageUrl])
-      setShowImageBrowser(null)
-    }
-  }
-
-  const confirmMultipleSelection = () => {
-    if (showImageBrowser && selectedImages.length > 0) {
-      updateHeroImages(showImageBrowser as keyof typeof heroImages, selectedImages)
-      setShowImageBrowser(null)
-      setSelectedImages([])
-    }
-  }
-
   const updateImageMode = (page: keyof typeof imageMode, mode: 'single' | 'multiple') => {
     setImageMode(prev => ({ ...prev, [page]: mode }))
     // If switching to single mode and multiple images exist, keep only the first one
@@ -352,6 +239,49 @@ export default function AdminDashboard() {
 
   if (user?.role !== 'ADMIN') {
     return null
+  }
+
+  // Page management functions
+  const updatePageOrder = (fromIndex: number, toIndex: number) => {
+    const newPages = [...pages]
+    const [movedPage] = newPages.splice(fromIndex, 1)
+    newPages.splice(toIndex, 0, movedPage)
+    
+    const updatedPages = newPages.map((page, index) => ({
+      ...page,
+      order: index
+    }))
+    
+    setPages(updatedPages)
+  }
+
+  const updatePageDetails = (pageId: string, field: 'title' | 'description', value: string) => {
+    setPages(pages.map(page => 
+      page.id === pageId ? { ...page, [field]: value } : page
+    ))
+  }
+
+  // Drag and drop handlers
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index)
+    e.dataTransfer.effectAllowed = 'move'
+  }
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+  }
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault()
+    if (draggedIndex !== null && draggedIndex !== dropIndex) {
+      updatePageOrder(draggedIndex, dropIndex)
+    }
+    setDraggedIndex(null)
+  }
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null)
   }
 
   const dashboardTabs = [
@@ -376,7 +306,7 @@ export default function AdminDashboard() {
               background: 'var(--card-background, #f8f9fa)', 
               borderRadius: '8px' 
             }}>
-              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--primary-color, #3498db)' }}>
+              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#3498db' }}>
                 {stats.posts}
               </div>
               <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary, #7f8c8d)' }}>
@@ -390,7 +320,7 @@ export default function AdminDashboard() {
               background: 'var(--card-background, #f8f9fa)', 
               borderRadius: '8px' 
             }}>
-              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--warning-color, #f39c12)' }}>
+              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#f39c12' }}>
                 {stats.featuredPosts}
               </div>
               <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary, #7f8c8d)' }}>
@@ -417,34 +347,90 @@ export default function AdminDashboard() {
       )
     },
     {
-      label: 'Homepage Settings',
-      icon: '🏠',
+      label: 'Pages',
+      icon: '📄',
       content: (
         <div>
           <div style={{ marginBottom: '2rem' }}>
-            <h4 style={{ marginBottom: '1rem' }}>Introduction Text</h4>
-            <RichTextEditor 
-              value={intro} 
-              onChange={setIntro}
-            />
+            <h3 style={{ marginBottom: '1rem', fontSize: '1.25rem', fontWeight: 'bold' }}>
+              Page Management
+            </h3>
             <p style={{ 
               fontSize: '0.875rem', 
               color: 'var(--text-secondary, #7f8c8d)', 
-              marginTop: '0.5rem' 
+              marginBottom: '2rem' 
             }}>
-              This text appears in the hero section on your homepage. Use it to introduce yourself or your work.
+              Drag and drop to reorder pages. Click to expand and edit page details.
             </p>
           </div>
 
-          <Button 
-            disabled={saving} 
-            loading={saving}
-            onClick={save}
-            variant="primary"
-            size="large"
-          >
-            Save Homepage Settings
-          </Button>
+          <div style={{ display: 'grid', gap: '1rem' }}>
+            {pages.map((page, index) => (
+              <div 
+                key={page.id}
+                draggable
+                onDragStart={(e) => handleDragStart(e, index)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDrop={(e) => handleDrop(e, index)}
+                onDragEnd={handleDragEnd}
+                style={{ 
+                  border: '1px solid var(--border-color, #e1e5e9)', 
+                  borderRadius: '8px', 
+                  background: 'var(--card-background, #fff)',
+                  opacity: draggedIndex === index ? 0.5 : 1,
+                  cursor: 'move',
+                  transition: 'opacity 0.2s'
+                }}
+              >
+                <div 
+                  style={{ 
+                    padding: '1rem', 
+                    cursor: 'pointer',
+                    borderBottom: expandedPage === page.id ? '1px solid var(--border-color, #e1e5e9)' : 'none'
+                  }} 
+                  onClick={() => setExpandedPage(expandedPage === page.id ? null : page.id)}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div>
+                      <strong style={{ fontSize: '1rem' }}>{index + 1}. {page.title}</strong>
+                      <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary, #7f8c8d)', marginTop: '0.25rem' }}>
+                        {page.route}
+                      </div>
+                    </div>
+                    <span style={{ color: 'var(--text-secondary, #7f8c8d)' }}>
+                      {expandedPage === page.id ? '▼' : '▶'}
+                    </span>
+                  </div>
+                </div>
+
+                {expandedPage === page.id && (
+                  <div style={{ padding: '1rem', background: 'var(--background-secondary, #f8f9fa)' }}>
+                    <div style={{ marginBottom: '1rem' }}>
+                      <TextInput
+                        label="Page Title"
+                        value={page.title}
+                        onChange={(e) => updatePageDetails(page.id, 'title', e.target.value)}
+                        placeholder="Enter page title"
+                      />
+                    </div>
+                    <div style={{ marginBottom: '1rem' }}>
+                      <TextInput
+                        label="Description"
+                        value={page.description}
+                        onChange={(e) => updatePageDetails(page.id, 'description', e.target.value)}
+                        placeholder="Enter page description"
+                      />
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                      <Button variant="primary" size="small">
+                        Save Changes
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       )
     },
@@ -454,389 +440,302 @@ export default function AdminDashboard() {
       content: (
         <div>
           <h3 style={{ marginBottom: '2rem', fontSize: '1.25rem', fontWeight: 'bold' }}>
-            Image Management
+            Hero Images Management
           </h3>
           
-          {/* Central Image Upload/Management Section */}
-          <Card title="🖼️ Upload & Manage Images" style={{ marginBottom: '3rem' }}>
-            <div style={{ marginBottom: '2rem' }}>
-              <h4 style={{ marginBottom: '1rem' }}>Add New Images</h4>
-              <ImageManager
-                value=""
-                onChange={(url) => {
-                  if (url) {
-                    addImageToCentralGallery(url)
-                  }
-                }}
-                label="Upload Image or Enter URL"
-              />
-            </div>
-            
-            <div>
-              <h4 style={{ marginBottom: '1rem' }}>Image Gallery</h4>
-              <p style={{ 
-                fontSize: '0.875rem', 
-                color: 'var(--text-secondary, #7f8c8d)', 
-                marginBottom: '1rem' 
-              }}>
-                All your uploaded images. Click on images below to assign them to page headers.
-              </p>
-              {/* We'll show all uploaded images here */}
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', 
-                gap: '1rem',
-                minHeight: '100px',
-                padding: '1rem',
-                border: '2px dashed var(--border-color, #e1e5e9)',
-                borderRadius: '8px',
-                background: 'var(--card-background, #f8f9fa)'
-              }}>
-                {centralGallery.length === 0 ? (
+          {/* Home Page Images */}
+          <Card title="🏠 Homepage Hero Images" style={{ marginBottom: '2rem' }}>
+            <div style={{ marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                <Switch
+                  checked={imageMode.home === 'multiple'}
+                  onChange={(checked) => updateImageMode('home', checked ? 'multiple' : 'single')}
+                  label="Multiple Images (Cycle on Reload)"
+                  color="primary"
+                />
+              </div>
+              
+              {imageMode.home === 'single' ? (
+                <div>
+                  <ImageManager
+                    value={heroImages.home[0] || ''}
+                    onChange={(url) => updateHeroImages('home', url ? [url] : [])}
+                    label="Homepage Hero Image"
+                  />
                   <p style={{ 
-                    gridColumn: '1 / -1',
-                    textAlign: 'center',
-                    color: 'var(--text-secondary, #7f8c8d)',
-                    fontSize: '0.875rem'
+                    fontSize: '0.875rem', 
+                    color: 'var(--text-secondary, #7f8c8d)', 
+                    marginTop: '0.5rem' 
                   }}>
-                    Upload images above to see them here
+                    Single image that appears at the top of your homepage.
                   </p>
-                ) : (
-                  centralGallery.map((imageUrl, index) => (
-                    <div key={index} style={{ 
-                      position: 'relative',
-                      aspectRatio: '1',
-                      borderRadius: '8px',
-                      overflow: 'hidden',
-                      border: '2px solid var(--border-color, #e1e5e9)',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'scale(1.05)'
-                      e.currentTarget.style.borderColor = 'var(--primary-color, #007bff)'
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'scale(1)'
-                      e.currentTarget.style.borderColor = 'var(--border-color, #e1e5e9)'
-                    }}
-                    onClick={() => setSelectedImageForAssignment(imageUrl)}
+                </div>
+              ) : (
+                <div>
+                  <div style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem' }}>
+                    <TextInput
+                      placeholder="Enter image URL to add..."
+                      value={newImageUrls.home}
+                      onChange={(e) => setNewImageUrls(prev => ({ ...prev, home: e.target.value }))}
+                    />
+                    <Button
+                      variant="primary"
+                      onClick={() => addHeroImage('home')}
+                      disabled={!newImageUrls.home.trim()}
                     >
-                      <img 
-                        src={imageUrl} 
-                        alt={`Gallery image ${index + 1}`}
-                        style={{ 
-                          width: '100%', 
-                          height: '100%', 
-                          objectFit: 'cover'
-                        }}
-                      />
-                      {/* Remove button */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          removeImageFromCentralGallery(imageUrl)
-                        }}
-                        style={{
-                          position: 'absolute',
-                          top: '4px',
-                          right: '4px',
-                          background: 'rgba(0,0,0,0.7)',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '50%',
-                          width: '24px',
-                          height: '24px',
-                          cursor: 'pointer',
-                          fontSize: '14px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }}
-                        title="Remove from gallery"
-                      >
-                        ×
-                      </button>
-                      {/* Click overlay for assignment */}
-                      <div style={{
-                        position: 'absolute',
-                        bottom: '0',
-                        left: '0',
-                        right: '0',
-                        background: 'rgba(0,0,0,0.8)',
-                        color: 'white',
-                        padding: '4px 8px',
-                        fontSize: '0.75rem',
-                        textAlign: 'center'
+                      Add
+                    </Button>
+                  </div>
+                  <p style={{ 
+                    fontSize: '0.875rem', 
+                    color: 'var(--text-secondary, #7f8c8d)', 
+                    marginTop: '0.5rem' 
+                  }}>
+                    Images will cycle randomly on each page reload.
+                  </p>
+                  
+                  <div style={{ display: 'grid', gap: '0.5rem' }}>
+                    {heroImages.home.map((url, index) => (
+                      <div key={index} style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '0.5rem',
+                        padding: '0.5rem',
+                        background: 'var(--card-background, #f8f9fa)',
+                        borderRadius: '4px'
                       }}>
-                        Click to assign
+                        <span style={{ flex: 1, fontSize: '0.875rem', color: 'var(--text-secondary, #7f8c8d)' }}>
+                          {url.length > 50 ? `${url.substring(0, 50)}...` : url}
+                        </span>
+                        <Button
+                          variant="danger"
+                          size="small"
+                          onClick={() => removeHeroImage('home', index)}
+                        >
+                          Remove
+                        </Button>
                       </div>
-                    </div>
-                  ))
-                )}
-              </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </Card>
 
-          {/* Hero Image Assignment Sections */}
-          <h3 style={{ marginBottom: '2rem', fontSize: '1.25rem', fontWeight: 'bold' }}>
-            Assign Hero Images
-          </h3>
-
-          {/* Home Page Assignment */}
-          <Card title="🏠 Homepage Hero" style={{ marginBottom: '2rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-              <Switch
-                checked={imageMode.home === 'multiple'}
-                onChange={(checked) => updateImageMode('home', checked ? 'multiple' : 'single')}
-                label="Multiple Images (Cycle on Reload)"
-                color="primary"
-              />
-            </div>
-            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary, #7f8c8d)', marginBottom: '1rem' }}>
-              {imageMode.home === 'single' ? 'Single image for homepage header' : 'Multiple images that cycle randomly on page reload'}
-            </p>
-            
-            {/* Show currently assigned images */}
-            {heroImages.home.length > 0 && (
-              <div>
-                <h5 style={{ marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: '600' }}>
-                  Currently Assigned:
-                </h5>
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  {heroImages.home.map((url, index) => (
-                    <div key={index} style={{ 
-                      position: 'relative',
-                      width: '80px',
-                      height: '80px',
-                      borderRadius: '6px',
-                      overflow: 'hidden',
-                      border: '1px solid var(--border-color, #e1e5e9)'
-                    }}>
-                      <img 
-                        src={url} 
-                        alt={`Home hero ${index + 1}`}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      />
-                      <button
-                        onClick={() => removeHeroImage('home', index)}
-                        style={{
-                          position: 'absolute',
-                          top: '2px',
-                          right: '2px',
-                          background: 'rgba(0,0,0,0.7)',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '50%',
-                          width: '20px',
-                          height: '20px',
-                          cursor: 'pointer',
-                          fontSize: '12px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }}
-                        title="Remove from homepage"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
-                </div>
+          {/* Projects Page Images */}
+          <Card title="💼 Projects Page Hero Images" style={{ marginBottom: '2rem' }}>
+            <div style={{ marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                <Switch
+                  checked={imageMode.projects === 'multiple'}
+                  onChange={(checked) => updateImageMode('projects', checked ? 'multiple' : 'single')}
+                  label="Multiple Images (Cycle on Reload)"
+                  color="primary"
+                />
               </div>
-            )}
+              
+              {imageMode.projects === 'single' ? (
+                <div>
+                  <ImageManager
+                    value={heroImages.projects[0] || ''}
+                    onChange={(url) => updateHeroImages('projects', url ? [url] : [])}
+                    label="Projects Hero Image"
+                  />
+                  <p style={{ 
+                    fontSize: '0.875rem', 
+                    color: 'var(--text-secondary, #7f8c8d)', 
+                    marginTop: '0.5rem' 
+                  }}>
+                    Single image for the projects page header.
+                  </p>
+                </div>
+              ) : (
+                <div>
+                  <div style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem' }}>
+                    <TextInput
+                      placeholder="Enter image URL to add..."
+                      value={newImageUrls.projects}
+                      onChange={(e) => setNewImageUrls(prev => ({ ...prev, projects: e.target.value }))}
+                    />
+                    <Button
+                      variant="primary"
+                      onClick={() => addHeroImage('projects')}
+                      disabled={!newImageUrls.projects.trim()}
+                    >
+                      Add
+                    </Button>
+                  </div>
+                  
+                  <div style={{ display: 'grid', gap: '0.5rem' }}>
+                    {heroImages.projects.map((url, index) => (
+                      <div key={index} style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '0.5rem',
+                        padding: '0.5rem',
+                        background: 'var(--card-background, #f8f9fa)',
+                        borderRadius: '4px'
+                      }}>
+                        <span style={{ flex: 1, fontSize: '0.875rem', color: 'var(--text-secondary, #7f8c8d)' }}>
+                          {url.length > 50 ? `${url.substring(0, 50)}...` : url}
+                        </span>
+                        <Button
+                          variant="danger"
+                          size="small"
+                          onClick={() => removeHeroImage('projects', index)}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </Card>
 
-          {/* Projects Page Assignment */}
-          <Card title="💼 Projects Page Hero" style={{ marginBottom: '2rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-              <Switch
-                checked={imageMode.projects === 'multiple'}
-                onChange={(checked) => updateImageMode('projects', checked ? 'multiple' : 'single')}
-                label="Multiple Images (Cycle on Reload)"
-                color="primary"
-              />
-            </div>
-            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary, #7f8c8d)', marginBottom: '1rem' }}>
-              {imageMode.projects === 'single' ? 'Single image for projects page header' : 'Multiple images that cycle randomly on page reload'}
-            </p>
-            
-            {/* Show currently assigned images */}
-            {heroImages.projects.length > 0 && (
-              <div>
-                <h5 style={{ marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: '600' }}>
-                  Currently Assigned:
-                </h5>
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  {heroImages.projects.map((url, index) => (
-                    <div key={index} style={{ 
-                      position: 'relative',
-                      width: '80px',
-                      height: '80px',
-                      borderRadius: '6px',
-                      overflow: 'hidden',
-                      border: '1px solid var(--border-color, #e1e5e9)'
-                    }}>
-                      <img 
-                        src={url} 
-                        alt={`Projects hero ${index + 1}`}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      />
-                      <button
-                        onClick={() => removeHeroImage('projects', index)}
-                        style={{
-                          position: 'absolute',
-                          top: '2px',
-                          right: '2px',
-                          background: 'rgba(0,0,0,0.7)',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '50%',
-                          width: '20px',
-                          height: '20px',
-                          cursor: 'pointer',
-                          fontSize: '12px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }}
-                        title="Remove from projects page"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
-                </div>
+          {/* Admin Dashboard Images */}
+          <Card title="⚙️ Admin Dashboard Hero Images" style={{ marginBottom: '2rem' }}>
+            <div style={{ marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                <Switch
+                  checked={imageMode.admin === 'multiple'}
+                  onChange={(checked) => updateImageMode('admin', checked ? 'multiple' : 'single')}
+                  label="Multiple Images (Cycle on Reload)"
+                  color="primary"
+                />
               </div>
-            )}
+              
+              {imageMode.admin === 'single' ? (
+                <div>
+                  <ImageManager
+                    value={heroImages.admin[0] || ''}
+                    onChange={(url) => updateHeroImages('admin', url ? [url] : [])}
+                    label="Admin Dashboard Hero Image"
+                  />
+                  <p style={{ 
+                    fontSize: '0.875rem', 
+                    color: 'var(--text-secondary, #7f8c8d)', 
+                    marginTop: '0.5rem' 
+                  }}>
+                    Single image for the admin dashboard header.
+                  </p>
+                </div>
+              ) : (
+                <div>
+                  <div style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem' }}>
+                    <TextInput
+                      placeholder="Enter image URL to add..."
+                      value={newImageUrls.admin}
+                      onChange={(e) => setNewImageUrls(prev => ({ ...prev, admin: e.target.value }))}
+                    />
+                    <Button
+                      variant="primary"
+                      onClick={() => addHeroImage('admin')}
+                      disabled={!newImageUrls.admin.trim()}
+                    >
+                      Add
+                    </Button>
+                  </div>
+                  
+                  <div style={{ display: 'grid', gap: '0.5rem' }}>
+                    {heroImages.admin.map((url, index) => (
+                      <div key={index} style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '0.5rem',
+                        padding: '0.5rem',
+                        background: 'var(--card-background, #f8f9fa)',
+                        borderRadius: '4px'
+                      }}>
+                        <span style={{ flex: 1, fontSize: '0.875rem', color: 'var(--text-secondary, #7f8c8d)' }}>
+                          {url.length > 50 ? `${url.substring(0, 50)}...` : url}
+                        </span>
+                        <Button
+                          variant="danger"
+                          size="small"
+                          onClick={() => removeHeroImage('admin', index)}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </Card>
 
-          {/* Admin Page Assignment */}
-          <Card title="⚙️ Admin Dashboard Hero" style={{ marginBottom: '2rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-              <Switch
-                checked={imageMode.admin === 'multiple'}
-                onChange={(checked) => updateImageMode('admin', checked ? 'multiple' : 'single')}
-                label="Multiple Images (Cycle on Reload)"
-                color="primary"
-              />
-            </div>
-            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary, #7f8c8d)', marginBottom: '1rem' }}>
-              {imageMode.admin === 'single' ? 'Single image for admin dashboard header' : 'Multiple images that cycle randomly on page reload'}
-            </p>
-            
-            {/* Show currently assigned images */}
-            {heroImages.admin.length > 0 && (
-              <div>
-                <h5 style={{ marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: '600' }}>
-                  Currently Assigned:
-                </h5>
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  {heroImages.admin.map((url, index) => (
-                    <div key={index} style={{ 
-                      position: 'relative',
-                      width: '80px',
-                      height: '80px',
-                      borderRadius: '6px',
-                      overflow: 'hidden',
-                      border: '1px solid var(--border-color, #e1e5e9)'
-                    }}>
-                      <img 
-                        src={url} 
-                        alt={`Admin hero ${index + 1}`}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      />
-                      <button
-                        onClick={() => removeHeroImage('admin', index)}
-                        style={{
-                          position: 'absolute',
-                          top: '2px',
-                          right: '2px',
-                          background: 'rgba(0,0,0,0.7)',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '50%',
-                          width: '20px',
-                          height: '20px',
-                          cursor: 'pointer',
-                          fontSize: '12px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }}
-                        title="Remove from admin dashboard"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
-                </div>
+          {/* About Page Images */}
+          <Card title="👤 About Page Hero Images" style={{ marginBottom: '2rem' }}>
+            <div style={{ marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                <Switch
+                  checked={imageMode.about === 'multiple'}
+                  onChange={(checked) => updateImageMode('about', checked ? 'multiple' : 'single')}
+                  label="Multiple Images (Cycle on Reload)"
+                  color="primary"
+                />
               </div>
-            )}
-          </Card>
-
-          {/* About Page Assignment */}
-          <Card title="👤 About Page Hero" style={{ marginBottom: '2rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-              <Switch
-                checked={imageMode.about === 'multiple'}
-                onChange={(checked) => updateImageMode('about', checked ? 'multiple' : 'single')}
-                label="Multiple Images (Cycle on Reload)"
-                color="primary"
-              />
-            </div>
-            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary, #7f8c8d)', marginBottom: '1rem' }}>
-              {imageMode.about === 'single' ? 'Single image for about page header' : 'Multiple images that cycle randomly on page reload'}
-            </p>
-            
-            {/* Show currently assigned images */}
-            {heroImages.about.length > 0 && (
-              <div>
-                <h5 style={{ marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: '600' }}>
-                  Currently Assigned:
-                </h5>
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  {heroImages.about.map((url, index) => (
-                    <div key={index} style={{ 
-                      position: 'relative',
-                      width: '80px',
-                      height: '80px',
-                      borderRadius: '6px',
-                      overflow: 'hidden',
-                      border: '1px solid var(--border-color, #e1e5e9)'
-                    }}>
-                      <img 
-                        src={url} 
-                        alt={`About hero ${index + 1}`}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      />
-                      <button
-                        onClick={() => removeHeroImage('about', index)}
-                        style={{
-                          position: 'absolute',
-                          top: '2px',
-                          right: '2px',
-                          background: 'rgba(0,0,0,0.7)',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '50%',
-                          width: '20px',
-                          height: '20px',
-                          cursor: 'pointer',
-                          fontSize: '12px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }}
-                        title="Remove from about page"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
+              
+              {imageMode.about === 'single' ? (
+                <div>
+                  <ImageManager
+                    value={heroImages.about[0] || ''}
+                    onChange={(url) => updateHeroImages('about', url ? [url] : [])}
+                    label="About Page Hero Image"
+                  />
+                  <p style={{ 
+                    fontSize: '0.875rem', 
+                    color: 'var(--text-secondary, #7f8c8d)', 
+                    marginTop: '0.5rem' 
+                  }}>
+                    Single image for the about page header.
+                  </p>
                 </div>
-              </div>
-            )}
+              ) : (
+                <div>
+                  <div style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem' }}>
+                    <TextInput
+                      placeholder="Enter image URL to add..."
+                      value={newImageUrls.about}
+                      onChange={(e) => setNewImageUrls(prev => ({ ...prev, about: e.target.value }))}
+                    />
+                    <Button
+                      variant="primary"
+                      onClick={() => addHeroImage('about')}
+                      disabled={!newImageUrls.about.trim()}
+                    >
+                      Add
+                    </Button>
+                  </div>
+                  
+                  <div style={{ display: 'grid', gap: '0.5rem' }}>
+                    {heroImages.about.map((url, index) => (
+                      <div key={index} style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '0.5rem',
+                        padding: '0.5rem',
+                        background: 'var(--card-background, #f8f9fa)',
+                        borderRadius: '4px'
+                      }}>
+                        <span style={{ flex: 1, fontSize: '0.875rem', color: 'var(--text-secondary, #7f8c8d)' }}>
+                          {url.length > 50 ? `${url.substring(0, 50)}...` : url}
+                        </span>
+                        <Button
+                          variant="danger"
+                          size="small"
+                          onClick={() => removeHeroImage('about', index)}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </Card>
 
           <Button 
@@ -848,104 +747,6 @@ export default function AdminDashboard() {
           >
             Save All Hero Images
           </Button>
-          
-          {/* Image Assignment Modal */}
-          {selectedImageForAssignment && (
-            <div style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: 'rgba(0,0,0,0.5)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              zIndex: 1000
-            }}>
-              <div style={{
-                backgroundColor: 'var(--card-background, #ffffff)',
-                borderRadius: '12px',
-                padding: '2rem',
-                maxWidth: '500px',
-                width: '90%',
-                maxHeight: '80vh',
-                overflow: 'auto'
-              }}>
-                <h3 style={{ marginBottom: '1rem', fontSize: '1.25rem', fontWeight: 'bold' }}>
-                  Assign Image to Page
-                </h3>
-                
-                <div style={{ marginBottom: '1.5rem' }}>
-                  <img 
-                    src={selectedImageForAssignment} 
-                    alt="Selected image"
-                    style={{ 
-                      width: '100%', 
-                      height: '200px', 
-                      objectFit: 'cover',
-                      borderRadius: '8px',
-                      border: '1px solid var(--border-color, #e1e5e9)'
-                    }}
-                  />
-                </div>
-                
-                <p style={{ 
-                  marginBottom: '1.5rem',
-                  color: 'var(--text-secondary, #7f8c8d)',
-                  fontSize: '0.875rem'
-                }}>
-                  Choose which page to assign this image to:
-                </p>
-                
-                <div style={{ display: 'grid', gap: '0.5rem', marginBottom: '1.5rem' }}>
-                  <Button
-                    variant="ghost"
-                    onClick={() => {
-                      assignImageToPage(selectedImageForAssignment, 'home')
-                      setSelectedImageForAssignment(null)
-                    }}
-                  >
-                    🏠 Homepage Hero
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    onClick={() => {
-                      assignImageToPage(selectedImageForAssignment, 'projects')
-                      setSelectedImageForAssignment(null)
-                    }}
-                  >
-                    💼 Projects Page Hero
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    onClick={() => {
-                      assignImageToPage(selectedImageForAssignment, 'admin')
-                      setSelectedImageForAssignment(null)
-                    }}
-                  >
-                    ⚙️ Admin Dashboard Hero
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    onClick={() => {
-                      assignImageToPage(selectedImageForAssignment, 'about')
-                      setSelectedImageForAssignment(null)
-                    }}
-                  >
-                    👤 About Page Hero
-                  </Button>
-                </div>
-                
-                <Button
-                  variant="ghost"
-                  onClick={() => setSelectedImageForAssignment(null)}
-                >
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          )}
         </div>
       )
     },
@@ -963,6 +764,18 @@ export default function AdminDashboard() {
                   <div style={{ fontWeight: '500' }}>Edit About Page</div>
                   <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary, #7f8c8d)' }}>
                     Update your personal information and biography
+                  </div>
+                </div>
+              </Button>
+            </Link>
+
+            <Link to="/admin/edit-links" style={{ textDecoration: 'none' }}>
+              <Button variant="ghost" size="large" className="w-full justify-start">
+                <span style={{ marginRight: '1rem', fontSize: '1.5rem' }}>🔗</span>
+                <div className="text-left">
+                  <div style={{ fontWeight: '500' }}>Edit Links Page</div>
+                  <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary, #7f8c8d)' }}>
+                    Manage social media and contact links
                   </div>
                 </div>
               </Button>
@@ -1034,7 +847,7 @@ export default function AdminDashboard() {
                 position: 'absolute',
                 bottom: '1rem',
                 right: '1rem',
-                backgroundColor: 'var(--success-color, #27ae60)',
+                backgroundColor: '#10b981',
                 color: 'white',
                 padding: '0.75rem 1rem',
                 borderRadius: '0.5rem',
@@ -1102,150 +915,6 @@ export default function AdminDashboard() {
           defaultTab={0}
         />
       </div>
-
-      {/* Image Browser Modal */}
-      {showImageBrowser && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000
-        }}>
-          <div style={{
-            backgroundColor: 'var(--card-background, #ffffff)',
-            padding: '2rem',
-            borderRadius: '12px',
-            maxWidth: '80vw',
-            maxHeight: '80vh',
-            overflow: 'auto',
-            width: '600px'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h3 style={{ margin: 0 }}>
-                Select {browsingForMultiple ? 'Multiple Images' : 'Image'} for {showImageBrowser}
-              </h3>
-              <button
-                onClick={() => setShowImageBrowser(null)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '1.5rem',
-                  cursor: 'pointer',
-                  padding: '0.25rem'
-                }}
-              >
-                ×
-              </button>
-            </div>
-            
-            {availableImages.length === 0 ? (
-              <p style={{ textAlign: 'center', color: 'var(--text-secondary, #7f8c8d)' }}>
-                No images available. Upload some images first.
-              </p>
-            ) : (
-              <div>
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
-                  gap: '1rem',
-                  marginBottom: '1rem'
-                }}>
-                  {availableImages.map((url, index) => (
-                    <div
-                      key={index}
-                      onClick={() => selectImage(url)}
-                      style={{
-                        position: 'relative',
-                        aspectRatio: '1',
-                        borderRadius: '8px',
-                        overflow: 'hidden',
-                        border: selectedImages.includes(url) 
-                          ? '3px solid var(--primary-color, #3498db)'
-                          : '1px solid var(--border-color, #e1e5e9)',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease'
-                      }}
-                    >
-                      <img
-                        src={url}
-                        alt={`Available ${index + 1}`}
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover'
-                        }}
-                      />
-                      {selectedImages.includes(url) && (
-                        <div style={{
-                          position: 'absolute',
-                          top: '4px',
-                          right: '4px',
-                          backgroundColor: 'var(--primary-color, #3498db)',
-                          color: 'white',
-                          borderRadius: '50%',
-                          width: '24px',
-                          height: '24px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: '14px',
-                          fontWeight: 'bold'
-                        }}>
-                          ✓
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                
-                {browsingForMultiple && (
-                  <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
-                    <Button
-                      variant="ghost"
-                      onClick={() => setShowImageBrowser(null)}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      variant="primary"
-                      onClick={confirmMultipleSelection}
-                      disabled={selectedImages.length === 0}
-                    >
-                      Select {selectedImages.length} Image{selectedImages.length !== 1 ? 's' : ''}
-                    </Button>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Save Success Tooltip */}
-      {showSaveTooltip.show && (
-        <div style={{
-          position: 'fixed',
-          bottom: '2rem',
-          right: '2rem',
-          backgroundColor: 'var(--success-color, #27ae60)',
-          color: 'white',
-          padding: '1rem 1.5rem',
-          borderRadius: '8px',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-          zIndex: 1001,
-          animation: 'slideInUp 0.3s ease-out',
-          fontSize: '0.9rem',
-          fontWeight: '500'
-        }}>
-          {showSaveTooltip.message}
-        </div>
-      )}
     </div>
   )
 }
