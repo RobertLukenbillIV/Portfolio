@@ -52,7 +52,9 @@ export async function updateSettings(req: Request, res: Response) {
   const { 
     homeHeroUrl, homeIntro, githubUrl, linkedinUrl,
     homeHeroUrls, projectsHeroUrls, adminHeroUrls, aboutHeroUrls,
-    homeImageMode, projectsImageMode, adminImageMode, aboutImageMode
+    homeImageMode, projectsImageMode, adminImageMode, aboutImageMode,
+    homeDescription, projectsDescription, aboutDescription,
+    socialLinks
   } = req.body
   
   // Prepare data with JSON serialization for array fields
@@ -64,7 +66,10 @@ export async function updateSettings(req: Request, res: Response) {
     homeImageMode, 
     projectsImageMode, 
     adminImageMode, 
-    aboutImageMode
+    aboutImageMode,
+    homeDescription,
+    projectsDescription,
+    aboutDescription
   }
   
   // Serialize arrays to JSON strings with validation
@@ -79,6 +84,11 @@ export async function updateSettings(req: Request, res: Response) {
   }
   if (aboutHeroUrls && Array.isArray(aboutHeroUrls)) {
     updateData.aboutHeroUrls = JSON.stringify(aboutHeroUrls.filter(url => url && url.trim()))
+  }
+  
+  // Handle socialLinks - can be string or object
+  if (socialLinks) {
+    updateData.socialLinks = typeof socialLinks === 'string' ? socialLinks : JSON.stringify(socialLinks)
   }
   
   // Upsert to handle first-time setup or updates
