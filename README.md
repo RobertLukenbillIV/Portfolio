@@ -1,4 +1,6 @@
 
+# Personal Portfolio
+
 A modern, full-stack portfolio website with an admin CMS for managing projects and dynamic pages. Built with React, TypeScript, Node.js, and PostgreSQL.
 
 ## Tech Stack
