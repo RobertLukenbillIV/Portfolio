@@ -7,7 +7,7 @@ import { RichTextEditor } from '@/components/RichText'
 import { Hero, Card, TabbedCard, Button, Badge, LoadingWrapper, Avatar, Switch, TextInput } from '@/components/AcmeUI'
 
 export default function AdminDashboard() {
-  const { user } = useAuth()
+  const { user, loading } = useAuth()
   const navigate = useNavigate()
   const [intro, setIntro] = useState('')
   const [saving, setSaving] = useState(false)
@@ -65,6 +65,10 @@ export default function AdminDashboard() {
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
 
   useEffect(() => {
+    // Don't redirect while auth is still loading
+    if (loading) return
+    
+    // Redirect non-admin users to home
     if (user?.role !== 'ADMIN') {
       navigate('/')
       return
@@ -117,7 +121,7 @@ export default function AdminDashboard() {
         featuredPosts: posts.filter((p: any) => p.featured).length
       })
     })
-  }, [user, navigate])
+  }, [user, loading, navigate])
 
   async function save() {
     setSaving(true)
