@@ -52,11 +52,11 @@ export default function Home() {
       <Hero 
         backgroundImage={getRandomHeroImage(settings)}
         title="Robert Lukenbill IV"
-        subtitle={settings?.homeDescription || "Software Developer & Portfolio"}
+        subtitle="Software Developer & Portfolio"
         variant="static"
         height="60vh"
       >
-        {settings?.homeIntro && (
+        {settings?.homeDescription && (
           <div 
             style={{ 
               marginTop: '1rem',
@@ -67,8 +67,9 @@ export default function Home() {
               borderRadius: '8px',
               color: 'white'
             }}
-            dangerouslySetInnerHTML={{ __html: settings.homeIntro }}
-          />
+          >
+            {settings.homeDescription}
+          </div>
         )}
       </Hero>
 

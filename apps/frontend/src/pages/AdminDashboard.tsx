@@ -402,7 +402,7 @@ export default function AdminDashboard() {
 
           <h4 style={{ marginBottom: '1rem', marginTop: '2rem' }}>Page Descriptions</h4>
           <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary, #7f8c8d)', marginBottom: '1rem' }}>
-            These descriptions appear as subtitles in the hero sections of each page.
+            These descriptions appear in the hero sections. The home description displays in a styled box below the subtitle.
           </p>
           
           <div style={{ display: 'grid', gap: '1rem', marginBottom: '1.5rem' }}>
@@ -410,7 +410,7 @@ export default function AdminDashboard() {
               label="Home Page Description"
               value={pageDescriptions.home}
               onChange={(e) => setPageDescriptions({ ...pageDescriptions, home: e.target.value })}
-              placeholder="e.g., Software Developer & Portfolio"
+              placeholder="e.g., Welcome to my portfolio showcasing software development projects"
             />
             
             <TextInput
