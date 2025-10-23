@@ -13,6 +13,7 @@ type Settings = {
   homeHeroUrls?: string[]
   homeIntro?: string | null
   homeImageMode?: 'single' | 'multiple'
+  homeDescription?: string | null
 }
 type PostCard = { id: string; title: string; excerpt: string; coverUrl?: string | null }
 
@@ -51,7 +52,7 @@ export default function Home() {
       <Hero 
         backgroundImage={getRandomHeroImage(settings)}
         title="Robert Lukenbill IV"
-        subtitle="Software Developer & Portfolio"
+        subtitle={settings?.homeDescription || "Software Developer & Portfolio"}
         variant="static"
         height="60vh"
       >

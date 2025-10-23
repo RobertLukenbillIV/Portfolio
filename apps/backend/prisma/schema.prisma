@@ -72,6 +72,14 @@ model Settings {
   adminImageMode    String? @default("single")     // "single" or "multiple"
   aboutImageMode    String? @default("single")     // "single" or "multiple"
   
+  // Page descriptions/subtitles
+  homeDescription     String? // Subtitle/description for home page hero
+  projectsDescription String? // Subtitle/description for projects page hero
+  aboutDescription    String? // Subtitle/description for about page hero
+  
+  // Social media links (JSON array)
+  socialLinks String? // JSON array of {label, url, icon} objects
+  
   updatedAt   DateTime @updatedAt
   createdAt   DateTime @default(now())
 }

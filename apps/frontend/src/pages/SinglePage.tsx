@@ -12,6 +12,9 @@ export default function SinglePage({ slug, titleOverride }: { slug: 'about' | 'l
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [heroImage, setHeroImage] = useState<string>()
+  const [subtitle, setSubtitle] = useState<string>(
+    slug === 'about' ? 'Learn more about me' : 'Connect with me'
+  )
 
   useEffect(() => {
     const controller = new AbortController()
@@ -37,6 +40,12 @@ export default function SinglePage({ slug, titleOverride }: { slug: 'about' | 'l
     // Load hero image settings
     api.get('/settings').then(r => {
       const settings = r.data.settings || {}
+      
+      // Load description if available
+      if (slug === 'about' && settings.aboutDescription) {
+        setSubtitle(settings.aboutDescription)
+      }
+      
       const imageKey = slug === 'about' ? 'aboutHeroUrls' : 'projectsHeroUrls' // links uses projects for now
       const modeKey = slug === 'about' ? 'aboutImageMode' : 'projectsImageMode'
       
@@ -130,14 +139,12 @@ export default function SinglePage({ slug, titleOverride }: { slug: 'about' | 'l
   if (!page) {
     return (
       <div>
-        <Hero 
-          title={titleOverride ?? 'Page'}
-          subtitle="This page hasn't been created yet"
-          variant="static"
-          height="40vh"
-        />
-        
-        <div style={{ padding: '3rem 2rem', maxWidth: '1200px', margin: '0 auto' }}>
+      <Hero 
+        title={titleOverride ?? 'Page'}
+        subtitle={subtitle}
+        variant="static"
+        height="40vh"
+      />        <div style={{ padding: '3rem 2rem', maxWidth: '1200px', margin: '0 auto' }}>
           <Card title="Page Not Found">
             <p style={{ color: 'var(--text-secondary, #7f8c8d)', marginBottom: '1rem' }}>
               This page hasn't been created yet.
@@ -171,7 +178,7 @@ export default function SinglePage({ slug, titleOverride }: { slug: 'about' | 'l
     <div>
       <Hero 
         title={titleOverride ?? page.title}
-        subtitle={slug === 'about' ? 'Learn more about me' : 'Connect with me'}
+        subtitle={subtitle}
         variant="static"
         height="40vh"
         backgroundImage={heroImage}

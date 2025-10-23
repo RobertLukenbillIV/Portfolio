@@ -21,6 +21,7 @@ export default function Projects() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterFeatured, setFilterFeatured] = useState(false)
   const [heroImage, setHeroImage] = useState<string>()
+  const [projectsDescription, setProjectsDescription] = useState<string>('A collection of software development projects and experiments')
   const { user } = useAuth()
   
   useEffect(() => {
@@ -31,6 +32,12 @@ export default function Projects() {
     // Load hero image settings
     api.get('/settings').then(r => {
       const settings = r.data.settings || {}
+      
+      // Load description if available
+      if (settings.projectsDescription) {
+        setProjectsDescription(settings.projectsDescription)
+      }
+      
       if (settings.projectsHeroUrls && settings.projectsHeroUrls.length > 0) {
         if (settings.projectsImageMode === 'multiple' && settings.projectsHeroUrls.length > 1) {
           // Random selection for multiple images
@@ -87,7 +94,7 @@ export default function Projects() {
       {/* Hero Section */}
       <Hero 
         title="Projects Portfolio"
-        subtitle="A collection of software development projects and experiments"
+        subtitle={projectsDescription}
         variant="static"
         height="40vh"
         backgroundImage={heroImage}

@@ -30,7 +30,28 @@ export default function Footer() {
         const response = await api.get('/settings')
         const settings = response.data.settings || {}
         
-        // Use backend data if available, fallback to localStorage, then defaults
+        // Try to use new socialLinks format from settings
+        if (settings.socialLinks) {
+          try {
+            const parsedLinks = typeof settings.socialLinks === 'string'
+              ? JSON.parse(settings.socialLinks)
+              : settings.socialLinks
+            
+            // Convert to footer format (href instead of url)
+            const footerLinks = parsedLinks.map((link: any) => ({
+              href: link.url || link.href,
+              label: link.label,
+              icon: link.icon
+            }))
+            
+            setSocialLinks(footerLinks)
+            return // Success, exit early
+          } catch (e) {
+            console.error('Failed to parse social links:', e)
+          }
+        }
+        
+        // Fallback to old GitHub/LinkedIn format
         const githubUrl = settings.githubUrl || localStorage.getItem('admin_github_url') || 'https://github.com/RobertLukenbillIV'
         const linkedinUrl = settings.linkedinUrl || localStorage.getItem('admin_linkedin_url') || 'https://linkedin.com/in/robert-lukenbill'
         
@@ -47,24 +68,7 @@ export default function Footer() {
           }
         ])
       } catch (error) {
-        console.error('Failed to load settings from backend, using localStorage fallback:', error)
-        
-        // Fallback to localStorage if backend fails
-        const githubUrl = localStorage.getItem('admin_github_url') || 'https://github.com/RobertLukenbillIV'
-        const linkedinUrl = localStorage.getItem('admin_linkedin_url') || 'https://linkedin.com/in/robert-lukenbill'
-        
-        setSocialLinks([
-          {
-            href: githubUrl,
-            label: 'GitHub',
-            icon: '🐙'
-          },
-          {
-            href: linkedinUrl,
-            label: 'LinkedIn', 
-            icon: '💼'
-          }
-        ])
+        console.error('Failed to load settings from backend, using defaults:', error)
       }
     }
 

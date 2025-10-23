@@ -13,7 +13,21 @@ export default function AdminDashboard() {
   const [saving, setSaving] = useState(false)
   const [stats, setStats] = useState({ posts: 0, featuredPosts: 0 })
   
-  // Social media URLs state
+  // Page descriptions state
+  const [pageDescriptions, setPageDescriptions] = useState({
+    home: '',
+    projects: '',
+    about: ''
+  })
+  
+  // Social media links state (dynamic array)
+  type SocialLink = { label: string; url: string; icon: string }
+  const [socialLinks, setSocialLinks] = useState<SocialLink[]>([
+    { label: 'GitHub', url: '', icon: '🐙' },
+    { label: 'LinkedIn', url: '', icon: '💼' }
+  ])
+  
+  // Social media URLs state (legacy - keeping for backward compatibility)
   const [githubUrl, setGithubUrl] = useState('')
   const [linkedinUrl, setLinkedinUrl] = useState('')
   const [savingSocial, setSavingSocial] = useState(false)
@@ -79,9 +93,28 @@ export default function AdminDashboard() {
       const settings = r.data.settings || {}
       setIntro(settings.homeIntro ?? '')
       
-      // Load social media URLs from localStorage for now (until database migration is complete)
-      setGithubUrl(localStorage.getItem('admin_github_url') ?? 'https://github.com/RobertLukenbillIV')
-      setLinkedinUrl(localStorage.getItem('admin_linkedin_url') ?? 'https://linkedin.com/in/robert-lukenbill')
+      // Load page descriptions
+      setPageDescriptions({
+        home: settings.homeDescription ?? '',
+        projects: settings.projectsDescription ?? '',
+        about: settings.aboutDescription ?? ''
+      })
+      
+      // Load social links from backend settings or use defaults
+      if (settings.socialLinks) {
+        try {
+          const parsedLinks = typeof settings.socialLinks === 'string' 
+            ? JSON.parse(settings.socialLinks)
+            : settings.socialLinks
+          setSocialLinks(parsedLinks)
+        } catch (e) {
+          console.error('Failed to parse social links:', e)
+        }
+      }
+      
+      // Load social media URLs from localStorage for backward compatibility
+      setGithubUrl(localStorage.getItem('admin_github_url') ?? settings.githubUrl ?? 'https://github.com/RobertLukenbillIV')
+      setLinkedinUrl(localStorage.getItem('admin_linkedin_url') ?? settings.linkedinUrl ?? 'https://linkedin.com/in/robert-lukenbill')
       
       // Load hero images - support both old single format and new multiple format
       setHeroImages({
@@ -128,6 +161,10 @@ export default function AdminDashboard() {
     try {
       const settingsData = {
         homeIntro: intro,
+        // Save page descriptions
+        homeDescription: pageDescriptions.home,
+        projectsDescription: pageDescriptions.projects,
+        aboutDescription: pageDescriptions.about,
         // Save hero images and modes
         homeHeroUrls: heroImages.home,
         projectsHeroUrls: heroImages.projects,
@@ -154,9 +191,16 @@ export default function AdminDashboard() {
   async function saveSocialMedia() {
     setSavingSocial(true)
     try {
-      console.log('Saving social media:', { githubUrl, linkedinUrl })
+      console.log('Saving social media:', { socialLinks, githubUrl, linkedinUrl })
       
-      // Store in localStorage for now (until database migration is complete)
+      // Save to backend settings
+      await api.put('/settings', {
+        socialLinks: JSON.stringify(socialLinks),
+        githubUrl,  // Keep for backward compatibility
+        linkedinUrl // Keep for backward compatibility
+      })
+      
+      // Also store in localStorage for backward compatibility
       localStorage.setItem('admin_github_url', githubUrl)
       localStorage.setItem('admin_linkedin_url', linkedinUrl)
       
@@ -164,7 +208,7 @@ export default function AdminDashboard() {
       
       // Trigger a custom event to notify Footer component of changes
       window.dispatchEvent(new CustomEvent('socialMediaUpdated', {
-        detail: { githubUrl, linkedinUrl }
+        detail: { socialLinks, githubUrl, linkedinUrl }
       }))
       
       console.log('Dispatched custom event')
@@ -334,7 +378,7 @@ export default function AdminDashboard() {
           </div>
 
           <h4 style={{ marginBottom: '1rem' }}>Quick Actions</h4>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
             <Link to="/projects/new" style={{ textDecoration: 'none' }}>
               <Button variant="primary" size="large" className="w-full">
                 📝 Create New Project
@@ -347,6 +391,43 @@ export default function AdminDashboard() {
               </Button>
             </Link>
           </div>
+
+          <h4 style={{ marginBottom: '1rem', marginTop: '2rem' }}>Page Descriptions</h4>
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary, #7f8c8d)', marginBottom: '1rem' }}>
+            These descriptions appear as subtitles in the hero sections of each page.
+          </p>
+          
+          <div style={{ display: 'grid', gap: '1rem', marginBottom: '1.5rem' }}>
+            <TextInput
+              label="Home Page Description"
+              value={pageDescriptions.home}
+              onChange={(e) => setPageDescriptions({ ...pageDescriptions, home: e.target.value })}
+              placeholder="e.g., Software Developer & Portfolio"
+            />
+            
+            <TextInput
+              label="Projects Page Description"
+              value={pageDescriptions.projects}
+              onChange={(e) => setPageDescriptions({ ...pageDescriptions, projects: e.target.value })}
+              placeholder="e.g., A collection of software development projects"
+            />
+            
+            <TextInput
+              label="About Page Description"
+              value={pageDescriptions.about}
+              onChange={(e) => setPageDescriptions({ ...pageDescriptions, about: e.target.value })}
+              placeholder="e.g., Learn more about me"
+            />
+          </div>
+
+          <Button 
+            variant={saving ? 'secondary' : 'success'}
+            onClick={save}
+            disabled={saving}
+            size="large"
+          >
+            {saving ? 'Saving...' : '💾 Save Settings'}
+          </Button>
         </div>
       )
     },
@@ -759,44 +840,76 @@ export default function AdminDashboard() {
       icon: '🌐',
       content: (
         <div style={{ position: 'relative' }}>
-          <h3 style={{ marginBottom: '2rem', fontSize: '1.25rem', fontWeight: 'bold' }}>
+          <h3 style={{ marginBottom: '1rem', fontSize: '1.25rem', fontWeight: 'bold' }}>
             Social Media Links
           </h3>
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary, #7f8c8d)', marginBottom: '2rem' }}>
+            Manage social media links that appear in the footer. Add, edit, or remove links as needed.
+          </p>
           
-          <div style={{ display: 'grid', gap: '2rem', marginBottom: '2rem' }}>
-            {/* GitHub URL Input */}
-            <Card title="🐙 GitHub Profile">
-              <TextInput
-                label="GitHub URL"
-                value={githubUrl}
-                onChange={(e) => setGithubUrl(e.target.value)}
-                placeholder="https://github.com/username"
-              />
-              <p style={{ 
-                fontSize: '0.875rem', 
-                color: 'var(--text-secondary, #7f8c8d)', 
-                marginTop: '0.5rem' 
-              }}>
-                This URL will be displayed in the footer's GitHub button.
-              </p>
-            </Card>
+          {/* Dynamic Social Links */}
+          <div style={{ display: 'grid', gap: '1.5rem', marginBottom: '2rem' }}>
+            {socialLinks.map((link, index) => (
+              <Card key={index} title={`${link.icon} ${link.label}`}>
+                <div style={{ display: 'grid', gap: '1rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '1rem', alignItems: 'end' }}>
+                    <TextInput
+                      label="Label"
+                      value={link.label}
+                      onChange={(e) => {
+                        const newLinks = [...socialLinks]
+                        newLinks[index].label = e.target.value
+                        setSocialLinks(newLinks)
+                      }}
+                      placeholder="e.g., GitHub"
+                    />
+                    <TextInput
+                      label="Icon (emoji)"
+                      value={link.icon}
+                      onChange={(e) => {
+                        const newLinks = [...socialLinks]
+                        newLinks[index].icon = e.target.value
+                        setSocialLinks(newLinks)
+                      }}
+                      placeholder="🐙"
+                    />
+                    <Button
+                      variant="danger"
+                      size="small"
+                      onClick={() => {
+                        if (confirm(`Remove ${link.label}?`)) {
+                          setSocialLinks(socialLinks.filter((_, i) => i !== index))
+                        }
+                      }}
+                    >
+                      🗑️ Remove
+                    </Button>
+                  </div>
+                  <TextInput
+                    label="URL"
+                    value={link.url}
+                    onChange={(e) => {
+                      const newLinks = [...socialLinks]
+                      newLinks[index].url = e.target.value
+                      setSocialLinks(newLinks)
+                    }}
+                    placeholder="https://..."
+                  />
+                </div>
+              </Card>
+            ))}
+          </div>
 
-            {/* LinkedIn URL Input */}
-            <Card title="💼 LinkedIn Profile">
-              <TextInput
-                label="LinkedIn URL"
-                value={linkedinUrl}
-                onChange={(e) => setLinkedinUrl(e.target.value)}
-                placeholder="https://linkedin.com/in/username"
-              />
-              <p style={{ 
-                fontSize: '0.875rem', 
-                color: 'var(--text-secondary, #7f8c8d)', 
-                marginTop: '0.5rem' 
-              }}>
-                This URL will be displayed in the footer's LinkedIn button.
-              </p>
-            </Card>
+          {/* Add New Link Button */}
+          <div style={{ marginBottom: '2rem' }}>
+            <Button
+              variant="success"
+              onClick={() => {
+                setSocialLinks([...socialLinks, { label: 'New Link', url: '', icon: '🔗' }])
+              }}
+            >
+              ➕ Add New Social Link
+            </Button>
           </div>
 
           <Button 
