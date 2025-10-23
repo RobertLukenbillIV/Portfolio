@@ -39,12 +39,7 @@ export default function App() {
       { 
         label: 'Admin', 
         href: '/admin',
-        icon: '⚙️',
-        children: [
-          { label: 'Dashboard', href: '/admin' },
-          { label: 'New Project', href: '/projects/new' },
-          { label: 'Edit About', href: '/admin/edit-about' }
-        ]
+        icon: '⚙️'
       }
     ] : []),
     ...(user ? [] : [{ 
