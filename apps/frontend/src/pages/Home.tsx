@@ -83,7 +83,7 @@ export default function Home() {
         height: '100vh',
         background: heroImageUrl 
           ? `url(${heroImageUrl})`
-          : 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)',
+          : '#ffffff',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }} />

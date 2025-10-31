@@ -115,18 +115,18 @@ export default function SinglePage({ slug, titleOverride }: { slug: 'about' | 'l
         alignItems: 'center',
         justifyContent: 'center',
         background: heroImage
-          ? `linear-gradient(rgba(52, 152, 219, 0.7), rgba(41, 128, 185, 0.7)), url(${heroImage})`
-          : 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)',
+          ? `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url(${heroImage})`
+          : '#ffffff',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        color: 'white'
+        color: '#374151'
       }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{
             width: '50px',
             height: '50px',
-            border: '4px solid rgba(255, 255, 255, 0.3)',
-            borderTop: '4px solid white',
+            border: '4px solid rgba(55, 65, 81, 0.3)',
+            borderTop: '4px solid #374151',
             borderRadius: '50%',
             animation: 'spin 1s linear infinite',
             margin: '0 auto 1rem'
