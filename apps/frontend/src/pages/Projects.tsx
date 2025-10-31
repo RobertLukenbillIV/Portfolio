@@ -21,6 +21,7 @@ export default function Projects() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterFeatured, setFilterFeatured] = useState(false)
   const [heroImage, setHeroImage] = useState<string>()
+  const [heroImageLoaded, setHeroImageLoaded] = useState(false)
   const [projectsDescription, setProjectsDescription] = useState<string>('A collection of software development projects and experiments')
   const { user } = useAuth()
   
@@ -38,22 +39,37 @@ export default function Projects() {
         setProjectsDescription(settings.projectsDescription)
       }
       
+      let imageUrl: string
       if (settings.projectsHeroUrls && settings.projectsHeroUrls.length > 0) {
         if (settings.projectsImageMode === 'multiple' && settings.projectsHeroUrls.length > 1) {
           // Random selection for multiple images
           const randomIndex = Math.floor(Math.random() * settings.projectsHeroUrls.length)
-          setHeroImage(settings.projectsHeroUrls[randomIndex])
+          imageUrl = settings.projectsHeroUrls[randomIndex]
         } else {
           // Single image mode or only one image available
-          setHeroImage(settings.projectsHeroUrls[0])
+          imageUrl = settings.projectsHeroUrls[0]
         }
       } else {
         // Fallback to default image
-        setHeroImage("https://picsum.photos/1920/600?random=projects")
+        imageUrl = "https://picsum.photos/1920/600?random=projects"
       }
+      
+      setHeroImage(imageUrl)
+      
+      // Preload the hero image
+      const img = new Image()
+      img.onload = () => setHeroImageLoaded(true)
+      img.onerror = () => setHeroImageLoaded(true) // Show page even if image fails
+      img.src = imageUrl
     }).catch(() => {
       // Fallback on error
-      setHeroImage("https://picsum.photos/1920/600?random=projects")
+      const fallbackImage = "https://picsum.photos/1920/600?random=projects"
+      setHeroImage(fallbackImage)
+      
+      const img = new Image()
+      img.onload = () => setHeroImageLoaded(true)
+      img.onerror = () => setHeroImageLoaded(true)
+      img.src = fallbackImage
     })
   }, [user])
 
@@ -87,6 +103,39 @@ export default function Projects() {
       console.error('Failed to toggle featured status:', err)
       alert('Failed to update featured status. Please try again.')
     }
+  }
+
+  // Show loading state while hero image is loading
+  if (!heroImageLoaded) {
+    return (
+      <div style={{
+        height: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)',
+        color: 'white'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: '50px',
+            height: '50px',
+            border: '4px solid rgba(255, 255, 255, 0.3)',
+            borderTop: '4px solid white',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 1rem'
+          }} />
+          <p style={{ fontSize: '1.1rem', opacity: 0.9 }}>Loading...</p>
+        </div>
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    )
   }
 
   return (

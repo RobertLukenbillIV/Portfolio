@@ -12,6 +12,7 @@ export default function SinglePage({ slug, titleOverride }: { slug: 'about' | 'l
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [heroImage, setHeroImage] = useState<string>()
+  const [heroImageLoaded, setHeroImageLoaded] = useState(false)
   const [subtitle, setSubtitle] = useState<string>(
     slug === 'about' ? 'Learn more about me' : 'Connect with me'
   )
@@ -49,28 +50,41 @@ export default function SinglePage({ slug, titleOverride }: { slug: 'about' | 'l
       const imageKey = slug === 'about' ? 'aboutHeroUrls' : 'projectsHeroUrls' // links uses projects for now
       const modeKey = slug === 'about' ? 'aboutImageMode' : 'projectsImageMode'
       
+      let imageUrl: string
       if (settings[imageKey] && settings[imageKey].length > 0) {
         if (settings[modeKey] === 'multiple' && settings[imageKey].length > 1) {
           // Random selection for multiple images
           const randomIndex = Math.floor(Math.random() * settings[imageKey].length)
-          setHeroImage(settings[imageKey][randomIndex])
+          imageUrl = settings[imageKey][randomIndex]
         } else {
           // Single image mode or only one image available
-          setHeroImage(settings[imageKey][0])
+          imageUrl = settings[imageKey][0]
         }
       } else {
         // Fallback to default images
-        setHeroImage(slug === 'about' 
+        imageUrl = slug === 'about' 
           ? "https://picsum.photos/1920/600?random=about" 
           : "https://picsum.photos/1920/600?random=links"
-        )
       }
+      
+      setHeroImage(imageUrl)
+      
+      // Preload the hero image
+      const img = new Image()
+      img.onload = () => setHeroImageLoaded(true)
+      img.onerror = () => setHeroImageLoaded(true) // Show page even if image fails
+      img.src = imageUrl
     }).catch(() => {
       // Fallback on error
-      setHeroImage(slug === 'about' 
+      const fallbackImage = slug === 'about' 
         ? "https://picsum.photos/1920/600?random=about" 
         : "https://picsum.photos/1920/600?random=links"
-      )
+      setHeroImage(fallbackImage)
+      
+      const img = new Image()
+      img.onload = () => setHeroImageLoaded(true)
+      img.onerror = () => setHeroImageLoaded(true)
+      img.src = fallbackImage
     })
     
     return () => {
@@ -91,6 +105,38 @@ export default function SinglePage({ slug, titleOverride }: { slug: 'about' | 'l
     } finally {
       setSaving(false)
     }
+  }
+
+  if (loading || !heroImageLoaded) {
+    return (
+      <div style={{
+        height: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)',
+        color: 'white'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: '50px',
+            height: '50px',
+            border: '4px solid rgba(255, 255, 255, 0.3)',
+            borderTop: '4px solid white',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 1rem'
+          }} />
+          <p style={{ fontSize: '1.1rem', opacity: 0.9 }}>Loading...</p>
+        </div>
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    )
   }
 
   if (loading) {

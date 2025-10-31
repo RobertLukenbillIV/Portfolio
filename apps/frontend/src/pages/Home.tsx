@@ -40,17 +40,79 @@ const getRandomHeroImage = (settings: Settings | null): string | undefined => {
 export default function Home() {
   const [settings, setSettings] = useState<Settings | null>(null)
   const [featured, setFeatured] = useState<PostCard[]>([])
+  const [heroImageLoaded, setHeroImageLoaded] = useState(false)
+  const [heroImageUrl, setHeroImageUrl] = useState<string | undefined>(undefined)
 
   useEffect(() => {
+    // Fetch settings and featured posts
     api.get('/settings').then(r => setSettings(r.data.settings ?? {}))
     api.get('/posts/featured?limit=3').then(r => setFeatured(r.data.posts ?? []))
   }, [])
+
+  // Preload hero image when settings are loaded
+  useEffect(() => {
+    if (!settings) return
+
+    const imageUrl = getRandomHeroImage(settings)
+    setHeroImageUrl(imageUrl)
+
+    if (!imageUrl) {
+      // No image to load, just show the gradient
+      setHeroImageLoaded(true)
+      return
+    }
+
+    // Preload the image
+    const img = new Image()
+    img.onload = () => {
+      setHeroImageLoaded(true)
+    }
+    img.onerror = () => {
+      // If image fails to load, still show the page with gradient fallback
+      console.warn('Hero image failed to load:', imageUrl)
+      setHeroImageLoaded(true)
+    }
+    img.src = imageUrl
+  }, [settings])
+
+  // Show loading state while hero image is loading
+  if (!heroImageLoaded) {
+    return (
+      <div style={{
+        height: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)',
+        color: 'white'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: '50px',
+            height: '50px',
+            border: '4px solid rgba(255, 255, 255, 0.3)',
+            borderTop: '4px solid white',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 1rem'
+          }} />
+          <p style={{ fontSize: '1.1rem', opacity: 0.9 }}>Loading...</p>
+        </div>
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    )
+  }
 
   return (
     <div>
       {/* Hero Section */}
       <Hero 
-        backgroundImage={getRandomHeroImage(settings)}
+        backgroundImage={heroImageUrl}
         title="Robert Lukenbill IV"
         subtitle="Software Developer & Portfolio"
         variant="static"
