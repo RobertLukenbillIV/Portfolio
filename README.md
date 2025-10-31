@@ -16,7 +16,7 @@ A modern, full-stack portfolio website with an admin CMS for managing projects a
 - **Project Portfolio** - Showcase up to 3 featured projects on homepage, full project listings with detail pages
 - **Dynamic Pages** - Editable About and Links pages with customizable hero descriptions
 - **Admin CMS** - Rich text editor, image gallery, project management, site-wide settings
-- **Image Management** - Upload images or use URLs, browse gallery, delete unused files
+- **Image Management** - Upload to Cloudinary (persistent) or local storage (development), browse gallery, delete files
 - **Authentication** - Secure JWT-based admin login with role-based permissions
 - **Responsive Design** - Mobile-first UI that works on all devices
 
@@ -68,6 +68,11 @@ Portfolio/
    DATABASE_URL="postgresql://user:pass@localhost:5432/portfolio"
    JWT_SECRET="your-secret-key"
    CORS_ORIGINS="http://localhost:5173"
+   
+   # Optional: For persistent image storage (recommended for production)
+   CLOUDINARY_CLOUD_NAME=""
+   CLOUDINARY_API_KEY=""
+   CLOUDINARY_API_SECRET=""
    ```
    
    Create `apps/frontend/.env`:
@@ -138,6 +143,8 @@ Portfolio/
 - Build: `cd apps/backend && pnpm build`
 - Start: `cd apps/backend && pnpm start`
 - Env: `DATABASE_URL`, `JWT_SECRET`, `NODE_ENV`, `CORS_ORIGINS`
+- Optional: `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
+- **Important:** Set up [Cloudinary](CLOUDINARY_SETUP.md) for persistent image storage
 
 **Database (Neon)**
 - Create project, copy connection string
