@@ -83,7 +83,11 @@ export default function Home() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)',
+        background: heroImageUrl 
+          ? `linear-gradient(rgba(52, 152, 219, 0.7), rgba(41, 128, 185, 0.7)), url(${heroImageUrl})`
+          : 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
         color: 'white'
       }}>
         <div style={{ textAlign: 'center' }}>
