@@ -21,56 +21,46 @@ export default function Projects() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterFeatured, setFilterFeatured] = useState(false)
   const [heroImage, setHeroImage] = useState<string>()
-  const [heroImageLoaded, setHeroImageLoaded] = useState(false)
   const [projectsDescription, setProjectsDescription] = useState<string>('A collection of software development projects and experiments')
+  const [loading, setLoading] = useState(true)
   const { user } = useAuth()
   
   useEffect(() => {
     // Use public endpoint for regular users, admin endpoint for admins
     const endpoint = user?.role === 'ADMIN' ? '/posts' : '/posts/public'
-    api.get(endpoint).then(r => setPosts(r.data.posts ?? []))
     
-    // Load hero image settings
-    api.get('/settings').then(r => {
-      const settings = r.data.settings || {}
-      
-      // Load description if available
-      if (settings.projectsDescription) {
-        setProjectsDescription(settings.projectsDescription)
-      }
-      
-      let imageUrl: string
-      if (settings.projectsHeroUrls && settings.projectsHeroUrls.length > 0) {
-        if (settings.projectsImageMode === 'multiple' && settings.projectsHeroUrls.length > 1) {
-          // Random selection for multiple images
-          const randomIndex = Math.floor(Math.random() * settings.projectsHeroUrls.length)
-          imageUrl = settings.projectsHeroUrls[randomIndex]
-        } else {
-          // Single image mode or only one image available
-          imageUrl = settings.projectsHeroUrls[0]
+    Promise.all([
+      api.get(endpoint).then(r => setPosts(r.data.posts ?? [])),
+      api.get('/settings').then(r => {
+        const settings = r.data.settings || {}
+        
+        // Load description if available
+        if (settings.projectsDescription) {
+          setProjectsDescription(settings.projectsDescription)
         }
-      } else {
-        // Fallback to default image
-        imageUrl = "https://picsum.photos/1920/600?random=projects"
-      }
-      
-      setHeroImage(imageUrl)
-      
-      // Preload the hero image
-      const img = new Image()
-      img.onload = () => setHeroImageLoaded(true)
-      img.onerror = () => setHeroImageLoaded(true) // Show page even if image fails
-      img.src = imageUrl
-    }).catch(() => {
+        
+        let imageUrl: string
+        if (settings.projectsHeroUrls && settings.projectsHeroUrls.length > 0) {
+          if (settings.projectsImageMode === 'multiple' && settings.projectsHeroUrls.length > 1) {
+            // Random selection for multiple images
+            const randomIndex = Math.floor(Math.random() * settings.projectsHeroUrls.length)
+            imageUrl = settings.projectsHeroUrls[randomIndex]
+          } else {
+            // Single image mode or only one image available
+            imageUrl = settings.projectsHeroUrls[0]
+          }
+        } else {
+          // Fallback to default image
+          imageUrl = "https://picsum.photos/1920/600?random=projects"
+        }
+        
+        setHeroImage(imageUrl)
+      })
+    ]).catch(() => {
       // Fallback on error
       const fallbackImage = "https://picsum.photos/1920/600?random=projects"
       setHeroImage(fallbackImage)
-      
-      const img = new Image()
-      img.onload = () => setHeroImageLoaded(true)
-      img.onerror = () => setHeroImageLoaded(true)
-      img.src = fallbackImage
-    })
+    }).finally(() => setLoading(false))
   }, [user])
 
   // Filter posts based on search term and featured filter
@@ -105,16 +95,10 @@ export default function Projects() {
     }
   }
 
-  // Show loading state while hero image is loading
-  if (!heroImageLoaded) {
+  // Show loading spinner while fetching data
+  if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen" style={{
-        background: heroImage 
-          ? `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url(${heroImage})`
-          : '#ffffff',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }}>
+      <div className="flex items-center justify-center min-h-screen bg-white">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
           <p className="mt-4 text-gray-700">Loading...</p>

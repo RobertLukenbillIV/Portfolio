@@ -278,6 +278,18 @@ app.use((err: any, req: any, res: any, next: any) => {
   next(err)
 })
 
+// Global error handler for unhandled async errors in routes
+// This prevents unhandled promise rejections from crashing the server
+app.use((err: any, req: any, res: any, next: any) => {
+  console.error('Unhandled route error:', err)
+  
+  // Don't expose sensitive error details in production
+  const isDev = process.env.NODE_ENV !== 'production'
+  const message = isDev ? err.message : 'Internal server error'
+  
+  res.status(500).json({ error: message })
+})
+
 // Attach user information to all requests (if JWT cookie present)
 // This middleware runs before all routes and populates req.user
 app.use(attachUser)

@@ -11,15 +11,32 @@ import type { AuthRequest } from '../middleware/auth'          // Type for authe
 // Called by: frontend Login component when user submits credentials
 // Returns: user info (password excluded) and sets httpOnly cookie
 export async function login(req: Request, res: Response) {
-  const { email, password } = req.body as { email: string; password: string }
-  
-  // Delegate authentication logic to service layer
-  const { user, token } = await svcLogin(email, password)
+  try {
+    const { email, password } = req.body as { email: string; password: string }
+    
+    // Validate required fields
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' })
+    }
+    
+    // Delegate authentication logic to service layer
+    const { user, token } = await svcLogin(email, password)
 
-  // Set JWT as httpOnly cookie (more secure than localStorage)
-  // Cookie options handle secure/sameSite settings based on environment
-  res.cookie(COOKIE_NAME, token, cookieOptions(req))
-  res.json({ user }) // Return user info to frontend
+    // Set JWT as httpOnly cookie (more secure than localStorage)
+    // Cookie options handle secure/sameSite settings based on environment
+    res.cookie(COOKIE_NAME, token, cookieOptions(req))
+    res.json({ user }) // Return user info to frontend
+  } catch (error: any) {
+    // Handle authentication errors gracefully
+    console.error('Login error:', error.message)
+    
+    if (error.message === 'INVALID_CREDENTIALS') {
+      return res.status(401).json({ error: 'Invalid email or password' })
+    }
+    
+    // Handle other database/server errors
+    return res.status(500).json({ error: 'Internal server error' })
+  }
 }
 
 // GET /api/auth/me - Get current user info from JWT

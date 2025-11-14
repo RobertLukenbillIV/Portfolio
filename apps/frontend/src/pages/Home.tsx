@@ -40,53 +40,25 @@ const getRandomHeroImage = (settings: Settings | null): string | undefined => {
 export default function Home() {
   const [settings, setSettings] = useState<Settings | null>(null)
   const [featured, setFeatured] = useState<PostCard[]>([])
-  const [heroImageLoaded, setHeroImageLoaded] = useState(false)
-  const [heroImageUrl, setHeroImageUrl] = useState<string | undefined>(undefined)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     // Fetch settings and featured posts
-    api.get('/settings').then(r => setSettings(r.data.settings ?? {}))
-    api.get('/posts/featured?limit=3').then(r => setFeatured(r.data.posts ?? []))
+    Promise.all([
+      api.get('/settings').then(r => setSettings(r.data.settings ?? {})),
+      api.get('/posts/featured?limit=3').then(r => setFeatured(r.data.posts ?? []))
+    ]).finally(() => setLoading(false))
   }, [])
 
-  // Preload hero image when settings are loaded
-  useEffect(() => {
-    if (!settings) return
-
-    const imageUrl = getRandomHeroImage(settings)
-    setHeroImageUrl(imageUrl)
-
-    if (!imageUrl) {
-      // No image to load, just show the gradient
-      setHeroImageLoaded(true)
-      return
-    }
-
-    // Preload the image
-    const img = new Image()
-    img.onload = () => {
-      setHeroImageLoaded(true)
-    }
-    img.onerror = () => {
-      // If image fails to load, still show the page with gradient fallback
-      console.warn('Hero image failed to load:', imageUrl)
-      setHeroImageLoaded(true)
-    }
-    img.src = imageUrl
-  }, [settings])
-
-  // For initial page load, just wait silently - no loading spinner
-  // This prevents flash of loading screen on first visit
-  if (!heroImageLoaded) {
+  // Show loading spinner while fetching data
+  if (loading) {
     return (
-      <div style={{
-        height: '100vh',
-        background: heroImageUrl 
-          ? `url(${heroImageUrl})`
-          : '#ffffff',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }} />
+      <div className="flex items-center justify-center min-h-screen bg-white">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+          <p className="mt-4 text-gray-700">Loading...</p>
+        </div>
+      </div>
     )
   }
 
@@ -94,7 +66,7 @@ export default function Home() {
     <div>
       {/* Hero Section */}
       <Hero 
-        backgroundImage={heroImageUrl}
+        backgroundImage={getRandomHeroImage(settings)}
         title="Robert Lukenbill IV"
         subtitle="Software Developer & Portfolio"
         variant="static"

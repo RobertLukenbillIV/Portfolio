@@ -42,8 +42,10 @@ This is a **pnpm monorepo** with React frontend + Node.js backend + Prisma ORM. 
 - Frontend: Access via `const { user } = useAuth()` hook
 
 ### Database Patterns & Prisma
-- **Models**: `User`, `Post` (projects), `Page` (About/Links), `Settings` (hero), `Image`
-- **Featured system**: `Post.featured` boolean, max 3 for homepage
+- **Models**: `User`, `Post` (projects), `Page` (About/Links), `Settings` (hero + social), `Image`
+- **Featured system**: `Post.featured` boolean, max 3 for homepage display
+- **Hero system**: `Settings` stores JSON arrays of hero images per page (`homeHeroUrls`, `projectsHeroUrls`, etc.)
+- **Image modes**: Each page supports `single` or `multiple` hero image display modes
 - **Data access**: Use shared `prisma` instance from `lib/db.ts` (not local instances)
 - **CRITICAL**: Always run `prisma generate` before tests/builds to avoid initialization errors
 - **Schema changes**: Always run `prisma generate` → `prisma migrate deploy`
@@ -99,14 +101,18 @@ import app from '../../app'
 - **Route protection**: Check `user?.role === 'ADMIN'` for admin features
 - **File naming**: PascalCase components, camelCase utilities
 - **Component structure**: Pages in `pages/`, reusable UI in `components/`
+- **UI Framework**: Custom ACME UI components (`Hero`, `Card`, `Button`, `Badge`, `Switch`, etc.) for consistent design
+- **Loading states**: Use `Promise.all()` for parallel API calls, show spinners during data fetching
 
-### Upload & File Handling
+### Upload & File Handling (Cloudinary + Local Fallback)
 - **Images**: Upload via `POST /api/upload/image` with `multipart/form-data`
-- **Storage**: Local filesystem at `uploads/images/` (timestamped filenames)
-- **Serving**: Static files via Express at `/uploads` route
-- **Gallery**: `GET /api/upload/list` returns uploaded image URLs
+- **Storage**: **Cloudinary (production)** for persistent CDN storage, **local filesystem (development)** fallback
+- **Configuration**: Auto-detects Cloudinary via `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
+- **Serving**: Cloudinary CDN URLs in production, Express static middleware for local development
+- **Gallery**: `GET /api/upload/images` returns image metadata from Cloudinary or filesystem
 - **Frontend components**: `ImageManager` (full upload/gallery UI), `ImageInput` (upload only), `ImageGallery` (browse/select)
 - **Dual-mode**: Supports both file uploads and URL input for external images
+- **CRITICAL**: Local storage is **ephemeral on Render** - images are lost on deployment without Cloudinary
 
 ## Integration Points
 - **Cookie auth**: Same-site for localhost, cross-origin for production (Vercel ↔ Render)
